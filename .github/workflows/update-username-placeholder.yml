@@ -1,0 +1,46 @@
+name: Update username placeholder
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/update-username-placeholder.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update placeholder
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          index_path = Path('index.html')
+          workflow_path = Path('.github/workflows/update-username-placeholder.yml')
+
+          content = index_path.read_text(encoding='utf-8')
+          old = 'placeholder="Example: Markellos, Maria, Custom User"'
+          new = 'placeholder="Example: Username"'
+
+          if old not in content:
+              raise SystemExit('Expected placeholder not found.')
+
+          index_path.write_text(content.replace(old, new, 1), encoding='utf-8')
+
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+
+      - name: Commit change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/update-username-placeholder.yml
+          git commit -m "Update username placeholder" || echo "No changes to commit"
+          git push
