@@ -138,6 +138,18 @@ header p {
   padding: 10px 12px;
 }
 
+.main-category-node {
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  border: 1px solid #93c5fd;
+  border-left: 6px solid #2563eb;
+  padding: 14px 14px;
+  margin-bottom: 4px;
+}
+
+.main-category-node .node-name {
+  font-size: 17px;
+}
+
 .node-content {
   display: grid;
   gap: 3px;
