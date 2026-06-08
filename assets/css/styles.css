@@ -59,6 +59,10 @@ header p {
   color: var(--muted);
 }
 
+.feedback-open-button {
+  flex-shrink: 0;
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -360,6 +364,17 @@ button.danger {
   font-size: 13px;
 }
 
+.site-footer {
+  padding: 18px 28px 28px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
 .modal {
   position: fixed;
   inset: 0;
@@ -368,6 +383,7 @@ button.danger {
   justify-content: center;
   background: rgba(15, 23, 42, 0.55);
   padding: 18px;
+  z-index: 20;
 }
 
 .modal.hidden,
@@ -383,8 +399,55 @@ button.danger {
   box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
 }
 
+.feedback-modal-card {
+  width: min(620px, 100%);
+}
+
+.modal-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 24px;
+}
+
+.icon-button:hover {
+  background: #f3f4f6;
+  color: var(--text);
+}
+
 .modal-card h2 {
   margin: 0 0 8px 0;
+}
+
+.feedback-intro {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--soft);
+}
+
+.feedback-intro span {
+  color: var(--muted);
+}
+
+.feedback-actions {
+  justify-content: flex-start;
 }
 
 .modal-context,
@@ -423,6 +486,10 @@ textarea {
   resize: vertical;
 }
 
+#feedbackMessage {
+  min-height: 150px;
+}
+
 .examples-box {
   margin-top: 12px;
   padding: 12px;
@@ -453,6 +520,7 @@ textarea {
 
 .modal-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
   margin-top: 16px;
@@ -465,6 +533,10 @@ textarea {
 
   .header-row {
     display: grid;
+  }
+
+  .feedback-open-button {
+    justify-self: start;
   }
 
   .tree-container,
