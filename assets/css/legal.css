@@ -61,6 +61,10 @@ body {
   z-index: 30;
 }
 
+.cookie-notice.hidden {
+  display: none !important;
+}
+
 .cookie-notice p {
   margin: 6px 0 0;
   color: var(--muted);
@@ -96,6 +100,10 @@ body {
   .cookie-notice {
     bottom: 120px;
     display: grid;
+  }
+
+  .cookie-notice.hidden {
+    display: none !important;
   }
 
   .cookie-actions {
