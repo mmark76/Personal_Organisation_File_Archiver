@@ -1,0 +1,115 @@
+name: Convert structure textareas
+
+on:
+  push:
+    paths:
+      - '.github/workflows/convert-structure-textareas.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Convert textareas to multi-select dropdowns
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          index_path = Path('index.html')
+          js_path = Path('assets/js/app.js')
+          workflow_path = Path('.github/workflows/convert-structure-textareas.yml')
+
+          index = index_path.read_text(encoding='utf-8')
+          js = js_path.read_text(encoding='utf-8')
+
+          replacements = [
+              ('<textarea id="workPeriods" placeholder="One per line. Example:\n2002-2010_PRIVATE_SECTOR\n2010-2019_PUBLIC_SECTOR\n2019-NOW_CURRENT_ROLE"></textarea>', '<select id="workPeriods" multiple size="5"><option value="2002-2010_PRIVATE_SECTOR">2002-2010_PRIVATE_SECTOR</option><option value="2010-2019_PUBLIC_SECTOR">2010-2019_PUBLIC_SECTOR</option><option value="2019-NOW_CURRENT_ROLE">2019-NOW_CURRENT_ROLE</option><option value="CURRENT_ROLE">CURRENT_ROLE</option><option value="Other">Other</option></select>'),
+              ('<textarea id="workSubjects" placeholder="One per line. Example:\nPROJECTS\nADMINISTRATION\nHEALTH_AND_SAFETY\nREFERENCE"></textarea>', '<select id="workSubjects" multiple size="7"><option value="PROJECTS">PROJECTS</option><option value="ADMINISTRATION">ADMINISTRATION</option><option value="HEALTH_AND_SAFETY">HEALTH_AND_SAFETY</option><option value="MARINAS_PPP_DBFOT">MARINAS_PPP_DBFOT</option><option value="STATE_FAIR">STATE_FAIR</option><option value="REFERENCE">REFERENCE</option><option value="Other">Other</option></select>'),
+              ('<textarea id="personalThemes" placeholder="One per line. Example:\nFAMILY\nHEALTH\nFINANCIAL\nTRAVELS\nINTERESTS\nREFERENCE"></textarea>', '<select id="personalThemes" multiple size="8"><option value="FAMILY">FAMILY</option><option value="HEALTH">HEALTH</option><option value="FINANCIAL">FINANCIAL</option><option value="TRAVELS">TRAVELS</option><option value="INTERESTS">INTERESTS</option><option value="LEARNING">LEARNING</option><option value="REFERENCE">REFERENCE</option><option value="Other">Other</option></select>'),
+              ('<textarea id="interests" placeholder="One per line. Example:\nCHESS\nMNEMONICS\nBLOGS\nAI\nMEDITATION"></textarea>', '<select id="interests" multiple size="10"><option value="CHESS">CHESS</option><option value="MNEMONICS">MNEMONICS</option><option value="BLOGS">BLOGS</option><option value="APPS">APPS</option><option value="AI">AI</option><option value="MEDITATION">MEDITATION</option><option value="SWIMMING">SWIMMING</option><option value="MOVIES_SERIES">MOVIES_SERIES</option><option value="MUSIC">MUSIC</option><option value="Other">Other</option></select>'),
+              ('<textarea id="profileAreas" placeholder="One per line. Example:\nCV\nBIOGRAPHY\nCERTIFICATES\nAPPLICATIONS\nPRESENTATIONS\nPORTFOLIO\nREFERENCE"></textarea>', '<select id="profileAreas" multiple size="10"><option value="CV">CV</option><option value="BIOGRAPHY">BIOGRAPHY</option><option value="CERTIFICATES">CERTIFICATES</option><option value="TRAINING_RECORD">TRAINING_RECORD</option><option value="RECOMMENDATION_LETTERS">RECOMMENDATION_LETTERS</option><option value="APPLICATIONS">APPLICATIONS</option><option value="PRESENTATIONS">PRESENTATIONS</option><option value="PORTFOLIO">PORTFOLIO</option><option value="REFERENCE">REFERENCE</option><option value="Other">Other</option></select>')
+          ]
+
+          for old, new in replacements:
+              if old in index:
+                  index = index.replace(old, new, 1)
+
+          old_func = '''function getLines(id) {
+      return document.getElementById(id).value
+        .split("\\n")
+        .map(x => x.trim())
+        .filter(Boolean);
+    }'''
+
+          new_func = '''function getLines(id) {
+      const element = document.getElementById(id);
+
+      if (element.tagName === "SELECT") {
+        return Array.from(element.selectedOptions)
+          .map(option => option.value.trim())
+          .filter(Boolean);
+      }
+
+      return element.value
+        .split("\\n")
+        .map(x => x.trim())
+        .filter(Boolean);
+    }
+
+    function setSelectedValues(id, values) {
+      const element = document.getElementById(id);
+      if (element.tagName !== "SELECT") {
+        element.value = values.join("\\n");
+        return;
+      }
+      Array.from(element.options).forEach(option => {
+        option.selected = values.includes(option.value);
+      });
+    }
+
+    function clearField(id) {
+      const element = document.getElementById(id);
+      if (element.tagName === "SELECT" && element.multiple) {
+        Array.from(element.options).forEach(option => option.selected = false);
+        return;
+      }
+      element.value = "";
+    }'''
+
+          if old_func in js:
+              js = js.replace(old_func, new_func, 1)
+
+          load_replacements = [
+              ('document.getElementById("workPeriods").value =\n        "2002-01-01_to_2010-01-31_PRIVATE_SECTOR\\n" +\n        "2010-02-01_to_2018-12-31_MECIT\\n" +\n        "2019-01-01_to_NOW_MECI";', 'setSelectedValues("workPeriods", ["2002-2010_PRIVATE_SECTOR", "2010-2019_PUBLIC_SECTOR", "2019-NOW_CURRENT_ROLE"]);'),
+              ('document.getElementById("workSubjects").value =\n        "PROJECTS\\n" +\n        "MARINAS_PPP_DBFOT\\n" +\n        "STATE_FAIR\\n" +\n        "HEALTH_AND_SAFETY\\n" +\n        "ADMINISTRATION\\n" +\n        "REFERENCE";', 'setSelectedValues("workSubjects", ["PROJECTS", "MARINAS_PPP_DBFOT", "STATE_FAIR", "HEALTH_AND_SAFETY", "ADMINISTRATION", "REFERENCE"]);'),
+              ('document.getElementById("personalThemes").value =\n        "FAMILY\\n" +\n        "HEALTH\\n" +\n        "FINANCIAL\\n" +\n        "TRAVELS\\n" +\n        "INTERESTS\\n" +\n        "LEARNING\\n" +\n        "REFERENCE";', 'setSelectedValues("personalThemes", ["FAMILY", "HEALTH", "FINANCIAL", "TRAVELS", "INTERESTS", "LEARNING", "REFERENCE"]);'),
+              ('document.getElementById("interests").value =\n        "CHESS\\n" +\n        "MNEMONICS\\n" +\n        "BLOGS\\n" +\n        "APPS\\n" +\n        "AI\\n" +\n        "MEDITATION\\n" +\n        "SWIMMING\\n" +\n        "MOVIES_SERIES\\n" +\n        "MUSIC";', 'setSelectedValues("interests", ["CHESS", "MNEMONICS", "BLOGS", "APPS", "AI", "MEDITATION", "SWIMMING", "MOVIES_SERIES", "MUSIC"]);'),
+              ('document.getElementById("profileAreas").value =\n        "CV\\n" +\n        "BIOGRAPHY\\n" +\n        "CERTIFICATES\\n" +\n        "TRAINING_RECORD\\n" +\n        "RECOMMENDATION_LETTERS\\n" +\n        "APPLICATIONS\\n" +\n        "PRESENTATIONS\\n" +\n        "PORTFOLIO\\n" +\n        "MEMBERSHIPS\\n" +\n        "DIGITAL_PROFILE\\n" +\n        "BLOGS_AND_PUBLIC_WRITING\\n" +\n        "REFERENCE";', 'setSelectedValues("profileAreas", ["CV", "BIOGRAPHY", "CERTIFICATES", "TRAINING_RECORD", "RECOMMENDATION_LETTERS", "APPLICATIONS", "PRESENTATIONS", "PORTFOLIO", "REFERENCE"]);')
+          ]
+
+          for old, new in load_replacements:
+              if old in js:
+                  js = js.replace(old, new, 1)
+
+          for field_id in ["workPeriods", "workSubjects", "personalThemes", "interests", "profileAreas"]:
+              js = js.replace(f'document.getElementById("{field_id}").value = "";', f'clearField("{field_id}");')
+
+          index_path.write_text(index, encoding='utf-8')
+          js_path.write_text(js, encoding='utf-8')
+
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/js/app.js .github/workflows/convert-structure-textareas.yml
+          git commit -m "Convert structure textareas to multi-select dropdowns" || echo "No changes to commit"
+          git push
