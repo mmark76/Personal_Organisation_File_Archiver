@@ -21,7 +21,7 @@ const thinkingTypes = {
     label: "003 - FUNCTIONAL",
     prompt: "Give a function name",
     question: "What function does this file serve?",
-    examples: ["CV", "APPLICATIONS", "CERTIFICATES", "REFERENCE", "FINAL", "OLD"]
+    examples: ["CV", "DIPLOMAS", "CERTIFICATES", "REFERENCES", "PROOFS"]
   },
   "004_ROLE_BASED": {
     label: "004 - ROLE-BASED",
@@ -29,6 +29,14 @@ const thinkingTypes = {
     question: "Which professional role does this file relate to?",
     examples: ["PROJECT_MANAGER", "PUBLIC_OFFICER", "COORDINATOR", "HEALTH_AND_SAFETY_OFFICER"]
   }
+};
+
+const profileKeywordMap = {
+  "ΒΙΟΓΡΑΦΙΚΑ": ["cv", "curriculum", "vitae", "resume", "βιογραφικο", "βιογραφικα"],
+  "ΠΤΥΧΙΑ": ["degree", "degrees", "diploma", "diplomas", "bachelor", "master", "mba", "university", "πτυχιο", "πτυχια"],
+  "ΠΙΣΤΟΠΟΙΗΤΙΚΑ": ["certificate", "certificates", "certification", "certifications", "license", "training", "πιστοποιητικο", "πιστοποιητικα"],
+  "ΣΥΣΤΑΤΙΚΕΣ": ["reference", "references", "recommendation", "recommendations", "referee", "συστατικη", "συστατικες"],
+  "ΑΠΟΔΕΙΚΤΙΚΑ": ["proof", "proofs", "evidence", "verification", "confirmation", "supporting", "αποδεικτικο", "αποδεικτικα"]
 };
 
 const tree = {
@@ -41,6 +49,13 @@ const tree = {
     { id: "professional", name: "03_PROFESSIONAL", fixed: true, branch: "professional", children: [], childLayerType: null }
   ]
 };
+
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
 
 function sanitizeFolderName(value) {
   return value.trim().replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, "_").toUpperCase();
@@ -220,9 +235,6 @@ function updateThinkingPrompt() {
   title.textContent = "Examples from your tree:";
   examplesBox.appendChild(title);
 
-  const list = document.createElement("div");
-  list.className = "example-tags";
-
   thinkingTypes[thinkingType].examples.forEach(example => {
     const tag = document.createElement("span");
     tag.className = "example-tag";
@@ -230,10 +242,8 @@ function updateThinkingPrompt() {
     tag.onclick = () => {
       document.getElementById("folderNameInput").value = example;
     };
-    list.appendChild(tag);
+    examplesBox.appendChild(tag);
   });
-
-  examplesBox.appendChild(list);
 }
 
 function confirmAddChild() {
@@ -513,7 +523,7 @@ function buildAnalysisText(fileName) {
     parts.push(importedFileData.lastModified || "");
     parts.push(importedFileData.text || "");
   }
-  return parts.join(" ").toLowerCase();
+  return normalizeText(parts.join(" "));
 }
 
 function suggestBestFolder(analysisText) {
@@ -524,13 +534,17 @@ function suggestBestFolder(analysisText) {
 
   candidates.forEach(candidate => {
     const keywords = buildCandidateKeywords(candidate);
-    const matches = keywords.filter(keyword => analysisText.includes(keyword.toLowerCase()));
+    const matches = keywords.filter(keyword => analysisText.includes(keyword));
     let score = matches.length;
 
     if (candidate.node.children.length === 0) score += 0.75;
+    if (candidate.path.includes("01_PROFILE")) score += score > 0 ? 1 : 0;
     if (candidate.path.toLowerCase().includes("cv") && analysisText.includes("cv")) score += 2;
-    if (candidate.path.toLowerCase().includes("certificate") && analysisText.includes("certificate")) score += 2;
-    if (candidate.path.toLowerCase().includes("application") && analysisText.includes("application")) score += 2;
+    if (candidate.path.includes("ΒΙΟΓΡΑΦΙΚΑ") && /cv|resume|curriculum|vitae|βιογραφικο|βιογραφικα/.test(analysisText)) score += 3;
+    if (candidate.path.includes("ΠΤΥΧΙΑ") && /degree|diploma|bachelor|master|mba|university|πτυχιο|πτυχια/.test(analysisText)) score += 3;
+    if (candidate.path.includes("ΠΙΣΤΟΠΟΙΗΤΙΚΑ") && /certificate|certification|license|training|πιστοποιητικο|πιστοποιητικα/.test(analysisText)) score += 3;
+    if (candidate.path.includes("ΣΥΣΤΑΤΙΚΕΣ") && /reference|recommendation|referee|συστατικη|συστατικες/.test(analysisText)) score += 3;
+    if (candidate.path.includes("ΑΠΟΔΕΙΚΤΙΚΑ") && /proof|evidence|verification|confirmation|supporting|αποδεικτικο|αποδεικτικα/.test(analysisText)) score += 3;
     if (candidate.path.toLowerCase().includes("financial") && /invoice|receipt|bank|tax|payment|financial/.test(analysisText)) score += 2;
     if (candidate.path.toLowerCase().includes("health") && /health|medical|doctor|hospital|clinic|blood/.test(analysisText)) score += 2;
     if (candidate.path.toLowerCase().includes("professional") && /work|project|ministry|meci|report|meeting|professional/.test(analysisText)) score += 1.5;
@@ -546,7 +560,7 @@ function suggestBestFolder(analysisText) {
     nodeId: best.node.id,
     path: best.path,
     confidence: best.score >= 5 ? "high" : best.score >= 3 ? "medium" : "low",
-    matches: best.matches.length ? best.matches : ["semantic filename pattern"]
+    matches: best.matches.length ? best.matches : ["profile/CV-related pattern"]
   };
 }
 
@@ -568,7 +582,8 @@ function getDestinationCandidates(node = tree, currentPath = "") {
 function buildCandidateKeywords(candidate) {
   const pathWords = candidate.path.split(/[\\_\-\s.]+/).filter(word => word.length >= 2);
   const nodeWords = candidate.node.name.split(/[\\_\-\s.]+/).filter(word => word.length >= 2);
-  const normalized = [...pathWords, ...nodeWords].map(word => word.toLowerCase());
+  const mappedWords = profileKeywordMap[candidate.node.name] || [];
+  const normalized = [...pathWords, ...nodeWords, ...mappedWords].map(word => normalizeText(word));
   return [...new Set(normalized)];
 }
 
@@ -607,7 +622,7 @@ function copyFileAdvice() {
 
 function loadMarkellosExample() {
   tree.children[0].childLayerType = "003_FUNCTIONAL";
-  tree.children[0].children = ["CV", "BIOGRAPHY", "CERTIFICATES", "APPLICATIONS", "REFERENCE"].map(name => createExampleNode(name, "profile", "003_FUNCTIONAL"));
+  tree.children[0].children = ["ΒΙΟΓΡΑΦΙΚΑ", "ΠΤΥΧΙΑ", "ΠΙΣΤΟΠΟΙΗΤΙΚΑ", "ΣΥΣΤΑΤΙΚΕΣ", "ΑΠΟΔΕΙΚΤΙΚΑ"].map(name => createExampleNode(name, "profile", "003_FUNCTIONAL"));
 
   tree.children[1].childLayerType = "002_THEMATIC";
   tree.children[1].children = ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "LEARNING"].map(name => createExampleNode(name, "personal", "002_THEMATIC"));
