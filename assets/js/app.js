@@ -335,7 +335,7 @@ let selectedFile = null;
 
     function loadMarkellosExample() {
       document.getElementById("userName").value = "Markellos";
-      document.getElementById("mainRole").value = "Civil Engineer / Project Manager / Health and Safety Officer";
+      document.getElementById("mainRole").value = "Civil Engineer";
 
       document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
       ["period", "role", "project", "theme", "action"].forEach(value => {

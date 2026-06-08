@@ -45,7 +45,17 @@
           <input type="text" id="userName" placeholder="Example: Username" />
 
           <label for="mainRole" data-i18n="mainRole">Main work / life role</label>
-          <input type="text" id="mainRole" placeholder="Example: Civil Engineer, Teacher, Parent, Student" />
+          <select id="mainRole">
+  <option value="">Select...</option>
+  <option value="Civil Engineer">Civil Engineer</option>
+  <option value="Project Manager">Project Manager</option>
+  <option value="Health and Safety Officer">Health and Safety Officer</option>
+  <option value="Public Sector Officer">Public Sector Officer</option>
+  <option value="Teacher">Teacher</option>
+  <option value="Parent">Parent</option>
+  <option value="Student">Student</option>
+  <option value="Other">Other</option>
+</select>
 
           <label data-i18n="memoryQuestion">When searching for a file, what do you remember first?</label>
           <div class="checkbox-group">
@@ -152,10 +162,31 @@ REFERENCE"></textarea>
           </select>
 
           <label for="levelTwo" data-i18n="secondLevel">Second Level</label>
-          <input type="text" id="levelTwo" placeholder="Example: 2019-01-01_to_NOW_MECI, HEALTH, CV" />
+          <select id="levelTwo">
+  <option value="">Select...</option>
+  <option value="CURRENT_ROLE">CURRENT_ROLE</option>
+  <option value="PRIVATE_SECTOR">PRIVATE_SECTOR</option>
+  <option value="PUBLIC_SECTOR">PUBLIC_SECTOR</option>
+  <option value="HEALTH">HEALTH</option>
+  <option value="FAMILY">FAMILY</option>
+  <option value="FINANCIAL">FINANCIAL</option>
+  <option value="CV">CV</option>
+  <option value="CERTIFICATES">CERTIFICATES</option>
+  <option value="APPLICATIONS">APPLICATIONS</option>
+  <option value="REFERENCE">REFERENCE</option>
+</select>
 
           <label for="levelThree" data-i18n="thirdLevel">Third Level</label>
-          <input type="text" id="levelThree" placeholder="Example: HEALTH_AND_SAFETY, CERTIFICATES, GENERAL" />
+          <select id="levelThree">
+  <option value="">Select...</option>
+  <option value="GENERAL">GENERAL</option>
+  <option value="PROJECTS">PROJECTS</option>
+  <option value="ADMINISTRATION">ADMINISTRATION</option>
+  <option value="HEALTH_AND_SAFETY">HEALTH_AND_SAFETY</option>
+  <option value="CERTIFICATES">CERTIFICATES</option>
+  <option value="APPLICATIONS">APPLICATIONS</option>
+  <option value="REFERENCE">REFERENCE</option>
+</select>
 
           <label for="secondaryContext" data-i18n="secondaryContext">Secondary Context / Tags</label>
           <input type="text" id="secondaryContext" placeholder="Example: OFFICE, APPLICATIONS, PROJECT_MANAGER" />
@@ -209,7 +240,18 @@ REFERENCE"></textarea>
           <input type="date" id="reminderDate" />
 
           <label for="statusDestination" data-i18n="statusDestination">Final / temporary folder suggestion</label>
-          <input type="text" id="statusDestination" placeholder="Example: 00_PENDING or 03_PROFILE\APPLICATIONS" />
+          <select id="statusDestination">
+  <option value="">Select...</option>
+  <option value="00_PENDING">00_PENDING</option>
+  <option value="00_TO_REVIEW">00_TO_REVIEW</option>
+  <option value="00_WAITING">00_WAITING</option>
+  <option value="00_REMINDERS">00_REMINDERS</option>
+  <option value="01_WORK">01_WORK</option>
+  <option value="02_PERSONAL">02_PERSONAL</option>
+  <option value="03_PROFILE">03_PROFILE</option>
+  <option value="04_REFERENCE">04_REFERENCE</option>
+  <option value="05_ARCHIVE">05_ARCHIVE</option>
+</select>
 
           <label for="statusNotes" data-i18n="notes">Notes</label>
           <textarea id="statusNotes" placeholder="Example: Review before submitting application."></textarea>
