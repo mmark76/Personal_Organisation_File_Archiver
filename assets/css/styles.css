@@ -101,14 +101,88 @@ header p {
   color: var(--muted);
 }
 
-.guidance-card {
+.guidance-card,
+.destination-wizard {
   display: grid;
-  gap: 4px;
+  gap: 10px;
   background: var(--tree-soft);
   border: 1px solid var(--tree-border);
   border-radius: 14px;
   padding: 12px;
   margin-bottom: 16px;
+}
+
+.destination-wizard {
+  background: #ecfdf5;
+  border-color: var(--destination-border);
+  margin-top: 14px;
+}
+
+.wizard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.breadcrumb {
+  padding: 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--destination-border);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.step-question {
+  color: #065f46;
+  font-weight: 700;
+}
+
+.choice-list {
+  display: grid;
+  gap: 8px;
+}
+
+.choice-button,
+.final-choice-button {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  text-align: left;
+  background: #ffffff;
+  color: var(--text);
+  border: 1px solid var(--destination-border);
+}
+
+.choice-button:hover,
+.final-choice-button:hover {
+  background: #dcfce7;
+}
+
+.choice-button span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.final-choice-button {
+  background: var(--success);
+  color: white;
+  text-align: center;
+  justify-content: center;
+}
+
+.final-choice-button:hover {
+  background: #15803d;
+}
+
+.final-destination-box {
+  padding: 12px;
+  border-radius: 12px;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #14532d;
+  font-weight: 700;
 }
 
 .guidance-card span {
@@ -144,6 +218,11 @@ header p {
   border-left: 6px solid #2563eb;
   padding: 14px 14px;
   margin-bottom: 4px;
+}
+
+.selected-destination-node {
+  outline: 3px solid #22c55e;
+  outline-offset: 2px;
 }
 
 .main-category-node .node-name {
