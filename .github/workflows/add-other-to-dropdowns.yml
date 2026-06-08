@@ -1,0 +1,50 @@
+name: Add Other to dropdowns
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-other-to-dropdowns.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add Other options
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          workflow_path = Path('.github/workflows/add-other-to-dropdowns.yml')
+          content = path.read_text(encoding='utf-8')
+
+          targets = {
+              '<option value="05_ARCHIVE">05_ARCHIVE</option>\n          </select>': '<option value="05_ARCHIVE">05_ARCHIVE</option>\n            <option value="Other">Other</option>\n          </select>',
+              '<option value="REFERENCE">REFERENCE</option>\n</select>': '<option value="REFERENCE">REFERENCE</option>\n  <option value="Other">Other</option>\n</select>',
+              '<option value="05_ARCHIVE">05_ARCHIVE</option>\n</select>': '<option value="05_ARCHIVE">05_ARCHIVE</option>\n  <option value="Other">Other</option>\n</select>',
+              '<option value="REMINDER">REMINDER - Return on a specific date</option>\n          </select>': '<option value="REMINDER">REMINDER - Return on a specific date</option>\n            <option value="Other">Other</option>\n          </select>',
+          }
+
+          for old, new in targets.items():
+              if old in content and new not in content:
+                  content = content.replace(old, new, 1)
+
+          path.write_text(content, encoding='utf-8')
+
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/add-other-to-dropdowns.yml
+          git commit -m "Add Other option to dropdowns" || echo "No changes to commit"
+          git push
