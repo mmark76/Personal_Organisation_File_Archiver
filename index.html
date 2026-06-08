@@ -50,10 +50,14 @@
 
     <section class="panel destination-panel accent-destination">
       <h2>File Destination Guide</h2>
-      <p>Follow the tree step by step until you reach the final folder where the file belongs.</p>
+      <p>Import a file or type its name. The app reads basic browser-available file data and suggests the most relevant folder. It does not move the file.</p>
+
+      <label for="importedFileInput">Import file for analysis</label>
+      <input type="file" id="importedFileInput" onchange="handleImportedFile()" />
+      <div id="fileAnalysisBox" class="file-analysis-box">No file imported yet.</div>
 
       <label for="destinationFileName">File name</label>
-      <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" />
+      <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" oninput="analyzeCurrentFileData()" />
 
       <div class="destination-wizard">
         <div class="wizard-header">
@@ -61,6 +65,7 @@
           <button type="button" class="secondary" onclick="resetDestinationGuide()">Reset Path</button>
         </div>
 
+        <div id="autoSuggestionBox" class="auto-suggestion-box hidden"></div>
         <div id="destinationBreadcrumb" class="breadcrumb">No folder selected yet.</div>
         <div id="destinationStepQuestion" class="step-question">Start by choosing one of the main categories.</div>
         <div id="destinationChoices" class="choice-list"></div>
