@@ -1,0 +1,11 @@
+{
+  "name": "Personal Memory-Based File Advisor",
+  "short_name": "File Advisor",
+  "description": "A private browser-based file organisation advisor built around natural memory, context and personal folder trees.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#2563eb",
+  "lang": "en",
+  "categories": ["productivity", "utilities"]
+}
