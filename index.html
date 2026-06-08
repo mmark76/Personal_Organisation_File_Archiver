@@ -24,7 +24,7 @@
   </header>
 
   <main class="app-shell">
-    <section class="panel tree-panel">
+    <section class="panel tree-panel accent-tree">
       <div class="panel-header">
         <div>
           <h2 data-i18n="folderTreeTitle">Folder Tree</h2>
@@ -39,31 +39,8 @@
       </div>
 
       <div id="treeContainer" class="tree-container"></div>
-    </section>
 
-    <aside class="side-stack">
-      <section class="panel inspector-panel">
-        <h2 data-i18n="fileDestinationTitle">File Destination Guide</h2>
-        <p data-i18n="fileDestinationSubtitle">Use the tree you built to decide where a new file should be archived.</p>
-
-        <label for="destinationFileName" data-i18n="fileNameLabel">File name</label>
-        <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" data-placeholder-key="fileNamePlaceholder" />
-
-        <label for="destinationNodeSelect" data-i18n="destinationFolderLabel">Suggested destination folder</label>
-        <select id="destinationNodeSelect"></select>
-
-        <label for="destinationReason" data-i18n="reasonLabel">Reason / memory clue</label>
-        <textarea id="destinationReason" placeholder="Example: This is the final CV version for future applications." data-placeholder-key="reasonPlaceholder"></textarea>
-
-        <div class="actions">
-          <button type="button" onclick="previewFileDestination()" data-i18n="previewAdviceButton">Preview Advice</button>
-          <button type="button" class="secondary" onclick="copyFileAdvice()" data-i18n="copyAdviceButton">Copy Advice</button>
-        </div>
-
-        <pre id="fileDestinationOutput" class="advice-output" data-i18n="adviceDefault">Archiving advice will appear here.</pre>
-      </section>
-
-      <section class="panel inspector-panel">
+      <div class="structure-section">
         <h2 data-i18n="currentStructureTitle">Current Structure</h2>
         <pre id="treeOutput" class="output"></pre>
 
@@ -75,8 +52,29 @@
         </div>
 
         <p class="small-note" data-i18n="folderCreationNote">Folder creation is optional and works only in supported browsers after you choose a local destination folder.</p>
-      </section>
-    </aside>
+      </div>
+    </section>
+
+    <section class="panel destination-panel accent-destination">
+      <h2 data-i18n="fileDestinationTitle">File Destination Guide</h2>
+      <p data-i18n="fileDestinationSubtitle">Use the tree you built to decide where a new file should be archived.</p>
+
+      <label for="destinationFileName" data-i18n="fileNameLabel">File name</label>
+      <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" data-placeholder-key="fileNamePlaceholder" />
+
+      <label for="destinationNodeSelect" data-i18n="destinationFolderLabel">Suggested destination folder</label>
+      <select id="destinationNodeSelect"></select>
+
+      <label for="destinationReason" data-i18n="reasonLabel">Reason / memory clue</label>
+      <textarea id="destinationReason" placeholder="Example: This is the final CV version for future applications." data-placeholder-key="reasonPlaceholder"></textarea>
+
+      <div class="actions">
+        <button type="button" onclick="previewFileDestination()" data-i18n="previewAdviceButton">Preview Advice</button>
+        <button type="button" class="secondary" onclick="copyFileAdvice()" data-i18n="copyAdviceButton">Copy Advice</button>
+      </div>
+
+      <pre id="fileDestinationOutput" class="advice-output" data-i18n="adviceDefault">Archiving advice will appear here.</pre>
+    </section>
   </main>
 
   <div id="nodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
