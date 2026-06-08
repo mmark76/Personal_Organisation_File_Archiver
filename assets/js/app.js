@@ -21,9 +21,12 @@ const translations = {
     guidedNote: "Answer these questions as the user naturally remembers files. The app will suggest a folder structure.",
     userProfileName: "User / Profile Name",
     nextLayerTitle: "Next layer categorisation",
-    profileLayerType: "01_PROFILE next layer",
-    personalLayerType: "02_PERSONAL next layer",
-    professionalLayerType: "03_PROFESSIONAL next layer",
+    profileLayerType: "01_PROFILE next layer logic",
+    personalLayerType: "02_PERSONAL next layer logic",
+    professionalLayerType: "03_PROFESSIONAL next layer logic",
+    profileSecondLevelCategories: "01_PROFILE second-level categories, named one per line",
+    personalSecondLevelCategories: "02_PERSONAL second-level categories, named one per line",
+    professionalSecondLevelCategories: "03_PROFESSIONAL second-level categories, named one per line",
     memoryQuestion: "When searching for a file, what do you remember first?",
     memoryPeriod: "Period of life",
     memoryRole: "Role / responsibility",
@@ -33,11 +36,6 @@ const translations = {
     memoryDate: "Date",
     memoryFiletype: "File type",
     memoryAction: "Pending action",
-    workPeriods: "Professional periods / roles",
-    workSubjects: "Professional subjects / responsibilities",
-    personalThemes: "Personal life themes",
-    interests: "Interests / long-term areas",
-    profileAreas: "Profile / identity areas",
     suggestStructureButton: "Suggest Structure",
     loadExampleButton: "Load Markellos Example",
     clearButton: "Clear",
@@ -97,9 +95,12 @@ const translations = {
     guidedNote: "Απάντησε με βάση το πώς θυμάται φυσικά ο χρήστης τα αρχεία. Το app θα προτείνει δομή φακέλων.",
     userProfileName: "Χρήστης / Όνομα Προφίλ",
     nextLayerTitle: "Κατηγοριοποίηση επόμενου επιπέδου",
-    profileLayerType: "Επόμενο επίπεδο 01_PROFILE",
-    personalLayerType: "Επόμενο επίπεδο 02_PERSONAL",
-    professionalLayerType: "Επόμενο επίπεδο 03_PROFESSIONAL",
+    profileLayerType: "Λογική 2ου επιπέδου 01_PROFILE",
+    personalLayerType: "Λογική 2ου επιπέδου 02_PERSONAL",
+    professionalLayerType: "Λογική 2ου επιπέδου 03_PROFESSIONAL",
+    profileSecondLevelCategories: "Κατηγορίες 2ου επιπέδου για 01_PROFILE, ονομαστικά μία ανά γραμμή",
+    personalSecondLevelCategories: "Κατηγορίες 2ου επιπέδου για 02_PERSONAL, ονομαστικά μία ανά γραμμή",
+    professionalSecondLevelCategories: "Κατηγορίες 2ου επιπέδου για 03_PROFESSIONAL, ονομαστικά μία ανά γραμμή",
     memoryQuestion: "Όταν ψάχνεις ένα αρχείο, τι θυμάσαι πρώτα;",
     memoryPeriod: "Περίοδο ζωής",
     memoryRole: "Ρόλο / ευθύνη",
@@ -109,11 +110,6 @@ const translations = {
     memoryDate: "Ημερομηνία",
     memoryFiletype: "Τύπο αρχείου",
     memoryAction: "Εκκρεμή ενέργεια",
-    workPeriods: "Επαγγελματικές περίοδοι / ρόλοι",
-    workSubjects: "Επαγγελματικά θέματα / ευθύνες",
-    personalThemes: "Προσωπικά θέματα ζωής",
-    interests: "Ενδιαφέροντα / μακροχρόνιοι τομείς",
-    profileAreas: "Προφίλ / ταυτότητα",
     suggestStructureButton: "Πρότεινε Δομή",
     loadExampleButton: "Φόρτωσε Παράδειγμα Markellos",
     clearButton: "Καθαρισμός",
@@ -213,7 +209,7 @@ function sanitizeFolderName(value) {
 
 function addFolderPath(paths, folderPath) {
   const cleanPath = folderPath
-    .replace(/\/+/g, "\\")
+    .replace(/\/+?/g, "\\")
     .replace(/\\\\+/g, "\\")
     .replace(/^\\|\\$/g, "");
 
@@ -222,17 +218,11 @@ function addFolderPath(paths, folderPath) {
   }
 }
 
-function addFolderGroup(paths, outputLines, mainFolder, layerType, items, fallbackItems) {
-  const selectedItems = items.length ? items : fallbackItems;
-  const layerLabel = layerTypeLabels[layerType] || layerType;
-
-  addFolderPath(paths, mainFolder + "\\" + layerType);
-  outputLines.push("│   ├── " + layerLabel);
-
-  selectedItems.forEach(item => {
-    const cleanItem = sanitizeFolderName(item);
-    addFolderPath(paths, mainFolder + "\\" + layerType + "\\" + cleanItem);
-    outputLines.push("│   │   ├── " + cleanItem);
+function addNamedSecondLevel(paths, outputLines, mainFolder, categories) {
+  categories.forEach(category => {
+    const cleanCategory = sanitizeFolderName(category);
+    addFolderPath(paths, mainFolder + "\\" + cleanCategory);
+    outputLines.push("│   ├── " + cleanCategory);
   });
 }
 
@@ -242,18 +232,16 @@ function suggestStructure() {
   const profileLayerType = document.getElementById("profileLayerType").value;
   const personalLayerType = document.getElementById("personalLayerType").value;
   const professionalLayerType = document.getElementById("professionalLayerType").value;
-  const professionalPeriods = getLines("workPeriods");
-  const professionalSubjects = getLines("workSubjects");
-  const personalThemes = getLines("personalThemes");
-  const interests = getLines("interests");
-  const profileAreas = getLines("profileAreas");
+  const profileCategories = getLines("profileSecondLevelCategories");
+  const personalCategories = getLines("personalSecondLevelCategories");
+  const professionalCategories = getLines("professionalSecondLevelCategories");
 
   let output = "";
   let folderPaths = [];
 
   output += "Suggested folder structure for: " + userName + "\n\n";
 
-  output += "Selected next layer categorisation:\n";
+  output += "Selected second-level logic:\n";
   output += "- 01_PROFILE: " + layerTypeLabels[profileLayerType] + "\n";
   output += "- 02_PERSONAL: " + layerTypeLabels[personalLayerType] + "\n";
   output += "- 03_PROFESSIONAL: " + layerTypeLabels[professionalLayerType] + "\n\n";
@@ -263,15 +251,7 @@ function suggestStructure() {
   output += "\n\n";
 
   output += "Recommended principle:\n";
-  if (patterns.includes("period") || patterns.includes("role") || patterns.includes("project") || patterns.includes("theme")) {
-    output += "Context -> Selected next layer -> Subject -> File\n\n";
-  } else if (patterns.includes("date")) {
-    output += "Date / Period -> Subject -> File\n\n";
-  } else if (patterns.includes("filetype")) {
-    output += "Subject -> File Type -> File\n\n";
-  } else {
-    output += "Context -> Subject -> File\n\n";
-  }
+  output += "Main category -> Named second-level categories -> File\n\n";
 
   output += "DOCUMENTS\n";
   ["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS", "01_PROFILE", "02_PERSONAL", "03_PROFESSIONAL", "04_REFERENCE", "05_ARCHIVE"].forEach(path => addFolderPath(folderPaths, path));
@@ -284,36 +264,17 @@ function suggestStructure() {
 
   output += "├── 01_PROFILE\n";
   const profileOutputLines = [];
-  addFolderGroup(folderPaths, profileOutputLines, "01_PROFILE", profileLayerType, profileAreas, ["CV", "BIOGRAPHY", "CERTIFICATES", "APPLICATIONS", "REFERENCE"]);
+  addNamedSecondLevel(folderPaths, profileOutputLines, "01_PROFILE", profileCategories.length ? profileCategories : ["CV", "CERTIFICATES", "APPLICATIONS", "PORTFOLIO", "REFERENCE"]);
   output += profileOutputLines.join("\n") + "\n";
 
   output += "├── 02_PERSONAL\n";
   const personalOutputLines = [];
-  addFolderGroup(folderPaths, personalOutputLines, "02_PERSONAL", personalLayerType, personalThemes, ["FAMILY", "HEALTH", "FINANCIAL", "REFERENCE"]);
-  if (interests.length) {
-    addFolderPath(folderPaths, "02_PERSONAL\\" + personalLayerType + "\\INTERESTS");
-    personalOutputLines.push("│   │   ├── INTERESTS");
-    interests.forEach(interest => {
-      const cleanInterest = sanitizeFolderName(interest);
-      addFolderPath(folderPaths, "02_PERSONAL\\" + personalLayerType + "\\INTERESTS\\" + cleanInterest);
-      personalOutputLines.push("│   │   │   ├── " + cleanInterest);
-    });
-  }
+  addNamedSecondLevel(folderPaths, personalOutputLines, "02_PERSONAL", personalCategories.length ? personalCategories : ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "REFERENCE"]);
   output += personalOutputLines.join("\n") + "\n";
 
   output += "├── 03_PROFESSIONAL\n";
   const professionalOutputLines = [];
-  addFolderGroup(folderPaths, professionalOutputLines, "03_PROFESSIONAL", professionalLayerType, professionalPeriods, ["CURRENT_ROLE"]);
-
-  const professionalBaseItems = professionalPeriods.length ? professionalPeriods : ["CURRENT_ROLE"];
-  professionalBaseItems.forEach(period => {
-    const cleanPeriod = sanitizeFolderName(period);
-    const subjects = professionalSubjects.length ? professionalSubjects : ["SUBJECT", "REFERENCE"];
-    subjects.forEach(subject => {
-      const cleanSubject = sanitizeFolderName(subject);
-      addFolderPath(folderPaths, "03_PROFESSIONAL\\" + professionalLayerType + "\\" + cleanPeriod + "\\" + cleanSubject);
-    });
-  });
+  addNamedSecondLevel(folderPaths, professionalOutputLines, "03_PROFESSIONAL", professionalCategories.length ? professionalCategories : ["CURRENT_ROLE", "PROJECTS", "ADMINISTRATION", "HEALTH_AND_SAFETY", "REFERENCE"]);
   output += professionalOutputLines.join("\n") + "\n";
 
   output += "├── 04_REFERENCE\n";
@@ -321,10 +282,8 @@ function suggestStructure() {
 
   output += "Notes:\n";
   output += "- 00 folders are temporary action folders.\n";
-  output += "- 01_PROFILE is for identity, presentation, qualifications, and proof of experience.\n";
-  output += "- 02_PERSONAL is for life themes and interests.\n";
-  output += "- 03_PROFESSIONAL is for work duties, projects, and responsibilities.\n";
-  output += "- The second layer is selected separately for each main category.\n";
+  output += "- 01_PROFILE, 02_PERSONAL, and 03_PROFESSIONAL each use the selected second-level logic.\n";
+  output += "- The actual second-level folders are the named categories entered by the user.\n";
   output += "- Folder creation is optional and requires user permission.\n";
 
   latestFolderPaths = folderPaths;
@@ -337,46 +296,7 @@ function loadMarkellosExample() {
   document.getElementById("personalLayerType").value = "002_THEMATIC";
   document.getElementById("professionalLayerType").value = "001_CHRONOLOGICAL";
 
-  document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
-  ["period", "role", "project", "theme", "action"].forEach(value => {
-    const item = Array.from(document.querySelectorAll(".memoryPattern")).find(x => x.value === value);
-    if (item) item.checked = true;
-  });
-
-  document.getElementById("workPeriods").value =
-    "2002-01-01_to_2010-01-31_PRIVATE_SECTOR\n" +
-    "2010-02-01_to_2018-12-31_MECIT\n" +
-    "2019-01-01_to_NOW_MECI";
-
-  document.getElementById("workSubjects").value =
-    "PROJECTS\n" +
-    "MARINAS_PPP_DBFOT\n" +
-    "STATE_FAIR\n" +
-    "HEALTH_AND_SAFETY\n" +
-    "ADMINISTRATION\n" +
-    "REFERENCE";
-
-  document.getElementById("personalThemes").value =
-    "FAMILY\n" +
-    "HEALTH\n" +
-    "FINANCIAL\n" +
-    "TRAVELS\n" +
-    "INTERESTS\n" +
-    "LEARNING\n" +
-    "REFERENCE";
-
-  document.getElementById("interests").value =
-    "CHESS\n" +
-    "MNEMONICS\n" +
-    "BLOGS\n" +
-    "APPS\n" +
-    "AI\n" +
-    "MEDITATION\n" +
-    "SWIMMING\n" +
-    "MOVIES_SERIES\n" +
-    "MUSIC";
-
-  document.getElementById("profileAreas").value =
+  document.getElementById("profileSecondLevelCategories").value =
     "CV\n" +
     "BIOGRAPHY\n" +
     "CERTIFICATES\n" +
@@ -389,6 +309,32 @@ function loadMarkellosExample() {
     "DIGITAL_PROFILE\n" +
     "BLOGS_AND_PUBLIC_WRITING\n" +
     "REFERENCE";
+
+  document.getElementById("personalSecondLevelCategories").value =
+    "FAMILY\n" +
+    "HEALTH\n" +
+    "FINANCIAL\n" +
+    "TRAVELS\n" +
+    "INTERESTS\n" +
+    "LEARNING\n" +
+    "REFERENCE";
+
+  document.getElementById("professionalSecondLevelCategories").value =
+    "2002-01-01_to_2010-01-31_PRIVATE_SECTOR\n" +
+    "2010-02-01_to_2018-12-31_MECIT\n" +
+    "2019-01-01_to_NOW_MECI\n" +
+    "PROJECTS\n" +
+    "MARINAS_PPP_DBFOT\n" +
+    "STATE_FAIR\n" +
+    "HEALTH_AND_SAFETY\n" +
+    "ADMINISTRATION\n" +
+    "REFERENCE";
+
+  document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
+  ["period", "role", "project", "theme", "action"].forEach(value => {
+    const item = Array.from(document.querySelectorAll(".memoryPattern")).find(x => x.value === value);
+    if (item) item.checked = true;
+  });
 }
 
 function clearStructureForm() {
@@ -396,12 +342,10 @@ function clearStructureForm() {
   document.getElementById("profileLayerType").value = "003_FUNCTIONAL";
   document.getElementById("personalLayerType").value = "002_THEMATIC";
   document.getElementById("professionalLayerType").value = "001_CHRONOLOGICAL";
+  document.getElementById("profileSecondLevelCategories").value = "";
+  document.getElementById("personalSecondLevelCategories").value = "";
+  document.getElementById("professionalSecondLevelCategories").value = "";
   document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
-  document.getElementById("workPeriods").value = "";
-  document.getElementById("workSubjects").value = "";
-  document.getElementById("personalThemes").value = "";
-  document.getElementById("interests").value = "";
-  document.getElementById("profileAreas").value = "";
   latestFolderPaths = [];
   document.getElementById("structureOutput").textContent = t("structureOutputDefault");
 }
