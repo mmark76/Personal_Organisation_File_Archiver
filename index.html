@@ -188,14 +188,14 @@
     </div>
   </div>
 
-  <div id="cookieNotice" class="cookie-notice hidden" role="region" aria-label="Cookie and local storage notice">
+  <div id="cookieNotice" class="cookie-notice hidden" role="region" aria-label="Cookie and local storage notice" hidden>
     <div>
       <strong>Privacy notice</strong>
       <p>This app runs locally in your browser. It may use local browser storage only to remember simple preferences such as this notice being accepted.</p>
     </div>
     <div class="cookie-actions">
-      <button type="button" onclick="acceptCookieNotice()">Accept</button>
-      <button type="button" class="secondary" onclick="hideCookieNotice()">Later</button>
+      <button id="cookieAcceptButton" type="button">Accept</button>
+      <button id="cookieLaterButton" type="button" class="secondary">Later</button>
     </div>
   </div>
 
