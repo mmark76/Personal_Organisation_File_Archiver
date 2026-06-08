@@ -14,6 +14,34 @@ svg {
   max-width: 100%;
 }
 
+.node-actions {
+  align-items: center;
+}
+
+.node-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+}
+
+.node-actions button::before {
+  content: "+";
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.node-actions button.danger::before {
+  content: "−";
+  font-size: 22px;
+}
+
 @media (min-width: 1280px) {
   header {
     padding: 26px 40px;
@@ -107,7 +135,6 @@ svg {
   .panel-header button,
   .wizard-header button,
   .actions button,
-  .node-actions button,
   .modal-actions button,
   .feedback-actions button {
     width: 100%;
@@ -120,6 +147,24 @@ svg {
     display: grid;
     grid-template-columns: 1fr;
     width: 100%;
+  }
+
+  .node-actions button {
+    width: 100%;
+    height: 44px;
+    gap: 8px;
+    font-size: 0;
+  }
+
+  .node-actions button::before {
+    content: "+ Add child folder";
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .node-actions button.danger::before {
+    content: "− Delete folder";
+    font-size: 15px;
   }
 
   .tree-container,
