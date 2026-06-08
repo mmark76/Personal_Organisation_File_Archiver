@@ -21,7 +21,7 @@ const thinkingTypes = {
     label: "003 - FUNCTIONAL",
     prompt: "Give a function name",
     question: "What function does this file serve?",
-    examples: ["CV", "DIPLOMAS", "CERTIFICATES", "REFERENCES", "PROOFS"]
+    examples: ["CVS", "DEGREES", "CERTIFICATES", "REFERENCES", "SUPPORTING_EVIDENCE"]
   },
   "004_ROLE_BASED": {
     label: "004 - ROLE-BASED",
@@ -32,11 +32,11 @@ const thinkingTypes = {
 };
 
 const profileKeywordMap = {
-  "ΒΙΟΓΡΑΦΙΚΑ": ["cv", "curriculum", "vitae", "resume", "βιογραφικο", "βιογραφικα"],
-  "ΠΤΥΧΙΑ": ["degree", "degrees", "diploma", "diplomas", "bachelor", "master", "mba", "university", "πτυχιο", "πτυχια"],
-  "ΠΙΣΤΟΠΟΙΗΤΙΚΑ": ["certificate", "certificates", "certification", "certifications", "license", "training", "πιστοποιητικο", "πιστοποιητικα"],
-  "ΣΥΣΤΑΤΙΚΕΣ": ["reference", "references", "recommendation", "recommendations", "referee", "συστατικη", "συστατικες"],
-  "ΑΠΟΔΕΙΚΤΙΚΑ": ["proof", "proofs", "evidence", "verification", "confirmation", "supporting", "αποδεικτικο", "αποδεικτικα"]
+  "CVS": ["cv", "cvs", "curriculum", "vitae", "resume", "résumé", "βιογραφικο", "βιογραφικα", "biografiko"],
+  "DEGREES": ["degree", "degrees", "diploma", "diplomas", "bachelor", "master", "mba", "university", "πτυχιο", "πτυχια", "ptychio", "ptychia"],
+  "CERTIFICATES": ["certificate", "certificates", "certification", "certifications", "license", "licence", "training", "πιστοποιητικο", "πιστοποιητικα", "pistopoiitiko"],
+  "REFERENCES": ["reference", "references", "recommendation", "recommendations", "referee", "συστατικη", "συστατικες", "systatiki", "systatikes"],
+  "SUPPORTING_EVIDENCE": ["proof", "proofs", "evidence", "verification", "confirmation", "supporting", "supporting evidence", "αποδεικτικο", "αποδεικτικα", "apodeiktiko"]
 };
 
 const tree = {
@@ -533,21 +533,21 @@ function suggestBestFolder(analysisText) {
   let best = null;
 
   candidates.forEach(candidate => {
+    const normalizedPath = normalizeText(candidate.path);
     const keywords = buildCandidateKeywords(candidate);
     const matches = keywords.filter(keyword => analysisText.includes(keyword));
     let score = matches.length;
 
     if (candidate.node.children.length === 0) score += 0.75;
-    if (candidate.path.includes("01_PROFILE")) score += score > 0 ? 1 : 0;
-    if (candidate.path.toLowerCase().includes("cv") && analysisText.includes("cv")) score += 2;
-    if (candidate.path.includes("ΒΙΟΓΡΑΦΙΚΑ") && /cv|resume|curriculum|vitae|βιογραφικο|βιογραφικα/.test(analysisText)) score += 3;
-    if (candidate.path.includes("ΠΤΥΧΙΑ") && /degree|diploma|bachelor|master|mba|university|πτυχιο|πτυχια/.test(analysisText)) score += 3;
-    if (candidate.path.includes("ΠΙΣΤΟΠΟΙΗΤΙΚΑ") && /certificate|certification|license|training|πιστοποιητικο|πιστοποιητικα/.test(analysisText)) score += 3;
-    if (candidate.path.includes("ΣΥΣΤΑΤΙΚΕΣ") && /reference|recommendation|referee|συστατικη|συστατικες/.test(analysisText)) score += 3;
-    if (candidate.path.includes("ΑΠΟΔΕΙΚΤΙΚΑ") && /proof|evidence|verification|confirmation|supporting|αποδεικτικο|αποδεικτικα/.test(analysisText)) score += 3;
-    if (candidate.path.toLowerCase().includes("financial") && /invoice|receipt|bank|tax|payment|financial/.test(analysisText)) score += 2;
-    if (candidate.path.toLowerCase().includes("health") && /health|medical|doctor|hospital|clinic|blood/.test(analysisText)) score += 2;
-    if (candidate.path.toLowerCase().includes("professional") && /work|project|ministry|meci|report|meeting|professional/.test(analysisText)) score += 1.5;
+    if (normalizedPath.includes("01_profile")) score += score > 0 ? 1 : 0;
+    if (normalizedPath.includes("cvs") && /cv|resume|curriculum|vitae|βιογραφικο|βιογραφικα|biografiko/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("degrees") && /degree|diploma|bachelor|master|mba|university|πτυχιο|πτυχια|ptychio|ptychia/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("certificates") && /certificate|certification|license|licence|training|πιστοποιητικο|πιστοποιητικα|pistopoiitiko/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("references") && /reference|recommendation|referee|συστατικη|συστατικες|systatiki|systatikes/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("supporting_evidence") && /proof|evidence|verification|confirmation|supporting|αποδεικτικο|αποδεικτικα|apodeiktiko/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("financial") && /invoice|receipt|bank|tax|payment|financial/.test(analysisText)) score += 2;
+    if (normalizedPath.includes("health") && /health|medical|doctor|hospital|clinic|blood/.test(analysisText)) score += 2;
+    if (normalizedPath.includes("professional") && /work|project|ministry|meci|report|meeting|professional/.test(analysisText)) score += 1.5;
 
     if (score > 0 && (!best || score > best.score)) {
       best = { ...candidate, score, matches: matches.slice(0, 8) };
@@ -560,7 +560,7 @@ function suggestBestFolder(analysisText) {
     nodeId: best.node.id,
     path: best.path,
     confidence: best.score >= 5 ? "high" : best.score >= 3 ? "medium" : "low",
-    matches: best.matches.length ? best.matches : ["profile/CV-related pattern"]
+    matches: best.matches.length ? best.matches : ["multilingual profile/CV-related pattern"]
   };
 }
 
@@ -622,7 +622,7 @@ function copyFileAdvice() {
 
 function loadMarkellosExample() {
   tree.children[0].childLayerType = "003_FUNCTIONAL";
-  tree.children[0].children = ["ΒΙΟΓΡΑΦΙΚΑ", "ΠΤΥΧΙΑ", "ΠΙΣΤΟΠΟΙΗΤΙΚΑ", "ΣΥΣΤΑΤΙΚΕΣ", "ΑΠΟΔΕΙΚΤΙΚΑ"].map(name => createExampleNode(name, "profile", "003_FUNCTIONAL"));
+  tree.children[0].children = ["CVS", "DEGREES", "CERTIFICATES", "REFERENCES", "SUPPORTING_EVIDENCE"].map(name => createExampleNode(name, "profile", "003_FUNCTIONAL"));
 
   tree.children[1].childLayerType = "002_THEMATIC";
   tree.children[1].children = ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "LEARNING"].map(name => createExampleNode(name, "personal", "002_THEMATIC"));
