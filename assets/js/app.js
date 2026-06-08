@@ -55,14 +55,6 @@ function findNode(nodeId, currentNode = tree) {
   return null;
 }
 
-function getBranch(node) {
-  if (node.branch) return node.branch;
-
-  const path = getNodePath(node.id);
-  const mainNode = path[1];
-  return mainNode ? mainNode.branch : null;
-}
-
 function getNodePath(nodeId, currentNode = tree, path = []) {
   const currentPath = [...path, currentNode];
   if (currentNode.id === nodeId) return currentPath;
@@ -75,8 +67,12 @@ function getNodePath(nodeId, currentNode = tree, path = []) {
   return [];
 }
 
-function getDepth(nodeId) {
-  return getNodePath(nodeId).length - 1;
+function getBranch(node) {
+  if (node.branch) return node.branch;
+
+  const path = getNodePath(node.id);
+  const mainNode = path[1];
+  return mainNode ? mainNode.branch : null;
 }
 
 function canUseRoleType(parentNode) {
@@ -94,6 +90,7 @@ function renderTree() {
   treeContainer.innerHTML = "";
   treeContainer.appendChild(renderNode(tree, 0));
   updateOutput();
+  updateDestinationOptions();
 }
 
 function renderNode(node, depth) {
@@ -299,6 +296,46 @@ function buildFolderPaths(node, currentPath = "") {
   return paths.filter(Boolean);
 }
 
+function getDestinationNodes(node = tree, currentPath = "") {
+  const nodePath = currentPath ? currentPath + "\\" + node.name : node.name;
+  const destinations = [];
+
+  if (node.id !== "root") {
+    destinations.push({
+      id: node.id,
+      path: nodePath.replace(/^DOCUMENTS\\?/, ""),
+      thinkingType: node.thinkingType || ""
+    });
+  }
+
+  (node.children || []).forEach(child => {
+    destinations.push(...getDestinationNodes(child, nodePath));
+  });
+
+  return destinations;
+}
+
+function updateDestinationOptions() {
+  const select = document.getElementById("destinationNodeSelect");
+  if (!select) return;
+
+  const previousValue = select.value;
+  const destinations = getDestinationNodes();
+  select.innerHTML = "";
+
+  destinations.forEach(destination => {
+    const option = document.createElement("option");
+    option.value = destination.path;
+    const typeLabel = destination.thinkingType ? " [" + thinkingTypes[destination.thinkingType].label + "]" : "";
+    option.textContent = destination.path + typeLabel;
+    select.appendChild(option);
+  });
+
+  if (previousValue && Array.from(select.options).some(option => option.value === previousValue)) {
+    select.value = previousValue;
+  }
+}
+
 function updateOutput() {
   const output = [];
   output.push("Suggested folder structure");
@@ -313,6 +350,34 @@ function updateOutput() {
 
   latestFolderPaths = buildFolderPaths(tree);
   document.getElementById("treeOutput").textContent = output.join("\n");
+}
+
+function previewFileDestination() {
+  const fileName = document.getElementById("destinationFileName").value.trim() || "[New file]";
+  const destination = document.getElementById("destinationNodeSelect").value || "[Choose a folder from the tree]";
+  const reason = document.getElementById("destinationReason").value.trim() || "No reason written yet.";
+
+  const advice = [
+    "File destination advice",
+    "",
+    "File:",
+    fileName,
+    "",
+    "Suggested folder:",
+    destination,
+    "",
+    "Reason / memory clue:",
+    reason,
+    "",
+    "Important:",
+    "This is guidance only. The app does not move the file."
+  ].join("\n");
+
+  document.getElementById("fileDestinationOutput").textContent = advice;
+}
+
+function copyFileAdvice() {
+  navigator.clipboard.writeText(document.getElementById("fileDestinationOutput").textContent);
 }
 
 function loadMarkellosExample() {
