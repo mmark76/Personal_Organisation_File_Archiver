@@ -1,3 +1,17 @@
+.brand-hero {
+  display: flex;
+  justify-content: center;
+  padding: 22px 18px 4px;
+}
+
+.brand-hero img {
+  display: block;
+  width: min(420px, 92vw);
+  height: auto;
+  border-radius: 24px;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.22);
+}
+
 .footer-links {
   margin-top: 8px !important;
 }
@@ -42,6 +56,15 @@
 }
 
 @media (max-width: 720px) {
+  .brand-hero {
+    padding-top: 16px;
+  }
+
+  .brand-hero img {
+    width: min(340px, 92vw);
+    border-radius: 18px;
+  }
+
   .cookie-notice {
     display: grid;
   }
