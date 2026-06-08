@@ -45,6 +45,12 @@ header p {
   padding: 18px;
 }
 
+.side-stack {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
 .panel {
   background: var(--card);
   border: 1px solid var(--border);
@@ -172,8 +178,9 @@ button.danger {
   margin-top: 12px;
 }
 
-.output {
-  min-height: 420px;
+.output,
+.advice-output {
+  min-height: 220px;
   max-height: calc(100vh - 260px);
   overflow: auto;
   white-space: pre-wrap;
@@ -183,6 +190,15 @@ button.danger {
   padding: 14px;
   font-size: 13px;
   line-height: 1.55;
+}
+
+.output {
+  min-height: 360px;
+}
+
+.advice-output {
+  background: #111827;
+  margin-top: 12px;
 }
 
 .small-note {
@@ -237,12 +253,19 @@ label {
 }
 
 select,
-input {
+input,
+textarea {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px;
   font-size: 15px;
+  font-family: inherit;
+}
+
+textarea {
+  min-height: 84px;
+  resize: vertical;
 }
 
 .examples-box {
@@ -286,7 +309,8 @@ input {
   }
 
   .tree-container,
-  .output {
+  .output,
+  .advice-output {
     max-height: none;
   }
 }
