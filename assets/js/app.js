@@ -1,26 +1,146 @@
 let selectedParentId = null;
 let latestFolderPaths = [];
 let nextNodeId = 1;
+let currentLanguage = "en";
+
+const uiText = {
+  en: {
+    appTitle: "Personal Memory-Based File Advisor",
+    appSubtitle: "Build a personal folder tree and use it to decide where each new file belongs. The app does not move, delete, upload, or modify files.",
+    languageLabel: "Language",
+    folderTreeTitle: "Folder Tree",
+    folderTreeSubtitle: "Fixed first level. Add unlimited layers below it.",
+    loadExampleButton: "Load Markellos Example",
+    guidanceTitle: "Before adding folders, choose one thinking type for the next layer.",
+    guidanceText: "Chronological, thematic, functional, or role-based. The type guides the names; it does not become a folder.",
+    fileDestinationTitle: "File Destination Guide",
+    fileDestinationSubtitle: "Use the tree you built to decide where a new file should be archived.",
+    fileNameLabel: "File name",
+    fileNamePlaceholder: "Example: CV_Markellos_2026.pdf",
+    destinationFolderLabel: "Suggested destination folder",
+    reasonLabel: "Reason / memory clue",
+    reasonPlaceholder: "Example: This is the final CV version for future applications.",
+    previewAdviceButton: "Preview Advice",
+    copyAdviceButton: "Copy Advice",
+    adviceDefault: "Archiving advice will appear here.",
+    currentStructureTitle: "Current Structure",
+    copyStructureButton: "Copy Structure",
+    downloadTxtButton: "Download TXT",
+    downloadBatButton: "Download Windows .BAT",
+    createFoldersButton: "Create Folders on This PC",
+    folderCreationNote: "Folder creation is optional and works only in supported browsers after you choose a local destination folder.",
+    addFolderTitle: "Add Folder",
+    thinkingTypeLabel: "Thinking type for this layer",
+    addButton: "Add",
+    cancelButton: "Cancel",
+    parentFolder: "Parent folder",
+    fixedLayer: "This layer already uses",
+    examplesTitle: "Examples from your tree:",
+    typePrefix: "Type",
+    nextLayerPrefix: "The next layer here is",
+    enterFolderName: "Please enter a folder name.",
+    outputTitle: "Suggested folder structure",
+    principle: "Principle:",
+    fixedFirstLevel: "- Fixed first level: 01_PROFILE, 02_PERSONAL, 03_PROFESSIONAL",
+    unlimitedLayers: "- Unlimited layers below the fixed branches",
+    oneThinkingType: "- Each layer has one thinking type",
+    typeGuidesNames: "- The thinking type guides the folder names; it is not a folder",
+    fileAdviceTitle: "File destination advice",
+    file: "File:",
+    suggestedFolder: "Suggested folder:",
+    reasonMemory: "Reason / memory clue:",
+    important: "Important:",
+    guidanceOnly: "This is guidance only. The app does not move the file.",
+    newFile: "[New file]",
+    chooseFolder: "[Choose a folder from the tree]",
+    noReason: "No reason written yet.",
+    unsupportedFileApi: "This browser does not support direct folder creation. Use Chrome or Edge, or download the Windows .BAT file.",
+    folderCreationComplete: "Folder structure created successfully.",
+    folderCreationCancelled: "Folder creation was cancelled or failed."
+  },
+  el: {
+    appTitle: "Προσωπικός Σύμβουλος Αρχειοθέτησης με βάση τη Μνήμη",
+    appSubtitle: "Χτίσε προσωπικό δέντρο φακέλων και χρησιμοποίησέ το για να αποφασίζεις πού ανήκει κάθε νέο αρχείο. Το app δεν μετακινεί, δεν διαγράφει, δεν ανεβάζει και δεν τροποποιεί αρχεία.",
+    languageLabel: "Γλώσσα",
+    folderTreeTitle: "Δέντρο Φακέλων",
+    folderTreeSubtitle: "Σταθερό πρώτο επίπεδο. Πρόσθεσε απεριόριστα επίπεδα από κάτω.",
+    loadExampleButton: "Φόρτωσε Παράδειγμα Μάρκελλου",
+    guidanceTitle: "Πριν προσθέσεις φακέλους, διάλεξε έναν τύπο σκέψης για το επόμενο επίπεδο.",
+    guidanceText: "Χρονική, θεματική, λειτουργική ή ρόλου. Ο τύπος καθοδηγεί τα ονόματα· δεν γίνεται φάκελος.",
+    fileDestinationTitle: "Οδηγός Προορισμού Αρχείου",
+    fileDestinationSubtitle: "Χρησιμοποίησε το δέντρο που έχτισες για να αποφασίσεις πού θα αρχειοθετηθεί ένα νέο αρχείο.",
+    fileNameLabel: "Όνομα αρχείου",
+    fileNamePlaceholder: "Παράδειγμα: CV_Markellos_2026.pdf",
+    destinationFolderLabel: "Προτεινόμενος φάκελος προορισμού",
+    reasonLabel: "Λόγος / μνημονικό στοιχείο",
+    reasonPlaceholder: "Παράδειγμα: Είναι η τελική έκδοση CV για μελλοντικές αιτήσεις.",
+    previewAdviceButton: "Προεπισκόπηση Οδηγίας",
+    copyAdviceButton: "Αντιγραφή Οδηγίας",
+    adviceDefault: "Η οδηγία αρχειοθέτησης θα εμφανιστεί εδώ.",
+    currentStructureTitle: "Τρέχουσα Δομή",
+    copyStructureButton: "Αντιγραφή Δομής",
+    downloadTxtButton: "Λήψη TXT",
+    downloadBatButton: "Λήψη Windows .BAT",
+    createFoldersButton: "Δημιουργία Φακέλων στο PC",
+    folderCreationNote: "Η δημιουργία φακέλων είναι προαιρετική και λειτουργεί μόνο σε υποστηριζόμενους browsers αφού επιλέξεις τοπικό φάκελο.",
+    addFolderTitle: "Προσθήκη Φακέλου",
+    thinkingTypeLabel: "Τύπος σκέψης για αυτό το επίπεδο",
+    addButton: "Προσθήκη",
+    cancelButton: "Ακύρωση",
+    parentFolder: "Γονικός φάκελος",
+    fixedLayer: "Αυτό το επίπεδο ήδη χρησιμοποιεί",
+    examplesTitle: "Παραδείγματα από το δέντρο σου:",
+    typePrefix: "Τύπος",
+    nextLayerPrefix: "Το επόμενο layer εδώ είναι",
+    enterFolderName: "Γράψε όνομα φακέλου.",
+    outputTitle: "Προτεινόμενη δομή φακέλων",
+    principle: "Αρχή:",
+    fixedFirstLevel: "- Σταθερό πρώτο επίπεδο: 01_PROFILE, 02_PERSONAL, 03_PROFESSIONAL",
+    unlimitedLayers: "- Απεριόριστα επίπεδα κάτω από τους σταθερούς κλάδους",
+    oneThinkingType: "- Κάθε επίπεδο έχει έναν τύπο σκέψης",
+    typeGuidesNames: "- Ο τύπος σκέψης καθοδηγεί τα ονόματα φακέλων· δεν είναι φάκελος",
+    fileAdviceTitle: "Οδηγία προορισμού αρχείου",
+    file: "Αρχείο:",
+    suggestedFolder: "Προτεινόμενος φάκελος:",
+    reasonMemory: "Λόγος / μνημονικό στοιχείο:",
+    important: "Σημαντικό:",
+    guidanceOnly: "Αυτό είναι μόνο καθοδήγηση. Το app δεν μετακινεί το αρχείο.",
+    newFile: "[Νέο αρχείο]",
+    chooseFolder: "[Διάλεξε φάκελο από το δέντρο]",
+    noReason: "Δεν έχει γραφτεί λόγος ακόμη.",
+    unsupportedFileApi: "Ο browser δεν υποστηρίζει άμεση δημιουργία φακέλων. Χρησιμοποίησε Chrome ή Edge, ή κατέβασε το Windows .BAT.",
+    folderCreationComplete: "Η δομή φακέλων δημιουργήθηκε με επιτυχία.",
+    folderCreationCancelled: "Η δημιουργία φακέλων ακυρώθηκε ή απέτυχε."
+  }
+};
 
 const thinkingTypes = {
   "001_CHRONOLOGICAL": {
-    label: "001 - ΧΡΟΝΙΚΗ",
-    prompt: "Δώσε όνομα χρονικής περιόδου",
+    enLabel: "001 - CHRONOLOGICAL",
+    elLabel: "001 - ΧΡΟΝΙΚΗ",
+    enPrompt: "Give a chronological period name",
+    elPrompt: "Δώσε όνομα χρονικής περιόδου",
     examples: ["2024", "2025", "2002-2010_PRIVATE_SECTOR", "2019-NOW_MECI"]
   },
   "002_THEMATIC": {
-    label: "002 - ΘΕΜΑΤΙΚΗ",
-    prompt: "Δώσε όνομα θέματος",
+    enLabel: "002 - THEMATIC",
+    elLabel: "002 - ΘΕΜΑΤΙΚΗ",
+    enPrompt: "Give a theme name",
+    elPrompt: "Δώσε όνομα θέματος",
     examples: ["HEALTH", "FINANCIAL", "INTERESTS", "FAMILY"]
   },
   "003_FUNCTIONAL": {
-    label: "003 - ΛΕΙΤΟΥΡΓΙΚΗ",
-    prompt: "Δώσε όνομα λειτουργίας",
+    enLabel: "003 - FUNCTIONAL",
+    elLabel: "003 - ΛΕΙΤΟΥΡΓΙΚΗ",
+    enPrompt: "Give a function name",
+    elPrompt: "Δώσε όνομα λειτουργίας",
     examples: ["CV", "APPLICATIONS", "CERTIFICATES", "REFERENCE", "FINAL", "OLD"]
   },
   "004_ROLE_BASED": {
-    label: "004 - ΡΟΛΟΥ",
-    prompt: "Δώσε όνομα ρόλου",
+    enLabel: "004 - ROLE-BASED",
+    elLabel: "004 - ΡΟΛΟΥ",
+    enPrompt: "Give a role name",
+    elPrompt: "Δώσε όνομα ρόλου",
     examples: ["PROJECT_MANAGER", "PUBLIC_OFFICER", "COORDINATOR", "HEALTH_AND_SAFETY_OFFICER"]
   }
 };
@@ -36,52 +156,82 @@ const tree = {
   ]
 };
 
+function tr(key) {
+  return uiText[currentLanguage][key] || uiText.en[key] || key;
+}
+
+function typeLabel(typeKey) {
+  return currentLanguage === "el" ? thinkingTypes[typeKey].elLabel : thinkingTypes[typeKey].enLabel;
+}
+
+function typePrompt(typeKey) {
+  return currentLanguage === "el" ? thinkingTypes[typeKey].elPrompt : thinkingTypes[typeKey].enPrompt;
+}
+
+function changeLanguage() {
+  currentLanguage = document.getElementById("languageSelect").value;
+  document.documentElement.lang = currentLanguage;
+
+  document.querySelectorAll("[data-i18n]").forEach(element => {
+    const key = element.getAttribute("data-i18n");
+    element.textContent = tr(key);
+  });
+
+  document.querySelectorAll("[data-placeholder-key]").forEach(element => {
+    const key = element.getAttribute("data-placeholder-key");
+    element.placeholder = tr(key);
+  });
+
+  updateThinkingTypeOptions();
+  renderTree();
+
+  if (document.getElementById("fileDestinationOutput").textContent.trim() === uiText.en.adviceDefault || document.getElementById("fileDestinationOutput").textContent.trim() === uiText.el.adviceDefault) {
+    document.getElementById("fileDestinationOutput").textContent = tr("adviceDefault");
+  }
+}
+
+function updateThinkingTypeOptions() {
+  const select = document.getElementById("thinkingTypeSelect");
+  if (!select) return;
+  Array.from(select.options).forEach(option => {
+    option.textContent = typeLabel(option.value);
+  });
+  updateThinkingPrompt();
+}
+
 function sanitizeFolderName(value) {
-  return value
-    .trim()
-    .replace(/[\\/:*?"<>|]/g, "_")
-    .replace(/\s+/g, "_")
-    .toUpperCase();
+  return value.trim().replace(/[\\/:*?"<>|]/g, "_").replace(/\s+/g, "_").toUpperCase();
 }
 
 function findNode(nodeId, currentNode = tree) {
   if (currentNode.id === nodeId) return currentNode;
-
   for (const child of currentNode.children || []) {
     const found = findNode(nodeId, child);
     if (found) return found;
   }
-
   return null;
 }
 
 function getNodePath(nodeId, currentNode = tree, path = []) {
   const currentPath = [...path, currentNode];
   if (currentNode.id === nodeId) return currentPath;
-
   for (const child of currentNode.children || []) {
     const found = getNodePath(nodeId, child, currentPath);
     if (found.length) return found;
   }
-
   return [];
 }
 
 function getBranch(node) {
   if (node.branch) return node.branch;
-
   const path = getNodePath(node.id);
   const mainNode = path[1];
   return mainNode ? mainNode.branch : null;
 }
 
-function canUseRoleType(parentNode) {
-  return getBranch(parentNode) === "professional";
-}
-
 function getAllowedThinkingTypes(parentNode) {
   const values = ["001_CHRONOLOGICAL", "002_THEMATIC", "003_FUNCTIONAL"];
-  if (canUseRoleType(parentNode)) values.push("004_ROLE_BASED");
+  if (getBranch(parentNode) === "professional") values.push("004_ROLE_BASED");
   return values;
 }
 
@@ -107,7 +257,7 @@ function renderNode(node, depth) {
   if (node.thinkingType) {
     const type = document.createElement("div");
     type.className = "node-thinking-type";
-    type.textContent = "Τύπος: " + thinkingTypes[node.thinkingType].label;
+    type.textContent = tr("typePrefix") + ": " + typeLabel(node.thinkingType);
     content.appendChild(type);
   }
 
@@ -119,7 +269,7 @@ function renderNode(node, depth) {
   if (node.childLayerType) {
     const nextType = document.createElement("div");
     nextType.className = "node-next-layer";
-    nextType.textContent = "Το επόμενο layer εδώ είναι: " + thinkingTypes[node.childLayerType].label;
+    nextType.textContent = tr("nextLayerPrefix") + ": " + typeLabel(node.childLayerType);
     content.appendChild(nextType);
   }
 
@@ -130,7 +280,6 @@ function renderNode(node, depth) {
     const addButton = document.createElement("button");
     addButton.type = "button";
     addButton.textContent = "+";
-    addButton.title = "Add child folder";
     addButton.onclick = () => openNodeModal(node.id);
     actions.appendChild(addButton);
   }
@@ -140,7 +289,6 @@ function renderNode(node, depth) {
     deleteButton.type = "button";
     deleteButton.className = "danger small-button";
     deleteButton.textContent = "×";
-    deleteButton.title = "Delete folder";
     deleteButton.onclick = () => deleteNode(node.id);
     actions.appendChild(deleteButton);
   }
@@ -149,10 +297,7 @@ function renderNode(node, depth) {
   row.appendChild(actions);
   wrapper.appendChild(row);
 
-  (node.children || []).forEach(child => {
-    wrapper.appendChild(renderNode(child, depth + 1));
-  });
-
+  (node.children || []).forEach(child => wrapper.appendChild(renderNode(child, depth + 1)));
   return wrapper;
 }
 
@@ -165,7 +310,7 @@ function openNodeModal(parentId) {
   const context = document.getElementById("modalContext");
   const folderNameInput = document.getElementById("folderNameInput");
 
-  context.textContent = "Parent folder: " + parentNode.name;
+  context.textContent = tr("parentFolder") + ": " + parentNode.name;
   folderNameInput.value = "";
 
   const allowedTypes = getAllowedThinkingTypes(parentNode);
@@ -177,7 +322,7 @@ function openNodeModal(parentId) {
     select.value = parentNode.childLayerType;
     select.disabled = true;
     fixedType.classList.remove("hidden");
-    fixedType.textContent = "This layer already uses: " + thinkingTypes[parentNode.childLayerType].label;
+    fixedType.textContent = tr("fixedLayer") + ": " + typeLabel(parentNode.childLayerType);
   } else {
     select.disabled = false;
     select.value = allowedTypes[0];
@@ -196,28 +341,27 @@ function closeNodeModal() {
 }
 
 function updateThinkingPrompt() {
-  const thinkingType = document.getElementById("thinkingTypeSelect").value;
-  const typeInfo = thinkingTypes[thinkingType];
+  const select = document.getElementById("thinkingTypeSelect");
+  if (!select) return;
+  const thinkingType = select.value;
   const label = document.getElementById("folderNameLabel");
   const examplesBox = document.getElementById("examplesBox");
 
-  label.textContent = typeInfo.prompt;
+  label.textContent = typePrompt(thinkingType);
   examplesBox.innerHTML = "";
 
   const title = document.createElement("strong");
-  title.textContent = "Παραδείγματα από το δέντρο σου:";
+  title.textContent = tr("examplesTitle");
   examplesBox.appendChild(title);
 
   const list = document.createElement("div");
   list.className = "example-tags";
 
-  typeInfo.examples.forEach(example => {
+  thinkingTypes[thinkingType].examples.forEach(example => {
     const tag = document.createElement("span");
     tag.className = "example-tag";
     tag.textContent = example;
-    tag.onclick = () => {
-      document.getElementById("folderNameInput").value = example;
-    };
+    tag.onclick = () => { document.getElementById("folderNameInput").value = example; };
     list.appendChild(tag);
   });
 
@@ -226,18 +370,15 @@ function updateThinkingPrompt() {
 
 function confirmAddChild() {
   const parentNode = findNode(selectedParentId);
-  const rawName = document.getElementById("folderNameInput").value;
-  const cleanName = sanitizeFolderName(rawName);
+  const cleanName = sanitizeFolderName(document.getElementById("folderNameInput").value);
   const thinkingType = document.getElementById("thinkingTypeSelect").value;
 
   if (!cleanName) {
-    alert("Please enter a folder name.");
+    alert(tr("enterFolderName"));
     return;
   }
 
-  if (!parentNode.childLayerType) {
-    parentNode.childLayerType = thinkingType;
-  }
+  if (!parentNode.childLayerType) parentNode.childLayerType = thinkingType;
 
   parentNode.children.push({
     id: "node_" + nextNodeId++,
@@ -255,28 +396,22 @@ function confirmAddChild() {
 
 function deleteNode(nodeId, currentNode = tree) {
   if (!currentNode.children) return false;
-
   const index = currentNode.children.findIndex(child => child.id === nodeId);
   if (index >= 0) {
     currentNode.children.splice(index, 1);
-    if (currentNode.children.length === 0) {
-      currentNode.childLayerType = null;
-    }
+    if (currentNode.children.length === 0) currentNode.childLayerType = null;
     renderTree();
     return true;
   }
-
   for (const child of currentNode.children) {
     if (deleteNode(nodeId, child)) return true;
   }
-
   return false;
 }
 
 function buildOutputLines(node, depth = 0, lines = []) {
   const indent = depth === 0 ? "" : "│   ".repeat(Math.max(0, depth - 1)) + "├── ";
   lines.push(indent + node.name);
-
   (node.children || []).forEach(child => buildOutputLines(child, depth + 1, lines));
   return lines;
 }
@@ -284,93 +419,53 @@ function buildOutputLines(node, depth = 0, lines = []) {
 function buildFolderPaths(node, currentPath = "") {
   const paths = [];
   const nodePath = currentPath ? currentPath + "\\" + node.name : node.name;
-
-  if (node.id !== "root") {
-    paths.push(nodePath.replace(/^DOCUMENTS\\?/, ""));
-  }
-
-  (node.children || []).forEach(child => {
-    paths.push(...buildFolderPaths(child, nodePath));
-  });
-
+  if (node.id !== "root") paths.push(nodePath.replace(/^DOCUMENTS\\?/, ""));
+  (node.children || []).forEach(child => paths.push(...buildFolderPaths(child, nodePath)));
   return paths.filter(Boolean);
 }
 
 function getDestinationNodes(node = tree, currentPath = "") {
   const nodePath = currentPath ? currentPath + "\\" + node.name : node.name;
   const destinations = [];
-
   if (node.id !== "root") {
-    destinations.push({
-      id: node.id,
-      path: nodePath.replace(/^DOCUMENTS\\?/, ""),
-      thinkingType: node.thinkingType || ""
-    });
+    destinations.push({ id: node.id, path: nodePath.replace(/^DOCUMENTS\\?/, ""), thinkingType: node.thinkingType || "" });
   }
-
-  (node.children || []).forEach(child => {
-    destinations.push(...getDestinationNodes(child, nodePath));
-  });
-
+  (node.children || []).forEach(child => destinations.push(...getDestinationNodes(child, nodePath)));
   return destinations;
 }
 
 function updateDestinationOptions() {
   const select = document.getElementById("destinationNodeSelect");
   if (!select) return;
-
   const previousValue = select.value;
   const destinations = getDestinationNodes();
   select.innerHTML = "";
-
   destinations.forEach(destination => {
     const option = document.createElement("option");
     option.value = destination.path;
-    const typeLabel = destination.thinkingType ? " [" + thinkingTypes[destination.thinkingType].label + "]" : "";
-    option.textContent = destination.path + typeLabel;
+    const typeText = destination.thinkingType ? " [" + typeLabel(destination.thinkingType) + "]" : "";
+    option.textContent = destination.path + typeText;
     select.appendChild(option);
   });
-
-  if (previousValue && Array.from(select.options).some(option => option.value === previousValue)) {
-    select.value = previousValue;
-  }
+  if (previousValue && Array.from(select.options).some(option => option.value === previousValue)) select.value = previousValue;
 }
 
 function updateOutput() {
-  const output = [];
-  output.push("Suggested folder structure");
-  output.push("");
-  output.push("Principle:");
-  output.push("- Fixed first level: 01_PROFILE, 02_PERSONAL, 03_PROFESSIONAL");
-  output.push("- Unlimited layers below the fixed branches");
-  output.push("- Each layer has one thinking type");
-  output.push("- The thinking type guides the folder names; it is not a folder");
-  output.push("");
-  output.push(...buildOutputLines(tree));
-
+  const output = [
+    tr("outputTitle"), "", tr("principle"), tr("fixedFirstLevel"), tr("unlimitedLayers"), tr("oneThinkingType"), tr("typeGuidesNames"), "",
+    ...buildOutputLines(tree)
+  ];
   latestFolderPaths = buildFolderPaths(tree);
   document.getElementById("treeOutput").textContent = output.join("\n");
 }
 
 function previewFileDestination() {
-  const fileName = document.getElementById("destinationFileName").value.trim() || "[New file]";
-  const destination = document.getElementById("destinationNodeSelect").value || "[Choose a folder from the tree]";
-  const reason = document.getElementById("destinationReason").value.trim() || "No reason written yet.";
+  const fileName = document.getElementById("destinationFileName").value.trim() || tr("newFile");
+  const destination = document.getElementById("destinationNodeSelect").value || tr("chooseFolder");
+  const reason = document.getElementById("destinationReason").value.trim() || tr("noReason");
 
   const advice = [
-    "File destination advice",
-    "",
-    "File:",
-    fileName,
-    "",
-    "Suggested folder:",
-    destination,
-    "",
-    "Reason / memory clue:",
-    reason,
-    "",
-    "Important:",
-    "This is guidance only. The app does not move the file."
+    tr("fileAdviceTitle"), "", tr("file"), fileName, "", tr("suggestedFolder"), destination, "", tr("reasonMemory"), reason, "", tr("important"), tr("guidanceOnly")
   ].join("\n");
 
   document.getElementById("fileDestinationOutput").textContent = advice;
@@ -382,43 +477,19 @@ function copyFileAdvice() {
 
 function loadMarkellosExample() {
   tree.children[0].childLayerType = "003_FUNCTIONAL";
-  tree.children[0].children = [
-    createExampleNode("CV", "profile", "003_FUNCTIONAL"),
-    createExampleNode("BIOGRAPHY", "profile", "003_FUNCTIONAL"),
-    createExampleNode("CERTIFICATES", "profile", "003_FUNCTIONAL"),
-    createExampleNode("APPLICATIONS", "profile", "003_FUNCTIONAL"),
-    createExampleNode("REFERENCE", "profile", "003_FUNCTIONAL")
-  ];
+  tree.children[0].children = ["CV", "BIOGRAPHY", "CERTIFICATES", "APPLICATIONS", "REFERENCE"].map(name => createExampleNode(name, "profile", "003_FUNCTIONAL"));
 
   tree.children[1].childLayerType = "002_THEMATIC";
-  tree.children[1].children = [
-    createExampleNode("FAMILY", "personal", "002_THEMATIC"),
-    createExampleNode("HEALTH", "personal", "002_THEMATIC"),
-    createExampleNode("FINANCIAL", "personal", "002_THEMATIC"),
-    createExampleNode("INTERESTS", "personal", "002_THEMATIC"),
-    createExampleNode("LEARNING", "personal", "002_THEMATIC")
-  ];
+  tree.children[1].children = ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "LEARNING"].map(name => createExampleNode(name, "personal", "002_THEMATIC"));
 
   tree.children[2].childLayerType = "001_CHRONOLOGICAL";
-  tree.children[2].children = [
-    createExampleNode("2002-01-01_TO_2010-01-31_PRIVATE_SECTOR", "professional", "001_CHRONOLOGICAL"),
-    createExampleNode("2010-02-01_TO_2018-12-31_MECIT", "professional", "001_CHRONOLOGICAL"),
-    createExampleNode("2019-01-01_TO_NOW_MECI", "professional", "001_CHRONOLOGICAL")
-  ];
+  tree.children[2].children = ["2002-01-01_TO_2010-01-31_PRIVATE_SECTOR", "2010-02-01_TO_2018-12-31_MECIT", "2019-01-01_TO_NOW_MECI"].map(name => createExampleNode(name, "professional", "001_CHRONOLOGICAL"));
 
   renderTree();
 }
 
 function createExampleNode(name, branch, thinkingType) {
-  return {
-    id: "node_" + nextNodeId++,
-    name,
-    fixed: false,
-    branch,
-    thinkingType,
-    childLayerType: null,
-    children: []
-  };
+  return { id: "node_" + nextNodeId++, name, fixed: false, branch, thinkingType, childLayerType: null, children: [] };
 }
 
 function downloadFile(filename, content, mimeType) {
@@ -439,39 +510,27 @@ function downloadStructureText() {
 }
 
 function downloadWindowsBatch() {
-  let content = "";
-  content += "@echo off\r\n";
-  content += "REM Suggested folder structure creator\r\n";
-  content += "REM Review this file before running it.\r\n\r\n";
-  latestFolderPaths.forEach(path => {
-    content += 'mkdir "' + path + '" 2>nul\r\n';
-  });
+  let content = "@echo off\r\nREM Suggested folder structure creator\r\nREM Review this file before running it.\r\n\r\n";
+  latestFolderPaths.forEach(path => { content += 'mkdir "' + path + '" 2>nul\r\n'; });
   content += "\r\necho Done.\r\npause\r\n";
-
   downloadFile("create_suggested_folder_structure.bat", content, "application/x-bat;charset=utf-8");
 }
 
 async function createFoldersOnComputer() {
   if (!window.showDirectoryPicker) {
-    alert("This browser does not support direct folder creation. Use Chrome or Edge, or download the Windows .BAT file.");
+    alert(tr("unsupportedFileApi"));
     return;
   }
-
   try {
     const rootHandle = await window.showDirectoryPicker();
-
     for (const folderPath of latestFolderPaths) {
       const parts = folderPath.split("\\").filter(Boolean);
       let currentHandle = rootHandle;
-
-      for (const part of parts) {
-        currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
-      }
+      for (const part of parts) currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
     }
-
-    alert("Folder structure created successfully.");
+    alert(tr("folderCreationComplete"));
   } catch (error) {
-    alert("Folder creation was cancelled or failed.");
+    alert(tr("folderCreationCancelled"));
   }
 }
 
@@ -479,4 +538,4 @@ function copyTreeOutput() {
   navigator.clipboard.writeText(document.getElementById("treeOutput").textContent);
 }
 
-renderTree();
+changeLanguage();
