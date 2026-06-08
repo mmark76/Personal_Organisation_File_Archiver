@@ -2,6 +2,13 @@ let selectedFile = null;
 let currentLanguage = "en";
 let latestFolderPaths = [];
 
+const layerTypeLabels = {
+  "001_CHRONOLOGICAL": "001 - ΧΡΟΝΙΚΗ",
+  "002_THEMATIC": "002 - ΘΕΜΑΤΙΚΗ",
+  "003_FUNCTIONAL": "003 - ΛΕΙΤΟΥΡΓΙΚΗ",
+  "004_ROLE_BASED": "004 - ΡΟΛΟΥ"
+};
+
 const translations = {
   en: {
     appTitle: "Personal Memory-Based File Advisor",
@@ -13,6 +20,10 @@ const translations = {
     guidedInterview: "Guided Interview",
     guidedNote: "Answer these questions as the user naturally remembers files. The app will suggest a folder structure.",
     userProfileName: "User / Profile Name",
+    nextLayerTitle: "Next layer categorisation",
+    profileLayerType: "01_PROFILE next layer",
+    personalLayerType: "02_PERSONAL next layer",
+    professionalLayerType: "03_PROFESSIONAL next layer",
     memoryQuestion: "When searching for a file, what do you remember first?",
     memoryPeriod: "Period of life",
     memoryRole: "Role / responsibility",
@@ -85,6 +96,10 @@ const translations = {
     guidedInterview: "Καθοδηγητικές Ερωτήσεις",
     guidedNote: "Απάντησε με βάση το πώς θυμάται φυσικά ο χρήστης τα αρχεία. Το app θα προτείνει δομή φακέλων.",
     userProfileName: "Χρήστης / Όνομα Προφίλ",
+    nextLayerTitle: "Κατηγοριοποίηση επόμενου επιπέδου",
+    profileLayerType: "Επόμενο επίπεδο 01_PROFILE",
+    personalLayerType: "Επόμενο επίπεδο 02_PERSONAL",
+    professionalLayerType: "Επόμενο επίπεδο 03_PROFESSIONAL",
     memoryQuestion: "Όταν ψάχνεις ένα αρχείο, τι θυμάσαι πρώτα;",
     memoryPeriod: "Περίοδο ζωής",
     memoryRole: "Ρόλο / ευθύνη",
@@ -198,7 +213,7 @@ function sanitizeFolderName(value) {
 
 function addFolderPath(paths, folderPath) {
   const cleanPath = folderPath
-    .replace(/\/+?/g, "\\")
+    .replace(/\/+/g, "\\")
     .replace(/\\\\+/g, "\\")
     .replace(/^\\|\\$/g, "");
 
@@ -207,9 +222,26 @@ function addFolderPath(paths, folderPath) {
   }
 }
 
+function addFolderGroup(paths, outputLines, mainFolder, layerType, items, fallbackItems) {
+  const selectedItems = items.length ? items : fallbackItems;
+  const layerLabel = layerTypeLabels[layerType] || layerType;
+
+  addFolderPath(paths, mainFolder + "\\" + layerType);
+  outputLines.push("│   ├── " + layerLabel);
+
+  selectedItems.forEach(item => {
+    const cleanItem = sanitizeFolderName(item);
+    addFolderPath(paths, mainFolder + "\\" + layerType + "\\" + cleanItem);
+    outputLines.push("│   │   ├── " + cleanItem);
+  });
+}
+
 function suggestStructure() {
   const userName = document.getElementById("userName").value.trim() || "CUSTOM_USER";
   const patterns = getCheckedMemoryPatterns();
+  const profileLayerType = document.getElementById("profileLayerType").value;
+  const personalLayerType = document.getElementById("personalLayerType").value;
+  const professionalLayerType = document.getElementById("professionalLayerType").value;
   const professionalPeriods = getLines("workPeriods");
   const professionalSubjects = getLines("workSubjects");
   const personalThemes = getLines("personalThemes");
@@ -221,13 +253,18 @@ function suggestStructure() {
 
   output += "Suggested folder structure for: " + userName + "\n\n";
 
+  output += "Selected next layer categorisation:\n";
+  output += "- 01_PROFILE: " + layerTypeLabels[profileLayerType] + "\n";
+  output += "- 02_PERSONAL: " + layerTypeLabels[personalLayerType] + "\n";
+  output += "- 03_PROFESSIONAL: " + layerTypeLabels[professionalLayerType] + "\n\n";
+
   output += "Memory pattern detected:\n";
   output += patterns.length ? patterns.map(p => "- " + p).join("\n") : "- Not specified";
   output += "\n\n";
 
   output += "Recommended principle:\n";
   if (patterns.includes("period") || patterns.includes("role") || patterns.includes("project") || patterns.includes("theme")) {
-    output += "Context -> Role / Period -> Subject -> File\n\n";
+    output += "Context -> Selected next layer -> Subject -> File\n\n";
   } else if (patterns.includes("date")) {
     output += "Date / Period -> Subject -> File\n\n";
   } else if (patterns.includes("filetype")) {
@@ -246,73 +283,38 @@ function suggestStructure() {
   output += "├── 00_REMINDERS\n";
 
   output += "├── 01_PROFILE\n";
-  if (profileAreas.length) {
-    profileAreas.forEach(area => {
-      const cleanArea = sanitizeFolderName(area);
-      addFolderPath(folderPaths, "01_PROFILE\\" + cleanArea);
-      output += "│   ├── " + cleanArea + "\n";
-    });
-  } else {
-    ["CV", "BIOGRAPHY", "CERTIFICATES", "APPLICATIONS", "REFERENCE"].forEach(path => addFolderPath(folderPaths, "01_PROFILE\\" + path));
-    output += "│   ├── CV\n";
-    output += "│   ├── BIOGRAPHY\n";
-    output += "│   ├── CERTIFICATES\n";
-    output += "│   ├── APPLICATIONS\n";
-    output += "│   └── REFERENCE\n";
-  }
+  const profileOutputLines = [];
+  addFolderGroup(folderPaths, profileOutputLines, "01_PROFILE", profileLayerType, profileAreas, ["CV", "BIOGRAPHY", "CERTIFICATES", "APPLICATIONS", "REFERENCE"]);
+  output += profileOutputLines.join("\n") + "\n";
 
   output += "├── 02_PERSONAL\n";
-  if (personalThemes.length) {
-    personalThemes.forEach(theme => {
-      const cleanTheme = sanitizeFolderName(theme);
-      addFolderPath(folderPaths, "02_PERSONAL\\" + cleanTheme);
-      output += "│   ├── " + cleanTheme + "\n";
-    });
-  } else {
-    ["FAMILY", "HEALTH", "FINANCIAL", "REFERENCE"].forEach(path => addFolderPath(folderPaths, "02_PERSONAL\\" + path));
-    output += "│   ├── FAMILY\n";
-    output += "│   ├── HEALTH\n";
-    output += "│   ├── FINANCIAL\n";
-    output += "│   └── REFERENCE\n";
-  }
-
+  const personalOutputLines = [];
+  addFolderGroup(folderPaths, personalOutputLines, "02_PERSONAL", personalLayerType, personalThemes, ["FAMILY", "HEALTH", "FINANCIAL", "REFERENCE"]);
   if (interests.length) {
-    addFolderPath(folderPaths, "02_PERSONAL\\INTERESTS");
-    output += "│   ├── INTERESTS\n";
+    addFolderPath(folderPaths, "02_PERSONAL\\" + personalLayerType + "\\INTERESTS");
+    personalOutputLines.push("│   │   ├── INTERESTS");
     interests.forEach(interest => {
       const cleanInterest = sanitizeFolderName(interest);
-      addFolderPath(folderPaths, "02_PERSONAL\\INTERESTS\\" + cleanInterest);
-      output += "│   │   ├── " + cleanInterest + "\n";
+      addFolderPath(folderPaths, "02_PERSONAL\\" + personalLayerType + "\\INTERESTS\\" + cleanInterest);
+      personalOutputLines.push("│   │   │   ├── " + cleanInterest);
     });
   }
+  output += personalOutputLines.join("\n") + "\n";
 
   output += "├── 03_PROFESSIONAL\n";
-  if (professionalPeriods.length) {
-    professionalPeriods.forEach(period => {
-      const cleanPeriod = sanitizeFolderName(period);
-      addFolderPath(folderPaths, "03_PROFESSIONAL\\" + cleanPeriod);
-      output += "│   ├── " + cleanPeriod + "\n";
-      if (professionalSubjects.length) {
-        professionalSubjects.forEach(subject => {
-          const cleanSubject = sanitizeFolderName(subject);
-          addFolderPath(folderPaths, "03_PROFESSIONAL\\" + cleanPeriod + "\\" + cleanSubject);
-          output += "│   │   ├── " + cleanSubject + "\n";
-        });
-      } else {
-        addFolderPath(folderPaths, "03_PROFESSIONAL\\" + cleanPeriod + "\\SUBJECT");
-        addFolderPath(folderPaths, "03_PROFESSIONAL\\" + cleanPeriod + "\\REFERENCE");
-        output += "│   │   ├── SUBJECT\n";
-        output += "│   │   └── REFERENCE\n";
-      }
+  const professionalOutputLines = [];
+  addFolderGroup(folderPaths, professionalOutputLines, "03_PROFESSIONAL", professionalLayerType, professionalPeriods, ["CURRENT_ROLE"]);
+
+  const professionalBaseItems = professionalPeriods.length ? professionalPeriods : ["CURRENT_ROLE"];
+  professionalBaseItems.forEach(period => {
+    const cleanPeriod = sanitizeFolderName(period);
+    const subjects = professionalSubjects.length ? professionalSubjects : ["SUBJECT", "REFERENCE"];
+    subjects.forEach(subject => {
+      const cleanSubject = sanitizeFolderName(subject);
+      addFolderPath(folderPaths, "03_PROFESSIONAL\\" + professionalLayerType + "\\" + cleanPeriod + "\\" + cleanSubject);
     });
-  } else {
-    addFolderPath(folderPaths, "03_PROFESSIONAL\\CURRENT_ROLE");
-    addFolderPath(folderPaths, "03_PROFESSIONAL\\CURRENT_ROLE\\SUBJECT");
-    addFolderPath(folderPaths, "03_PROFESSIONAL\\CURRENT_ROLE\\REFERENCE");
-    output += "│   ├── CURRENT_ROLE\n";
-    output += "│   │   ├── SUBJECT\n";
-    output += "│   │   └── REFERENCE\n";
-  }
+  });
+  output += professionalOutputLines.join("\n") + "\n";
 
   output += "├── 04_REFERENCE\n";
   output += "└── 05_ARCHIVE\n\n";
@@ -322,6 +324,7 @@ function suggestStructure() {
   output += "- 01_PROFILE is for identity, presentation, qualifications, and proof of experience.\n";
   output += "- 02_PERSONAL is for life themes and interests.\n";
   output += "- 03_PROFESSIONAL is for work duties, projects, and responsibilities.\n";
+  output += "- The second layer is selected separately for each main category.\n";
   output += "- Folder creation is optional and requires user permission.\n";
 
   latestFolderPaths = folderPaths;
@@ -330,6 +333,9 @@ function suggestStructure() {
 
 function loadMarkellosExample() {
   document.getElementById("userName").value = "Markellos";
+  document.getElementById("profileLayerType").value = "003_FUNCTIONAL";
+  document.getElementById("personalLayerType").value = "002_THEMATIC";
+  document.getElementById("professionalLayerType").value = "001_CHRONOLOGICAL";
 
   document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
   ["period", "role", "project", "theme", "action"].forEach(value => {
@@ -387,6 +393,9 @@ function loadMarkellosExample() {
 
 function clearStructureForm() {
   document.getElementById("userName").value = "";
+  document.getElementById("profileLayerType").value = "003_FUNCTIONAL";
+  document.getElementById("personalLayerType").value = "002_THEMATIC";
+  document.getElementById("professionalLayerType").value = "001_CHRONOLOGICAL";
   document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
   document.getElementById("workPeriods").value = "";
   document.getElementById("workSubjects").value = "";
