@@ -5,15 +5,15 @@ body {
 .brand-hero {
   display: flex;
   justify-content: center;
-  padding: 14px 18px 0;
+  padding: 16px 18px 0;
 }
 
 .brand-hero img {
   display: block;
-  width: min(180px, 48vw);
+  width: min(300px, 70vw);
   height: auto;
-  border-radius: 18px;
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.2);
 }
 
 .site-footer {
@@ -88,8 +88,8 @@ body {
   }
 
   .brand-hero img {
-    width: min(150px, 44vw);
-    border-radius: 14px;
+    width: min(250px, 68vw);
+    border-radius: 16px;
   }
 
   .site-footer {
