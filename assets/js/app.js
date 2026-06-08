@@ -14,6 +14,7 @@ let selectedFile = null;
         guidedNote: "Answer these questions as the user naturally remembers files. The app will suggest a folder structure.",
         userProfileName: "User / Profile Name",
         mainRole: "Main work / life role",
+        mainCategory: "Main Category",
         memoryQuestion: "When searching for a file, what do you remember first?",
         memoryPeriod: "Period of life",
         memoryRole: "Role / responsibility",
@@ -87,6 +88,7 @@ let selectedFile = null;
         guidedNote: "Απάντησε με βάση το πώς θυμάται φυσικά ο χρήστης τα αρχεία. Το app θα προτείνει δομή φακέλων.",
         userProfileName: "Χρήστης / Όνομα Προφίλ",
         mainRole: "Κύριος επαγγελματικός / προσωπικός ρόλος",
+        mainCategory: "Κύρια Κατηγορία",
         memoryQuestion: "Όταν ψάχνεις ένα αρχείο, τι θυμάσαι πρώτα;",
         memoryPeriod: "Περίοδο ζωής",
         memoryRole: "Ρόλο / ευθύνη",
@@ -242,14 +244,14 @@ let selectedFile = null;
       }
 
       output += "DOCUMENTS\n";
-      ["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS", "01_WORK", "02_PERSONAL", "03_PROFILE", "04_REFERENCE", "05_ARCHIVE"].forEach(path => addFolderPath(folderPaths, path));
+      ["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS", "03_PROFILE", "02_PERSONAL", "01_WORK", "04_REFERENCE", "05_ARCHIVE"].forEach(path => addFolderPath(folderPaths, path));
 
       output += "├── 00_INBOX\n";
       output += "├── 00_PENDING\n";
       output += "├── 00_TO_REVIEW\n";
       output += "├── 00_WAITING\n";
       output += "├── 00_REMINDERS\n";
-      output += "├── 01_WORK\n";
+      output += "├── 03_PROFILE\n";
 
       if (workPeriods.length) {
         workPeriods.forEach(period => {
