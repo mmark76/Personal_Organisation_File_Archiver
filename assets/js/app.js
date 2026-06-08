@@ -20,6 +20,8 @@ const translations = {
     guidedInterview: "Guided Interview",
     guidedNote: "Answer these questions as the user naturally remembers files. The app will suggest a folder structure.",
     userProfileName: "User / Profile Name",
+    mainCategoriesTitle: "Main categories",
+    otherMainCategories: "Other main categories, named one per line",
     nextLayerTitle: "Next layer categorisation",
     profileLayerType: "01_PROFILE next layer logic",
     personalLayerType: "02_PERSONAL next layer logic",
@@ -94,6 +96,8 @@ const translations = {
     guidedInterview: "Καθοδηγητικές Ερωτήσεις",
     guidedNote: "Απάντησε με βάση το πώς θυμάται φυσικά ο χρήστης τα αρχεία. Το app θα προτείνει δομή φακέλων.",
     userProfileName: "Χρήστης / Όνομα Προφίλ",
+    mainCategoriesTitle: "Βασικές κατηγορίες",
+    otherMainCategories: "Άλλες βασικές κατηγορίες, ονομαστικά μία ανά γραμμή",
     nextLayerTitle: "Κατηγοριοποίηση επόμενου επιπέδου",
     profileLayerType: "Λογική 2ου επιπέδου 01_PROFILE",
     personalLayerType: "Λογική 2ου επιπέδου 02_PERSONAL",
@@ -199,6 +203,19 @@ function getCheckedMemoryPatterns() {
   return Array.from(document.querySelectorAll(".memoryPattern:checked")).map(x => x.value);
 }
 
+function getSelectedMainCategories() {
+  const selected = Array.from(document.querySelectorAll(".mainCategory:checked")).map(x => x.value);
+  const finalCategories = selected.filter(x => x !== "OTHER");
+
+  if (selected.includes("OTHER")) {
+    getLines("otherMainCategories").forEach(category => {
+      finalCategories.push(sanitizeFolderName(category));
+    });
+  }
+
+  return finalCategories;
+}
+
 function sanitizeFolderName(value) {
   return value
     .trim()
@@ -209,7 +226,7 @@ function sanitizeFolderName(value) {
 
 function addFolderPath(paths, folderPath) {
   const cleanPath = folderPath
-    .replace(/\/+?/g, "\\")
+    .replace(/\/+/g, "\\")
     .replace(/\\\\+/g, "\\")
     .replace(/^\\|\\$/g, "");
 
@@ -229,6 +246,7 @@ function addNamedSecondLevel(paths, outputLines, mainFolder, categories) {
 function suggestStructure() {
   const userName = document.getElementById("userName").value.trim() || "CUSTOM_USER";
   const patterns = getCheckedMemoryPatterns();
+  const mainCategories = getSelectedMainCategories();
   const profileLayerType = document.getElementById("profileLayerType").value;
   const personalLayerType = document.getElementById("personalLayerType").value;
   const professionalLayerType = document.getElementById("professionalLayerType").value;
@@ -241,10 +259,15 @@ function suggestStructure() {
 
   output += "Suggested folder structure for: " + userName + "\n\n";
 
+  output += "Selected main categories:\n";
+  output += mainCategories.length ? mainCategories.map(category => "- " + category).join("\n") : "- Not specified";
+  output += "\n\n";
+
   output += "Selected second-level logic:\n";
-  output += "- 01_PROFILE: " + layerTypeLabels[profileLayerType] + "\n";
-  output += "- 02_PERSONAL: " + layerTypeLabels[personalLayerType] + "\n";
-  output += "- 03_PROFESSIONAL: " + layerTypeLabels[professionalLayerType] + "\n\n";
+  if (mainCategories.includes("01_PROFILE")) output += "- 01_PROFILE: " + layerTypeLabels[profileLayerType] + "\n";
+  if (mainCategories.includes("02_PERSONAL")) output += "- 02_PERSONAL: " + layerTypeLabels[personalLayerType] + "\n";
+  if (mainCategories.includes("03_PROFESSIONAL")) output += "- 03_PROFESSIONAL: " + layerTypeLabels[professionalLayerType] + "\n";
+  output += "\n";
 
   output += "Memory pattern detected:\n";
   output += patterns.length ? patterns.map(p => "- " + p).join("\n") : "- Not specified";
@@ -254,7 +277,7 @@ function suggestStructure() {
   output += "Main category -> Named second-level categories -> File\n\n";
 
   output += "DOCUMENTS\n";
-  ["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS", "01_PROFILE", "02_PERSONAL", "03_PROFESSIONAL", "04_REFERENCE", "05_ARCHIVE"].forEach(path => addFolderPath(folderPaths, path));
+  ["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS"].forEach(path => addFolderPath(folderPaths, path));
 
   output += "├── 00_INBOX\n";
   output += "├── 00_PENDING\n";
@@ -262,27 +285,44 @@ function suggestStructure() {
   output += "├── 00_WAITING\n";
   output += "├── 00_REMINDERS\n";
 
-  output += "├── 01_PROFILE\n";
-  const profileOutputLines = [];
-  addNamedSecondLevel(folderPaths, profileOutputLines, "01_PROFILE", profileCategories.length ? profileCategories : ["CV", "CERTIFICATES", "APPLICATIONS", "PORTFOLIO", "REFERENCE"]);
-  output += profileOutputLines.join("\n") + "\n";
+  mainCategories.forEach(category => addFolderPath(folderPaths, category));
 
-  output += "├── 02_PERSONAL\n";
-  const personalOutputLines = [];
-  addNamedSecondLevel(folderPaths, personalOutputLines, "02_PERSONAL", personalCategories.length ? personalCategories : ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "REFERENCE"]);
-  output += personalOutputLines.join("\n") + "\n";
+  if (mainCategories.includes("01_PROFILE")) {
+    output += "├── 01_PROFILE\n";
+    const profileOutputLines = [];
+    addNamedSecondLevel(folderPaths, profileOutputLines, "01_PROFILE", profileCategories.length ? profileCategories : ["CV", "CERTIFICATES", "APPLICATIONS", "PORTFOLIO", "REFERENCE"]);
+    output += profileOutputLines.join("\n") + "\n";
+  }
 
-  output += "├── 03_PROFESSIONAL\n";
-  const professionalOutputLines = [];
-  addNamedSecondLevel(folderPaths, professionalOutputLines, "03_PROFESSIONAL", professionalCategories.length ? professionalCategories : ["CURRENT_ROLE", "PROJECTS", "ADMINISTRATION", "HEALTH_AND_SAFETY", "REFERENCE"]);
-  output += professionalOutputLines.join("\n") + "\n";
+  if (mainCategories.includes("02_PERSONAL")) {
+    output += "├── 02_PERSONAL\n";
+    const personalOutputLines = [];
+    addNamedSecondLevel(folderPaths, personalOutputLines, "02_PERSONAL", personalCategories.length ? personalCategories : ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "REFERENCE"]);
+    output += personalOutputLines.join("\n") + "\n";
+  }
+
+  if (mainCategories.includes("03_PROFESSIONAL")) {
+    output += "├── 03_PROFESSIONAL\n";
+    const professionalOutputLines = [];
+    addNamedSecondLevel(folderPaths, professionalOutputLines, "03_PROFESSIONAL", professionalCategories.length ? professionalCategories : ["CURRENT_ROLE", "PROJECTS", "ADMINISTRATION", "HEALTH_AND_SAFETY", "REFERENCE"]);
+    output += professionalOutputLines.join("\n") + "\n";
+  }
+
+  mainCategories
+    .filter(category => !["01_PROFILE", "02_PERSONAL", "03_PROFESSIONAL"].includes(category))
+    .forEach(category => {
+      output += "├── " + category + "\n";
+    });
 
   output += "├── 04_REFERENCE\n";
   output += "└── 05_ARCHIVE\n\n";
+  addFolderPath(folderPaths, "04_REFERENCE");
+  addFolderPath(folderPaths, "05_ARCHIVE");
 
   output += "Notes:\n";
   output += "- 00 folders are temporary action folders.\n";
-  output += "- 01_PROFILE, 02_PERSONAL, and 03_PROFESSIONAL each use the selected second-level logic.\n";
+  output += "- The selected main categories appear first.\n";
+  output += "- OTHER allows extra main categories chosen by the user.\n";
   output += "- The actual second-level folders are the named categories entered by the user.\n";
   output += "- Folder creation is optional and requires user permission.\n";
 
@@ -292,6 +332,11 @@ function suggestStructure() {
 
 function loadMarkellosExample() {
   document.getElementById("userName").value = "Markellos";
+  document.querySelectorAll(".mainCategory").forEach(x => x.checked = false);
+  Array.from(document.querySelectorAll(".mainCategory")).forEach(item => {
+    if (["01_PROFILE", "02_PERSONAL", "03_PROFESSIONAL"].includes(item.value)) item.checked = true;
+  });
+  document.getElementById("otherMainCategories").value = "";
   document.getElementById("profileLayerType").value = "003_FUNCTIONAL";
   document.getElementById("personalLayerType").value = "002_THEMATIC";
   document.getElementById("professionalLayerType").value = "001_CHRONOLOGICAL";
@@ -339,6 +384,11 @@ function loadMarkellosExample() {
 
 function clearStructureForm() {
   document.getElementById("userName").value = "";
+  document.querySelectorAll(".mainCategory").forEach(x => x.checked = false);
+  Array.from(document.querySelectorAll(".mainCategory")).forEach(item => {
+    if (["01_PROFILE", "02_PERSONAL", "03_PROFESSIONAL"].includes(item.value)) item.checked = true;
+  });
+  document.getElementById("otherMainCategories").value = "";
   document.getElementById("profileLayerType").value = "003_FUNCTIONAL";
   document.getElementById("personalLayerType").value = "002_THEMATIC";
   document.getElementById("professionalLayerType").value = "001_CHRONOLOGICAL";
