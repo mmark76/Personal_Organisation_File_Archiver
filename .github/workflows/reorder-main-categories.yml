@@ -1,0 +1,92 @@
+name: Reorder main categories
+
+on:
+  push:
+    paths:
+      - '.github/workflows/reorder-main-categories.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add category dropdowns and reorder options
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          js_path = Path('assets/js/app.js')
+          workflow_path = Path('.github/workflows/reorder-main-categories.yml')
+
+          index = index_path.read_text(encoding='utf-8')
+          js = js_path.read_text(encoding='utf-8')
+
+          category_select = '''<label for="structureMainCategory" data-i18n="mainCategory">Main Category</label>
+          <select id="structureMainCategory">
+            <option value="03_PROFILE">Profile</option>
+            <option value="02_PERSONAL">Personal</option>
+            <option value="01_WORK">Work</option>
+            <option value="04_REFERENCE">Reference</option>
+            <option value="05_ARCHIVE">Archive</option>
+            <option value="Other">Other</option>
+          </select>'''
+
+          if 'id="structureMainCategory"' not in index:
+              index = index.replace(
+                  '<label for="userName" data-i18n="userProfileName">User / Profile Name</label>',
+                  category_select + '\n\n          <label for="userName" data-i18n="userProfileName">User / Profile Name</label>',
+                  1,
+              )
+
+          main_context_select = '''<select id="mainContext">
+            <option value="03_PROFILE">Profile</option>
+            <option value="02_PERSONAL">Personal</option>
+            <option value="01_WORK">Work</option>
+            <option value="04_REFERENCE">Reference</option>
+            <option value="05_ARCHIVE">Archive</option>
+            <option value="Other">Other</option>
+          </select>'''
+
+          index = re.sub(
+              r'<select id="mainContext">[\s\S]*?</select>',
+              main_context_select,
+              index,
+              count=1,
+          )
+
+          # Add translation key for the new label.
+          if 'mainCategory:' not in js:
+              js = js.replace('mainRole: "Main work / life role",', 'mainRole: "Main work / life role",\n        mainCategory: "Main Category",', 1)
+              js = js.replace('mainRole: "Κύριος επαγγελματικός / προσωπικός ρόλος",', 'mainRole: "Κύριος επαγγελματικός / προσωπικός ρόλος",\n        mainCategory: "Κύρια Κατηγορία",', 1)
+
+          # Align internal output roots with visible order: Profile, Personal, Work.
+          js = js.replace(
+              '["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS", "01_WORK", "02_PERSONAL", "03_PROFILE", "04_REFERENCE", "05_ARCHIVE"]',
+              '["00_INBOX", "00_PENDING", "00_TO_REVIEW", "00_WAITING", "00_REMINDERS", "03_PROFILE", "02_PERSONAL", "01_WORK", "04_REFERENCE", "05_ARCHIVE"]'
+          )
+
+          js = js.replace('output += "├── 01_WORK\\n";', 'output += "├── 03_PROFILE\\n";')
+          js = js.replace('output += "├── 02_PERSONAL\\n";', 'output += "├── 02_PERSONAL\\n";')
+          js = js.replace('output += "├── 03_PROFILE\\n";', 'output += "├── 03_PROFILE\\n";', 1)
+
+          index_path.write_text(index, encoding='utf-8')
+          js_path.write_text(js, encoding='utf-8')
+
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/js/app.js .github/workflows/reorder-main-categories.yml
+          git commit -m "Reorder main categories and add structure category dropdown" || echo "No changes to commit"
+          git push
