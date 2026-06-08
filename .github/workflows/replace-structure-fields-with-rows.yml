@@ -1,0 +1,173 @@
+name: Replace structure fields with row inputs
+
+on:
+  push:
+    paths:
+      - '.github/workflows/replace-structure-fields-with-rows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Replace dropdowns/textareas with row inputs
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          js_path = Path('assets/js/app.js')
+          css_path = Path('assets/css/styles.css')
+          workflow_path = Path('.github/workflows/replace-structure-fields-with-rows.yml')
+
+          index = index_path.read_text(encoding='utf-8')
+          js = js_path.read_text(encoding='utf-8')
+          css = css_path.read_text(encoding='utf-8')
+
+          index = re.sub(
+              r'<select id="mainRole">[\s\S]*?</select>|<input type="text" id="mainRole"[^>]*>',
+              '<input type="text" id="mainRole" placeholder="Example: Civil Engineer / Project Manager / Parent" />',
+              index,
+              count=1,
+          )
+
+          def rows_block(field_id, examples):
+              rows = '\n'.join(
+                  f'            <div class="dynamic-row"><input type="text" placeholder="Example: {example}" /></div>'
+                  for example in examples
+              )
+              return f'''<div id="{field_id}" class="dynamic-list">
+{rows}
+          </div>
+          <button type="button" class="secondary small-button" onclick="addListRow('{field_id}')">+ Add row</button>'''
+
+          blocks = {
+              'workPeriods': rows_block('workPeriods', ['Past professional period', 'Current professional period']),
+              'workSubjects': rows_block('workSubjects', ['Projects', 'Administration']),
+              'personalThemes': rows_block('personalThemes', ['Family', 'Health']),
+              'interests': rows_block('interests', ['Reading', 'Technology']),
+              'profileAreas': rows_block('profileAreas', ['CV', 'Certificates']),
+          }
+
+          for field_id, new_html in blocks.items():
+              index = re.sub(
+                  rf'<textarea id="{field_id}"[\s\S]*?</textarea>|<select id="{field_id}"[\s\S]*?</select>\s*(?:<button[^>]*>\+ Add row</button>)?',
+                  new_html,
+                  index,
+                  count=1,
+              )
+
+          if '.dynamic-row' not in css:
+              css += '''
+
+.dynamic-list {
+  margin-top: 6px;
+}
+
+.dynamic-row {
+  margin-bottom: 8px;
+}
+
+.dynamic-row input {
+  margin-top: 0;
+}
+
+.small-button {
+  margin-top: 4px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+'''
+
+          js = re.sub(
+              r'function getLines\(id\) \{[\s\S]*?\n    \}',
+              '''function getLines(id) {
+      const element = document.getElementById(id);
+
+      if (element.classList.contains("dynamic-list")) {
+        return Array.from(element.querySelectorAll("input"))
+          .map(input => input.value.trim())
+          .filter(Boolean);
+      }
+
+      if (element.tagName === "SELECT") {
+        return Array.from(element.selectedOptions)
+          .map(option => option.value.trim())
+          .filter(Boolean);
+      }
+
+      return element.value
+        .split("\\n")
+        .map(x => x.trim())
+        .filter(Boolean);
+    }
+
+    function addListRow(id, value = "") {
+      const container = document.getElementById(id);
+      const row = document.createElement("div");
+      row.className = "dynamic-row";
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.value = value;
+      input.placeholder = "Add subcategory";
+
+      row.appendChild(input);
+      container.appendChild(row);
+    }
+
+    function setListValues(id, values) {
+      const container = document.getElementById(id);
+      container.innerHTML = "";
+      values.forEach(value => addListRow(id, value));
+    }
+
+    function clearList(id, minimumRows = 2) {
+      const container = document.getElementById(id);
+      container.innerHTML = "";
+      for (let i = 0; i < minimumRows; i += 1) {
+        addListRow(id);
+      }
+    }''',
+              js,
+              count=1,
+          )
+
+          # Remove older helper functions if present and not used.
+          js = re.sub(r'\n\s*function setSelectedValues\(id, values\) \{[\s\S]*?\n\s*\}\n\s*function clearField\(id\) \{[\s\S]*?\n\s*\}', '', js, count=1)
+
+          replacements = {
+              'setSelectedValues("workPeriods", ["PAST_PERIOD", "CURRENT_PERIOD", "PROFESSIONAL_PERIOD"]);': 'setListValues("workPeriods", ["Past professional period", "Current professional period", "Professional reference"]);',
+              'setSelectedValues("workSubjects", ["PROJECT", "ADMINISTRATION", "HEALTH_AND_SAFETY", "REFERENCE"]);': 'setListValues("workSubjects", ["Projects", "Administration", "Health and safety", "Reference"]);',
+              'setSelectedValues("personalThemes", ["FAMILY", "HEALTH", "FINANCE", "LEARNING", "REFERENCE"]);': 'setListValues("personalThemes", ["Family", "Health", "Finance", "Learning", "Reference"]);',
+              'setSelectedValues("interests", ["READING", "WRITING", "TECHNOLOGY", "RESEARCH"]);': 'setListValues("interests", ["Reading", "Writing", "Technology", "Research"]);',
+              'setSelectedValues("profileAreas", ["CV", "BIOGRAPHY", "CERTIFICATES", "APPLICATIONS", "REFERENCE"]);': 'setListValues("profileAreas", ["CV", "Biography", "Certificates", "Applications", "Reference"]);',
+          }
+          for old, new in replacements.items():
+              js = js.replace(old, new)
+
+          for field_id in ['workPeriods', 'workSubjects', 'personalThemes', 'interests', 'profileAreas']:
+              js = js.replace(f'clearField("{field_id}");', f'clearList("{field_id}");')
+              js = js.replace(f'document.getElementById("{field_id}").value = "";', f'clearList("{field_id}");')
+
+          index_path.write_text(index, encoding='utf-8')
+          js_path.write_text(js, encoding='utf-8')
+          css_path.write_text(css, encoding='utf-8')
+
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/js/app.js assets/css/styles.css .github/workflows/replace-structure-fields-with-rows.yml
+          git commit -m "Replace structure fields with addable row inputs" || echo "No changes to commit"
+          git push
