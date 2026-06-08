@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mmark76.github.io/Personal_Organisation_File_Archiver/sitemap.xml
