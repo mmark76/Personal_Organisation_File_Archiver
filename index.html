@@ -40,18 +40,7 @@
           <div class="note" data-i18n="guidedNote">
             Answer these questions as the user naturally remembers files. The app will suggest a folder structure.
           </div>
-
-          <label for="structureMainCategory" data-i18n="mainCategory">Main Category</label>
-<select id="structureMainCategory">
-  <option value="03_PROFILE">Profile</option>
-  <option value="02_PERSONAL">Personal</option>
-  <option value="01_WORK">Work</option>
-  <option value="04_REFERENCE">Reference</option>
-  <option value="05_ARCHIVE">Archive</option>
-  <option value="Other">Other</option>
-</select>
-
-          <label for="userName" data-i18n="userProfileName">User / Profile Name</label>
+<label for="userName" data-i18n="userProfileName">User / Profile Name</label>
           <input type="text" id="userName" placeholder="Example: Username" />
 
           <label for="mainRole" data-i18n="mainRole">Main work / life role</label>
@@ -64,6 +53,17 @@
   <option value="Teacher">Teacher</option>
   <option value="Parent">Parent</option>
   <option value="Student">Student</option>
+  <option value="Other">Other</option>
+</select>
+
+          <label for="subcategoryCount" data-i18n="subcategoryCount">Number of subcategories per main category</label>
+<select id="subcategoryCount">
+  <option value="0">0</option>
+  <option value="1">1</option>
+  <option value="2" selected>2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
   <option value="Other">Other</option>
 </select>
 

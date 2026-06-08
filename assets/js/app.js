@@ -14,6 +14,7 @@ let selectedFile = null;
         guidedNote: "Answer these questions as the user naturally remembers files. The app will suggest a folder structure.",
         userProfileName: "User / Profile Name",
         mainRole: "Main work / life role",
+        subcategoryCount: "Number of subcategories per main category",
         mainCategory: "Main Category",
         memoryQuestion: "When searching for a file, what do you remember first?",
         memoryPeriod: "Period of life",
@@ -88,6 +89,7 @@ let selectedFile = null;
         guidedNote: "Απάντησε με βάση το πώς θυμάται φυσικά ο χρήστης τα αρχεία. Το app θα προτείνει δομή φακέλων.",
         userProfileName: "Χρήστης / Όνομα Προφίλ",
         mainRole: "Κύριος επαγγελματικός / προσωπικός ρόλος",
+        subcategoryCount: "Αριθμός υποκατηγοριών ανά κύρια κατηγορία",
         mainCategory: "Κύρια Κατηγορία",
         memoryQuestion: "Όταν ψάχνεις ένα αρχείο, τι θυμάσαι πρώτα;",
         memoryPeriod: "Περίοδο ζωής",
@@ -215,6 +217,7 @@ let selectedFile = null;
       const userName = document.getElementById("userName").value.trim() || "CUSTOM_USER";
       const mainRole = document.getElementById("mainRole").value.trim() || "Not specified";
       const patterns = getCheckedMemoryPatterns();
+      const subcategoryCount = document.getElementById("subcategoryCount").value || "2";
 
       const workPeriods = getLines("workPeriods");
       const workSubjects = getLines("workSubjects");
@@ -226,7 +229,8 @@ let selectedFile = null;
       let folderPaths = [];
 
       output += "Suggested folder structure for: " + userName + "\n";
-      output += "Main role: " + mainRole + "\n\n";
+      output += "Main role: " + mainRole + "\n";
+      output += "Requested subcategories per main category: " + subcategoryCount + "\n\n";
 
       output += "Memory pattern detected:\n";
       output += patterns.length ? patterns.map(p => "- " + p).join("\n") : "- Not specified";
@@ -340,6 +344,7 @@ let selectedFile = null;
       document.getElementById("mainRole").value = "Civil Engineer";
 
       document.querySelectorAll(".memoryPattern").forEach(x => x.checked = false);
+      document.getElementById("subcategoryCount").value = "2";
       ["period", "role", "project", "theme", "action"].forEach(value => {
         const item = Array.from(document.querySelectorAll(".memoryPattern")).find(x => x.value === value);
         if (item) item.checked = true;
