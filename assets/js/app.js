@@ -36,7 +36,12 @@ const profileKeywordMap = {
   "DEGREES": ["degree", "degrees", "diploma", "diplomas", "bachelor", "master", "mba", "university", "πτυχιο", "πτυχια", "ptychio", "ptychia"],
   "CERTIFICATES": ["certificate", "certificates", "certification", "certifications", "license", "licence", "training", "πιστοποιητικο", "πιστοποιητικα", "pistopoiitiko"],
   "REFERENCES": ["reference", "references", "recommendation", "recommendations", "referee", "συστατικη", "συστατικες", "systatiki", "systatikes"],
-  "SUPPORTING_EVIDENCE": ["proof", "proofs", "evidence", "verification", "confirmation", "supporting", "supporting evidence", "αποδεικτικο", "αποδεικτικα", "apodeiktiko"]
+  "SUPPORTING_EVIDENCE": ["proof", "proofs", "evidence", "verification", "confirmation", "supporting", "supporting evidence", "αποδεικτικο", "αποδεικτικα", "apodeiktiko"],
+  "CHESS": ["chess", "tournament", "opening", "game", "pgn", "σκακι", "skaki"],
+  "SWIMMING": ["swimming", "swim", "pool", "sea", "κολυμπι", "kolympi"],
+  "MNEMONIC_TECHNIQUES": ["mnemonic", "memory", "memory palace", "loci", "mnemonics", "μνημονικες", "mnimonikes"],
+  "BLOG_WRITING": ["blog", "article", "writing", "post", "blogger", "αρθρο", "arthro"],
+  "WEB_APPS": ["web app", "app", "javascript", "html", "css", "github", "cursor"]
 };
 
 const tree = {
@@ -63,12 +68,10 @@ function sanitizeFolderName(value) {
 
 function findNode(nodeId, currentNode = tree) {
   if (currentNode.id === nodeId) return currentNode;
-
   for (const child of currentNode.children || []) {
     const found = findNode(nodeId, child);
     if (found) return found;
   }
-
   return null;
 }
 
@@ -84,18 +87,15 @@ function findParentNode(nodeId, currentNode = tree) {
 function getNodePath(nodeId, currentNode = tree, path = []) {
   const currentPath = [...path, currentNode];
   if (currentNode.id === nodeId) return currentPath;
-
   for (const child of currentNode.children || []) {
     const found = getNodePath(nodeId, child, currentPath);
     if (found.length) return found;
   }
-
   return [];
 }
 
 function getBranch(node) {
   if (node.branch) return node.branch;
-
   const path = getNodePath(node.id);
   const mainNode = path[1];
   return mainNode ? mainNode.branch : null;
@@ -110,11 +110,7 @@ function getAllowedThinkingTypes(parentNode) {
 function renderTree() {
   const treeContainer = document.getElementById("treeContainer");
   treeContainer.innerHTML = "";
-
-  tree.children.forEach(mainCategory => {
-    treeContainer.appendChild(renderNode(mainCategory, 0));
-  });
-
+  tree.children.forEach(mainCategory => treeContainer.appendChild(renderNode(mainCategory, 0)));
   updateOutput();
   updateDestinationGuide();
 }
@@ -176,7 +172,6 @@ function renderNode(node, depth) {
   row.appendChild(content);
   row.appendChild(actions);
   wrapper.appendChild(row);
-
   (node.children || []).forEach(child => wrapper.appendChild(renderNode(child, depth + 1)));
   return wrapper;
 }
@@ -223,7 +218,6 @@ function closeNodeModal() {
 function updateThinkingPrompt() {
   const select = document.getElementById("thinkingTypeSelect");
   if (!select) return;
-
   const thinkingType = select.value;
   const label = document.getElementById("folderNameLabel");
   const examplesBox = document.getElementById("examplesBox");
@@ -239,9 +233,7 @@ function updateThinkingPrompt() {
     const tag = document.createElement("span");
     tag.className = "example-tag";
     tag.textContent = example;
-    tag.onclick = () => {
-      document.getElementById("folderNameInput").value = example;
-    };
+    tag.onclick = () => { document.getElementById("folderNameInput").value = example; };
     examplesBox.appendChild(tag);
   });
 }
@@ -258,16 +250,7 @@ function confirmAddChild() {
 
   if (!parentNode.childLayerType) parentNode.childLayerType = thinkingType;
 
-  parentNode.children.push({
-    id: "node_" + nextNodeId++,
-    name: cleanName,
-    fixed: false,
-    branch: parentNode.branch || getBranch(parentNode),
-    thinkingType: parentNode.childLayerType,
-    childLayerType: null,
-    children: []
-  });
-
+  parentNode.children.push(createExampleNode(cleanName, parentNode.branch || getBranch(parentNode), parentNode.childLayerType));
   closeNodeModal();
   renderTree();
   analyzeCurrentFileData();
@@ -289,7 +272,6 @@ function deleteNode(nodeId, currentNode = tree) {
   for (const child of currentNode.children) {
     if (deleteNode(nodeId, child)) return true;
   }
-
   return false;
 }
 
@@ -331,7 +313,6 @@ function chooseCurrentAsFinal() {
   const finalBox = document.getElementById("finalDestinationBox");
   const node = findNode(destinationCurrentNodeId);
   if (!node) return;
-
   finalBox.classList.remove("hidden");
   finalBox.textContent = "Final destination selected: " + getNodeFolderPath(node.id);
 }
@@ -545,6 +526,11 @@ function suggestBestFolder(analysisText) {
     if (normalizedPath.includes("certificates") && /certificate|certification|license|licence|training|πιστοποιητικο|πιστοποιητικα|pistopoiitiko/.test(analysisText)) score += 3;
     if (normalizedPath.includes("references") && /reference|recommendation|referee|συστατικη|συστατικες|systatiki|systatikes/.test(analysisText)) score += 3;
     if (normalizedPath.includes("supporting_evidence") && /proof|evidence|verification|confirmation|supporting|αποδεικτικο|αποδεικτικα|apodeiktiko/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("chess") && /chess|tournament|opening|game|pgn|σκακι|skaki/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("swimming") && /swimming|swim|pool|sea|κολυμπι|kolympi/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("mnemonic") && /mnemonic|memory|loci|μνημονικες|mnimonikes/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("blog") && /blog|article|writing|post|blogger|αρθρο|arthro/.test(analysisText)) score += 3;
+    if (normalizedPath.includes("web_apps") && /web app|javascript|html|css|github|cursor/.test(analysisText)) score += 3;
     if (normalizedPath.includes("financial") && /invoice|receipt|bank|tax|payment|financial/.test(analysisText)) score += 2;
     if (normalizedPath.includes("health") && /health|medical|doctor|hospital|clinic|blood/.test(analysisText)) score += 2;
     if (normalizedPath.includes("professional") && /work|project|ministry|meci|report|meeting|professional/.test(analysisText)) score += 1.5;
@@ -560,7 +546,7 @@ function suggestBestFolder(analysisText) {
     nodeId: best.node.id,
     path: best.path,
     confidence: best.score >= 5 ? "high" : best.score >= 3 ? "medium" : "low",
-    matches: best.matches.length ? best.matches : ["multilingual profile/CV-related pattern"]
+    matches: best.matches.length ? best.matches : ["multilingual pattern"]
   };
 }
 
@@ -569,10 +555,7 @@ function getDestinationCandidates(node = tree, currentPath = "") {
   const candidates = [];
 
   if (node.id !== "root") {
-    candidates.push({
-      node,
-      path: nodePath.replace(/^DOCUMENTS\\?/, "")
-    });
+    candidates.push({ node, path: nodePath.replace(/^DOCUMENTS\\?/, "") });
   }
 
   (node.children || []).forEach(child => candidates.push(...getDestinationCandidates(child, nodePath)));
@@ -625,24 +608,41 @@ function loadMarkellosExample() {
   tree.children[0].children = ["CVS", "DEGREES", "CERTIFICATES", "REFERENCES", "SUPPORTING_EVIDENCE"].map(name => createExampleNode(name, "profile", "003_FUNCTIONAL"));
 
   tree.children[1].childLayerType = "002_THEMATIC";
-  tree.children[1].children = ["FAMILY", "HEALTH", "FINANCIAL", "INTERESTS", "LEARNING"].map(name => createExampleNode(name, "personal", "002_THEMATIC"));
+  tree.children[1].children = [
+    createExampleNode("FAMILY", "personal", "002_THEMATIC"),
+    createExampleNode("HEALTH", "personal", "002_THEMATIC"),
+    createExampleNode("FINANCIAL", "personal", "002_THEMATIC"),
+    createExampleNode("INTERESTS", "personal", "002_THEMATIC", "002_THEMATIC", [
+      createExampleNode("CHESS", "personal", "002_THEMATIC"),
+      createExampleNode("SWIMMING", "personal", "002_THEMATIC"),
+      createExampleNode("MNEMONIC_TECHNIQUES", "personal", "002_THEMATIC"),
+      createExampleNode("BLOG_WRITING", "personal", "002_THEMATIC"),
+      createExampleNode("WEB_APPS", "personal", "002_THEMATIC")
+    ]),
+    createExampleNode("LEARNING", "personal", "002_THEMATIC")
+  ];
 
   tree.children[2].childLayerType = "001_CHRONOLOGICAL";
-  tree.children[2].children = ["2002-01-01_TO_2010-01-31_PRIVATE_SECTOR", "2010-02-01_TO_2018-12-31_MECIT", "2019-01-01_TO_NOW_MECI"].map(name => createExampleNode(name, "professional", "001_CHRONOLOGICAL"));
+  tree.children[2].children = [
+    "2002-2010_PRIVATE_SECTOR",
+    "2010-2019_MARINAS_PPP_DBFOT",
+    "2019-2026_STATE_FAIR_SITE_MANAGEMENT",
+    "2026-NOW_HEALTH_AND_SAFETY_OFFICER"
+  ].map(name => createExampleNode(name, "professional", "001_CHRONOLOGICAL"));
 
   renderTree();
   analyzeCurrentFileData();
 }
 
-function createExampleNode(name, branch, thinkingType) {
+function createExampleNode(name, branch, thinkingType, childLayerType = null, children = []) {
   return {
     id: "node_" + nextNodeId++,
     name,
     fixed: false,
     branch,
     thinkingType,
-    childLayerType: null,
-    children: []
+    childLayerType,
+    children
   };
 }
 
@@ -680,16 +680,13 @@ async function createFoldersOnComputer() {
 
   try {
     const rootHandle = await window.showDirectoryPicker();
-
     for (const folderPath of latestFolderPaths) {
       const parts = folderPath.split("\\").filter(Boolean);
       let currentHandle = rootHandle;
-
       for (const part of parts) {
         currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
       }
     }
-
     alert("Folder structure created successfully.");
   } catch (error) {
     alert("Folder creation was cancelled or failed.");
