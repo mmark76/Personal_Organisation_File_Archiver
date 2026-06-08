@@ -6,297 +6,74 @@
   <title>Personal Memory-Based File Advisor</title>
   <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
-
 <body>
   <header>
-    <div class="header-row">
-      <div>
-        <h1 data-i18n="appTitle">Personal Memory-Based File Advisor</h1>
-        <p data-i18n="appSubtitle">Suggests folder structures and file destinations. It does not move, delete, create, or upload files.</p>
-      </div>
-
-      <div class="language-box">
-        <label for="languageSelect" data-i18n="languageLabel">Language</label>
-        <select id="languageSelect" onchange="changeLanguage()">
-          <option value="en" selected>English</option>
-          <option value="el">Greek</option>
-        </select>
-      </div>
+    <div>
+      <h1>Personal Memory-Based File Advisor</h1>
+      <p>Build a personal folder tree with guided thinking. The app does not move, delete, upload, or modify files.</p>
     </div>
   </header>
 
-  <div class="container">
-    <div class="tabs">
-      <button class="tab-button active" onclick="openTab('structureTab', this)" data-i18n="tabStructure">1. Suggest Folder Structure</button>
-      <button class="tab-button" onclick="openTab('destinationTab', this)" data-i18n="tabDestination">2. Suggest File Destination</button>
-      <button class="tab-button" onclick="openTab('statusTab', this)" data-i18n="tabStatus">3. Pending / Reminder</button>
+  <main class="app-shell">
+    <section class="panel tree-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Folder Tree</h2>
+          <p>Fixed first level. Add unlimited layers below it.</p>
+        </div>
+        <button type="button" class="secondary" onclick="loadMarkellosExample()">Load Markellos Example</button>
+      </div>
+
+      <div class="guidance-card">
+        <strong>Before adding folders, choose one thinking type for the next layer.</strong>
+        <span>Chronological, thematic, functional, or role-based. The type guides the names; it does not become a folder.</span>
+      </div>
+
+      <div id="treeContainer" class="tree-container"></div>
+    </section>
+
+    <aside class="panel inspector-panel">
+      <h2>Current Structure</h2>
+      <pre id="treeOutput" class="output"></pre>
+
+      <div class="actions">
+        <button type="button" onclick="copyTreeOutput()">Copy Structure</button>
+        <button type="button" class="secondary" onclick="downloadStructureText()">Download TXT</button>
+        <button type="button" class="secondary" onclick="downloadWindowsBatch()">Download Windows .BAT</button>
+        <button type="button" class="success" onclick="createFoldersOnComputer()">Create Folders on This PC</button>
+      </div>
+
+      <p class="small-note">Folder creation is optional and works only in supported browsers after you choose a local destination folder.</p>
+    </aside>
+  </main>
+
+  <div id="nodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <h2 id="modalTitle">Add Folder</h2>
+      <p id="modalContext" class="modal-context"></p>
+
+      <label for="thinkingTypeSelect">Thinking type for this layer</label>
+      <select id="thinkingTypeSelect" onchange="updateThinkingPrompt()">
+        <option value="001_CHRONOLOGICAL">001 - Chronological</option>
+        <option value="002_THEMATIC">002 - Thematic</option>
+        <option value="003_FUNCTIONAL">003 - Functional</option>
+        <option value="004_ROLE_BASED">004 - Role-based</option>
+      </select>
+
+      <div id="fixedThinkingType" class="fixed-type hidden"></div>
+
+      <label id="folderNameLabel" for="folderNameInput">Folder name</label>
+      <input type="text" id="folderNameInput" />
+
+      <div id="examplesBox" class="examples-box"></div>
+
+      <div class="modal-actions">
+        <button type="button" onclick="confirmAddChild()">Add</button>
+        <button type="button" class="secondary" onclick="closeNodeModal()">Cancel</button>
+      </div>
     </div>
-
-    <section id="structureTab" class="tab active">
-      <div class="grid">
-        <div class="card">
-          <h2 data-i18n="guidedInterview">Guided Interview</h2>
-
-          <div class="note" data-i18n="guidedNote">
-            Answer these questions as the user naturally remembers files. The app will suggest a folder structure.
-          </div>
-
-          <label for="userName" data-i18n="userProfileName">User / Profile Name</label>
-          <input type="text" id="userName" placeholder="Example: Username" />
-
-          <label data-i18n="mainCategoriesTitle">Main categories</label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" value="01_PROFILE" class="mainCategory" checked /> <span>01_PROFILE</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="02_PERSONAL" class="mainCategory" checked /> <span>02_PERSONAL</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="03_PROFESSIONAL" class="mainCategory" checked /> <span>03_PROFESSIONAL</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="OTHER" id="otherMainCategoryToggle" class="mainCategory" /> <span>OTHER</span></label>
-          </div>
-
-          <label for="otherMainCategories" data-i18n="otherMainCategories">Other main categories, named one per line</label>
-          <textarea id="otherMainCategories" placeholder="One per line. Example:
-04_CREATIVE
-05_COMMUNITY"></textarea>
-
-          <label data-i18n="nextLayerTitle">Next layer categorisation</label>
-
-          <label for="profileLayerType" data-i18n="profileLayerType">01_PROFILE next layer logic</label>
-          <select id="profileLayerType">
-            <option value="001_CHRONOLOGICAL">001 - ΧΡΟΝΙΚΗ</option>
-            <option value="002_THEMATIC">002 - ΘΕΜΑΤΙΚΗ</option>
-            <option value="003_FUNCTIONAL" selected>003 - ΛΕΙΤΟΥΡΓΙΚΗ</option>
-            <option value="004_ROLE_BASED">004 - ΡΟΛΟΥ</option>
-          </select>
-
-          <label for="profileSecondLevelCategories" data-i18n="profileSecondLevelCategories">01_PROFILE second-level categories, named one per line</label>
-          <textarea id="profileSecondLevelCategories" placeholder="One per line. Example:
-CV
-CERTIFICATES
-APPLICATIONS
-PORTFOLIO
-REFERENCE"></textarea>
-
-          <label for="personalLayerType" data-i18n="personalLayerType">02_PERSONAL next layer logic</label>
-          <select id="personalLayerType">
-            <option value="001_CHRONOLOGICAL">001 - ΧΡΟΝΙΚΗ</option>
-            <option value="002_THEMATIC" selected>002 - ΘΕΜΑΤΙΚΗ</option>
-            <option value="003_FUNCTIONAL">003 - ΛΕΙΤΟΥΡΓΙΚΗ</option>
-            <option value="004_ROLE_BASED">004 - ΡΟΛΟΥ</option>
-          </select>
-
-          <label for="personalSecondLevelCategories" data-i18n="personalSecondLevelCategories">02_PERSONAL second-level categories, named one per line</label>
-          <textarea id="personalSecondLevelCategories" placeholder="One per line. Example:
-FAMILY
-HEALTH
-FINANCIAL
-INTERESTS
-REFERENCE"></textarea>
-
-          <label for="professionalLayerType" data-i18n="professionalLayerType">03_PROFESSIONAL next layer logic</label>
-          <select id="professionalLayerType">
-            <option value="001_CHRONOLOGICAL" selected>001 - ΧΡΟΝΙΚΗ</option>
-            <option value="002_THEMATIC">002 - ΘΕΜΑΤΙΚΗ</option>
-            <option value="003_FUNCTIONAL">003 - ΛΕΙΤΟΥΡΓΙΚΗ</option>
-            <option value="004_ROLE_BASED">004 - ΡΟΛΟΥ</option>
-          </select>
-
-          <label for="professionalSecondLevelCategories" data-i18n="professionalSecondLevelCategories">03_PROFESSIONAL second-level categories, named one per line</label>
-          <textarea id="professionalSecondLevelCategories" placeholder="One per line. Example:
-2002-2010_PRIVATE_SECTOR
-2010-2019_PUBLIC_SECTOR
-2019-NOW_CURRENT_ROLE
-PROJECTS
-HEALTH_AND_SAFETY"></textarea>
-
-          <label data-i18n="memoryQuestion">When searching for a file, what do you remember first?</label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" value="period" class="memoryPattern" /> <span data-i18n="memoryPeriod">Period of life</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="role" class="memoryPattern" /> <span data-i18n="memoryRole">Role / responsibility</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="project" class="memoryPattern" /> <span data-i18n="memoryProject">Project</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="theme" class="memoryPattern" /> <span data-i18n="memoryTheme">Life theme</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="person" class="memoryPattern" /> <span data-i18n="memoryPerson">Person / family member</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="date" class="memoryPattern" /> <span data-i18n="memoryDate">Date</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="filetype" class="memoryPattern" /> <span data-i18n="memoryFiletype">File type</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="action" class="memoryPattern" /> <span data-i18n="memoryAction">Pending action</span></label>
-          </div>
-
-          <div class="actions">
-            <button onclick="suggestStructure()" data-i18n="suggestStructureButton">Suggest Structure</button>
-            <button class="secondary" onclick="loadMarkellosExample()" data-i18n="loadExampleButton">Load Markellos Example</button>
-            <button class="danger" onclick="clearStructureForm()" data-i18n="clearButton">Clear</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 data-i18n="suggestedStructureTitle">Suggested Folder Structure</h2>
-          <div id="structureOutput" class="output" data-i18n="structureOutputDefault">Your suggested structure will appear here.</div>
-
-          <div class="actions">
-            <button onclick="copyText('structureOutput')" data-i18n="copyStructureButton">Copy Structure</button>
-            <button class="secondary" onclick="downloadStructureText()" data-i18n="downloadStructureTextButton">Download Structure TXT</button>
-            <button class="secondary" onclick="downloadWindowsBatch()" data-i18n="downloadBatchButton">Download Windows .BAT</button>
-            <button class="success" onclick="createFoldersOnComputer()" data-i18n="createFoldersButton">Create Folders on This PC</button>
-          </div>
-
-          <p class="small" data-i18n="folderCreationNote">
-            Folder creation is optional. It works only in supported browsers, after the user chooses a local destination folder and gives permission.
-          </p>
-
-          <h3 data-i18n="designPrincipleTitle">Design Principle</h3>
-          <p class="small" data-i18n="designPrincipleText">
-            This tool suggests a structure. The user remains responsible for the final decision.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="destinationTab" class="tab">
-      <div class="grid-three">
-        <div class="card">
-          <h2 data-i18n="selectedFileTitle">Selected File</h2>
-          <input type="file" id="fileInput" multiple />
-          <ul id="fileList"></ul>
-          <p><strong data-i18n="selectedFileLabel">Selected file:</strong> <span id="selectedFileName">None</span></p>
-        </div>
-
-        <div class="card">
-          <h2 data-i18n="classificationTitle">Classification</h2>
-
-          <label for="mainContext" data-i18n="mainContext">Main Context</label>
-          <select id="mainContext">
-            <option value="01_PROFILE">Profile</option>
-            <option value="02_PERSONAL">Personal</option>
-            <option value="03_PROFESSIONAL">Professional</option>
-            <option value="04_REFERENCE">Reference</option>
-            <option value="05_ARCHIVE">Archive</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <label for="levelTwo" data-i18n="secondLevel">Second Level</label>
-          <select id="levelTwo">
-            <option value="">Select...</option>
-            <option value="CURRENT_ROLE">CURRENT_ROLE</option>
-            <option value="PRIVATE_SECTOR">PRIVATE_SECTOR</option>
-            <option value="PUBLIC_SECTOR">PUBLIC_SECTOR</option>
-            <option value="HEALTH">HEALTH</option>
-            <option value="FAMILY">FAMILY</option>
-            <option value="FINANCIAL">FINANCIAL</option>
-            <option value="CV">CV</option>
-            <option value="CERTIFICATES">CERTIFICATES</option>
-            <option value="APPLICATIONS">APPLICATIONS</option>
-            <option value="REFERENCE">REFERENCE</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <label for="levelThree" data-i18n="thirdLevel">Third Level</label>
-          <select id="levelThree">
-            <option value="">Select...</option>
-            <option value="GENERAL">GENERAL</option>
-            <option value="PROJECTS">PROJECTS</option>
-            <option value="ADMINISTRATION">ADMINISTRATION</option>
-            <option value="HEALTH_AND_SAFETY">HEALTH_AND_SAFETY</option>
-            <option value="CERTIFICATES">CERTIFICATES</option>
-            <option value="APPLICATIONS">APPLICATIONS</option>
-            <option value="REFERENCE">REFERENCE</option>
-          </select>
-
-          <label for="secondaryContext" data-i18n="secondaryContext">Secondary Context / Tags</label>
-          <input type="text" id="secondaryContext" placeholder="Example: OFFICE, APPLICATIONS, PROJECT_MANAGER" />
-
-          <label for="reason" data-i18n="reason">Reason for suggestion</label>
-          <textarea id="reason" placeholder="Example: This file represents profile identity and is useful for applications."></textarea>
-
-          <div class="actions">
-            <button onclick="previewDestination()" data-i18n="previewAdviceButton">Preview Advice</button>
-            <button class="secondary" onclick="loadCvExample()" data-i18n="cvExampleButton">CV Example</button>
-            <button class="danger" onclick="clearDestinationForm()" data-i18n="clearButton">Clear</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 data-i18n="archivingAdviceTitle">Archiving Advice</h2>
-          <div id="destinationPreview" class="preview" data-i18n="destinationPreviewDefault">Archiving advice will appear here.</div>
-
-          <div class="actions">
-            <button onclick="copyText('destinationPreview')" data-i18n="copyAdviceButton">Copy Advice</button>
-          </div>
-
-          <p class="small" data-i18n="adviceOnlyText">
-            This is advice only. The file is not moved.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="statusTab" class="tab">
-      <div class="grid">
-        <div class="card">
-          <h2 data-i18n="pendingReminderTitle">Pending / Reminder Decision</h2>
-
-          <label for="statusFileName" data-i18n="fileName">File name</label>
-          <input type="text" id="statusFileName" placeholder="Example: invoice_2026.pdf" />
-
-          <label for="actionStatus" data-i18n="actionStatus">Status / Action State</label>
-          <select id="actionStatus">
-            <option value="FINAL">FINAL - No further action</option>
-            <option value="PENDING">PENDING - Action required</option>
-            <option value="TO_REVIEW">TO_REVIEW - Needs review</option>
-            <option value="TO_REPLY">TO_REPLY - Needs reply</option>
-            <option value="TO_PAY">TO_PAY - Needs payment</option>
-            <option value="TO_SIGN">TO_SIGN - Needs signature</option>
-            <option value="WAITING">WAITING - Waiting for someone else</option>
-            <option value="REMINDER">REMINDER - Return on a specific date</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <label for="reminderDate" data-i18n="reminderDate">Reminder date</label>
-          <input type="date" id="reminderDate" />
-
-          <label for="statusDestination" data-i18n="statusDestination">Final / temporary folder suggestion</label>
-          <select id="statusDestination">
-            <option value="">Select...</option>
-            <option value="00_PENDING">00_PENDING</option>
-            <option value="00_TO_REVIEW">00_TO_REVIEW</option>
-            <option value="00_WAITING">00_WAITING</option>
-            <option value="00_REMINDERS">00_REMINDERS</option>
-            <option value="01_PROFILE">01_PROFILE</option>
-            <option value="02_PERSONAL">02_PERSONAL</option>
-            <option value="03_PROFESSIONAL">03_PROFESSIONAL</option>
-            <option value="04_REFERENCE">04_REFERENCE</option>
-            <option value="05_ARCHIVE">05_ARCHIVE</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <label for="statusNotes" data-i18n="notes">Notes</label>
-          <textarea id="statusNotes" placeholder="Example: Review before submitting application."></textarea>
-
-          <div class="actions">
-            <button onclick="generateStatusAdvice()" data-i18n="generateStatusButton">Generate Status Advice</button>
-            <button class="danger" onclick="clearStatusForm()" data-i18n="clearButton">Clear</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 data-i18n="statusAdviceTitle">Status Advice</h2>
-          <div id="statusOutput" class="output" data-i18n="statusOutputDefault">Pending / reminder advice will appear here.</div>
-
-          <div class="actions">
-            <button onclick="copyText('statusOutput')" data-i18n="copyStatusButton">Copy Status Advice</button>
-          </div>
-
-          <h3 data-i18n="suggestedStatusFolders">Suggested status folders</h3>
-          <span class="pill">00_INBOX</span>
-          <span class="pill">00_PENDING</span>
-          <span class="pill">00_TO_REVIEW</span>
-          <span class="pill">00_WAITING</span>
-          <span class="pill">00_REMINDERS</span>
-        </div>
-      </div>
-    </section>
   </div>
 
-  <footer data-i18n="footerText">
-    Local HTML prototype. No files are moved, deleted, uploaded, created, or modified.
-  </footer>
   <script src="assets/js/app.js"></script>
 </body>
 </html>
