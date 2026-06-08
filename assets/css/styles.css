@@ -118,6 +118,35 @@ header p {
   margin-top: 14px;
 }
 
+.file-analysis-box,
+.auto-suggestion-box {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.file-analysis-box {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.auto-suggestion-box {
+  display: grid;
+  gap: 8px;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  color: #064e3b;
+}
+
+.suggestion-reason {
+  color: #065f46;
+  font-size: 12px;
+}
+
 .wizard-header {
   display: flex;
   align-items: center;
