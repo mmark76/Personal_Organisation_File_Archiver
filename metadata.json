@@ -1,0 +1,19 @@
+{
+  "name": "Personal Memory-Based File Advisor",
+  "repository": "https://github.com/mmark76/Personal_Organisation_File_Archiver",
+  "homepage": "https://mmark76.github.io/Personal_Organisation_File_Archiver/",
+  "author": "Markellos Markides",
+  "description": "A private browser-based file organisation advisor that helps users build a memory-based folder tree and decide where new files should be archived.",
+  "keywords": [
+    "file organisation",
+    "file archiving",
+    "folder tree",
+    "memory-based organisation",
+    "personal productivity",
+    "document management",
+    "browser app",
+    "local file advisor"
+  ],
+  "privacy": "Local browser-based app. No file uploads. No automatic file system scanning.",
+  "license": "All rights reserved"
+}
