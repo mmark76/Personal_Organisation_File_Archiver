@@ -13,6 +13,7 @@
         <h1>Personal Memory-Based File Advisor</h1>
         <p>Build a personal folder tree and use it to decide where each new file belongs. The app does not move, delete, upload, or modify files.</p>
       </div>
+      <button type="button" class="secondary feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
     </div>
   </header>
 
@@ -84,6 +85,10 @@
     </section>
   </main>
 
+  <footer class="site-footer">
+    <p>© 2025-2026 Markellos Markides. All rights reserved.</p>
+  </footer>
+
   <div id="nodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
       <h2 id="modalTitle">Add Folder</h2>
@@ -107,6 +112,31 @@
       <div class="modal-actions">
         <button type="button" onclick="confirmAddChild()">Add</button>
         <button type="button" class="secondary" onclick="closeNodeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="feedbackModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackModalTitle">
+    <div class="modal-card feedback-modal-card">
+      <div class="modal-title-row">
+        <h2 id="feedbackModalTitle">Feedback</h2>
+        <button type="button" class="icon-button" aria-label="Close feedback form" onclick="closeFeedbackModal()">×</button>
+      </div>
+
+      <div class="feedback-intro">
+        <strong>Found a bug? Have a suggestion?</strong>
+        <span>Please write a quick note. Thank you!</span>
+      </div>
+
+      <label for="feedbackMessage">Message</label>
+      <textarea id="feedbackMessage" placeholder="Write your feedback here..."></textarea>
+
+      <label for="feedbackEmail">Email (optional)</label>
+      <input type="email" id="feedbackEmail" placeholder="you@example.com" />
+
+      <div class="modal-actions feedback-actions">
+        <button type="button" onclick="sendFeedback()">Send feedback</button>
+        <button type="button" class="secondary" onclick="closeFeedbackModal()">Cancel</button>
       </div>
     </div>
   </div>
