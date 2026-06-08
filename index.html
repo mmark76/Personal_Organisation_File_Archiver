@@ -44,6 +44,19 @@
           <label for="userName" data-i18n="userProfileName">User / Profile Name</label>
           <input type="text" id="userName" placeholder="Example: Username" />
 
+          <label data-i18n="mainCategoriesTitle">Main categories</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" value="01_PROFILE" class="mainCategory" checked /> <span>01_PROFILE</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="02_PERSONAL" class="mainCategory" checked /> <span>02_PERSONAL</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="03_PROFESSIONAL" class="mainCategory" checked /> <span>03_PROFESSIONAL</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="OTHER" id="otherMainCategoryToggle" class="mainCategory" /> <span>OTHER</span></label>
+          </div>
+
+          <label for="otherMainCategories" data-i18n="otherMainCategories">Other main categories, named one per line</label>
+          <textarea id="otherMainCategories" placeholder="One per line. Example:
+04_CREATIVE
+05_COMMUNITY"></textarea>
+
           <label data-i18n="nextLayerTitle">Next layer categorisation</label>
 
           <label for="profileLayerType" data-i18n="profileLayerType">01_PROFILE next layer logic</label>
