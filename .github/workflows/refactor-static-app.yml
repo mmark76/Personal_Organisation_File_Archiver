@@ -1,0 +1,78 @@
+name: Refactor static app files
+
+on:
+  push:
+    paths:
+      - '.github/workflows/refactor-static-app.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Split index.html into HTML, CSS and JavaScript
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index_path = Path('index.html')
+          css_path = Path('assets/css/styles.css')
+          js_path = Path('assets/js/app.js')
+          workflow_path = Path('.github/workflows/refactor-static-app.yml')
+
+          html = index_path.read_text(encoding='utf-8')
+
+          # Keep the requested generic placeholder while refactoring.
+          html = html.replace(
+              'placeholder="Example: Markellos, Maria, Custom User"',
+              'placeholder="Example: Username"',
+              1,
+          )
+
+          style_match = re.search(r'\n\s*<style>\n(?P<css>.*?)\n\s*</style>', html, flags=re.S)
+          script_match = re.search(r'\n\s*<script>\n(?P<js>.*?)\n\s*</script>\n\s*</body>', html, flags=re.S)
+
+          if not style_match:
+              raise SystemExit('No inline <style> block found in index.html.')
+          if not script_match:
+              raise SystemExit('No inline <script> block found before </body> in index.html.')
+
+          css = style_match.group('css').strip() + '\n'
+          js = script_match.group('js').strip() + '\n'
+
+          css_path.parent.mkdir(parents=True, exist_ok=True)
+          js_path.parent.mkdir(parents=True, exist_ok=True)
+
+          css_path.write_text(css, encoding='utf-8')
+          js_path.write_text(js, encoding='utf-8')
+
+          html = html[:style_match.start()] + '\n  <link rel="stylesheet" href="assets/css/styles.css" />' + html[style_match.end():]
+
+          # Recalculate script match after replacing the style block.
+          script_match = re.search(r'\n\s*<script>\n(?P<js>.*?)\n\s*</script>\n\s*</body>', html, flags=re.S)
+          if not script_match:
+              raise SystemExit('Could not locate script block after CSS extraction.')
+
+          html = html[:script_match.start()] + '\n  <script src="assets/js/app.js"></script>' + html[script_match.end()-len('\n</body>'):]
+
+          index_path.write_text(html, encoding='utf-8')
+
+          # Remove this one-time refactoring workflow after it runs.
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+
+      - name: Commit refactor
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/css/styles.css assets/js/app.js .github/workflows/refactor-static-app.yml
+          git commit -m "Refactor static app into separate CSS and JavaScript files" || echo "No changes to commit"
+          git push
