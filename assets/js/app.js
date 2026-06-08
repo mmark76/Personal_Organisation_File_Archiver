@@ -2,6 +2,7 @@ let selectedParentId = null;
 let latestFolderPaths = [];
 let nextNodeId = 1;
 let destinationCurrentNodeId = null;
+let importedFileData = null;
 
 const thinkingTypes = {
   "001_CHRONOLOGICAL": {
@@ -259,6 +260,7 @@ function confirmAddChild() {
 
   closeNodeModal();
   renderTree();
+  analyzeCurrentFileData();
 }
 
 function deleteNode(nodeId, currentNode = tree) {
@@ -270,6 +272,7 @@ function deleteNode(nodeId, currentNode = tree) {
     if (destinationCurrentNodeId === nodeId) destinationCurrentNodeId = null;
     if (currentNode.children.length === 0) currentNode.childLayerType = null;
     renderTree();
+    analyzeCurrentFileData();
     return true;
   }
 
@@ -414,6 +417,161 @@ function updateOutput() {
   document.getElementById("treeOutput").textContent = output.join("\n");
 }
 
+async function handleImportedFile() {
+  const input = document.getElementById("importedFileInput");
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  importedFileData = {
+    name: file.name,
+    type: file.type || "unknown",
+    size: file.size,
+    lastModified: new Date(file.lastModified).toISOString().slice(0, 10),
+    text: ""
+  };
+
+  document.getElementById("destinationFileName").value = file.name;
+
+  if (isTextReadableFile(file)) {
+    try {
+      importedFileData.text = (await file.text()).slice(0, 12000);
+    } catch (error) {
+      importedFileData.text = "";
+    }
+  }
+
+  updateFileAnalysisBox();
+  analyzeCurrentFileData();
+}
+
+function isTextReadableFile(file) {
+  const name = file.name.toLowerCase();
+  const type = (file.type || "").toLowerCase();
+  return type.startsWith("text/") || /\.(txt|md|csv|json|html|htm|xml|rtf)$/i.test(name);
+}
+
+function updateFileAnalysisBox() {
+  const box = document.getElementById("fileAnalysisBox");
+  if (!box || !importedFileData) return;
+
+  const textStatus = importedFileData.text ? "Text content was read and included in keyword matching." : "Only filename and browser metadata were available for keyword matching.";
+  box.textContent = [
+    "Imported file:",
+    importedFileData.name,
+    "",
+    "Browser metadata:",
+    "Type: " + importedFileData.type,
+    "Size: " + Math.round(importedFileData.size / 1024) + " KB",
+    "Modified: " + importedFileData.lastModified,
+    "",
+    textStatus
+  ].join("\n");
+}
+
+function analyzeCurrentFileData() {
+  const suggestionBox = document.getElementById("autoSuggestionBox");
+  if (!suggestionBox) return;
+
+  const fileName = document.getElementById("destinationFileName").value.trim();
+  const analysisText = buildAnalysisText(fileName);
+  const suggestion = suggestBestFolder(analysisText);
+
+  if (!suggestion) {
+    suggestionBox.classList.add("hidden");
+    suggestionBox.textContent = "";
+    return;
+  }
+
+  suggestionBox.classList.remove("hidden");
+  suggestionBox.innerHTML = "";
+
+  const title = document.createElement("strong");
+  title.textContent = "Automatic suggestion";
+  suggestionBox.appendChild(title);
+
+  const text = document.createElement("div");
+  text.textContent = suggestion.path + " — confidence: " + suggestion.confidence;
+  suggestionBox.appendChild(text);
+
+  const reason = document.createElement("div");
+  reason.className = "suggestion-reason";
+  reason.textContent = "Matched keywords: " + suggestion.matches.join(", ");
+  suggestionBox.appendChild(reason);
+
+  const applyButton = document.createElement("button");
+  applyButton.type = "button";
+  applyButton.textContent = "Use suggested folder";
+  applyButton.onclick = () => selectDestinationNode(suggestion.nodeId);
+  suggestionBox.appendChild(applyButton);
+}
+
+function buildAnalysisText(fileName) {
+  const parts = [fileName || ""];
+  if (importedFileData) {
+    parts.push(importedFileData.name || "");
+    parts.push(importedFileData.type || "");
+    parts.push(importedFileData.lastModified || "");
+    parts.push(importedFileData.text || "");
+  }
+  return parts.join(" ").toLowerCase();
+}
+
+function suggestBestFolder(analysisText) {
+  if (!analysisText.trim()) return null;
+
+  const candidates = getDestinationCandidates();
+  let best = null;
+
+  candidates.forEach(candidate => {
+    const keywords = buildCandidateKeywords(candidate);
+    const matches = keywords.filter(keyword => analysisText.includes(keyword.toLowerCase()));
+    let score = matches.length;
+
+    if (candidate.node.children.length === 0) score += 0.75;
+    if (candidate.path.toLowerCase().includes("cv") && analysisText.includes("cv")) score += 2;
+    if (candidate.path.toLowerCase().includes("certificate") && analysisText.includes("certificate")) score += 2;
+    if (candidate.path.toLowerCase().includes("application") && analysisText.includes("application")) score += 2;
+    if (candidate.path.toLowerCase().includes("financial") && /invoice|receipt|bank|tax|payment|financial/.test(analysisText)) score += 2;
+    if (candidate.path.toLowerCase().includes("health") && /health|medical|doctor|hospital|clinic|blood/.test(analysisText)) score += 2;
+    if (candidate.path.toLowerCase().includes("professional") && /work|project|ministry|meci|report|meeting|professional/.test(analysisText)) score += 1.5;
+
+    if (score > 0 && (!best || score > best.score)) {
+      best = { ...candidate, score, matches: matches.slice(0, 8) };
+    }
+  });
+
+  if (!best) return null;
+
+  return {
+    nodeId: best.node.id,
+    path: best.path,
+    confidence: best.score >= 5 ? "high" : best.score >= 3 ? "medium" : "low",
+    matches: best.matches.length ? best.matches : ["semantic filename pattern"]
+  };
+}
+
+function getDestinationCandidates(node = tree, currentPath = "") {
+  const nodePath = currentPath ? currentPath + "\\" + node.name : node.name;
+  const candidates = [];
+
+  if (node.id !== "root") {
+    candidates.push({
+      node,
+      path: nodePath.replace(/^DOCUMENTS\\?/, "")
+    });
+  }
+
+  (node.children || []).forEach(child => candidates.push(...getDestinationCandidates(child, nodePath)));
+  return candidates;
+}
+
+function buildCandidateKeywords(candidate) {
+  const pathWords = candidate.path.split(/[\\_\-\s.]+/).filter(word => word.length >= 2);
+  const nodeWords = candidate.node.name.split(/[\\_\-\s.]+/).filter(word => word.length >= 2);
+  const normalized = [...pathWords, ...nodeWords].map(word => word.toLowerCase());
+  return [...new Set(normalized)];
+}
+
 function previewFileDestination() {
   const fileName = document.getElementById("destinationFileName").value.trim() || "[New file]";
   const destination = destinationCurrentNodeId ? getNodeFolderPath(destinationCurrentNodeId) : "[No final folder selected]";
@@ -458,6 +616,7 @@ function loadMarkellosExample() {
   tree.children[2].children = ["2002-01-01_TO_2010-01-31_PRIVATE_SECTOR", "2010-02-01_TO_2018-12-31_MECIT", "2019-01-01_TO_NOW_MECI"].map(name => createExampleNode(name, "professional", "001_CHRONOLOGICAL"));
 
   renderTree();
+  analyzeCurrentFileData();
 }
 
 function createExampleNode(name, branch, thinkingType) {
