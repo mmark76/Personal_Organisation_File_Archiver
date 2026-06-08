@@ -1,26 +1,31 @@
 let selectedParentId = null;
 let latestFolderPaths = [];
 let nextNodeId = 1;
+let destinationCurrentNodeId = null;
 
 const thinkingTypes = {
   "001_CHRONOLOGICAL": {
     label: "001 - CHRONOLOGICAL",
     prompt: "Give a chronological period name",
+    question: "Which time period does this file belong to?",
     examples: ["2024", "2025", "2002-2010_PRIVATE_SECTOR", "2019-NOW_MECI"]
   },
   "002_THEMATIC": {
     label: "002 - THEMATIC",
     prompt: "Give a theme name",
+    question: "Which theme best describes this file?",
     examples: ["HEALTH", "FINANCIAL", "INTERESTS", "FAMILY"]
   },
   "003_FUNCTIONAL": {
     label: "003 - FUNCTIONAL",
     prompt: "Give a function name",
+    question: "What function does this file serve?",
     examples: ["CV", "APPLICATIONS", "CERTIFICATES", "REFERENCE", "FINAL", "OLD"]
   },
   "004_ROLE_BASED": {
     label: "004 - ROLE-BASED",
     prompt: "Give a role name",
+    question: "Which professional role does this file relate to?",
     examples: ["PROJECT_MANAGER", "PUBLIC_OFFICER", "COORDINATOR", "HEALTH_AND_SAFETY_OFFICER"]
   }
 };
@@ -48,6 +53,15 @@ function findNode(nodeId, currentNode = tree) {
     if (found) return found;
   }
 
+  return null;
+}
+
+function findParentNode(nodeId, currentNode = tree) {
+  for (const child of currentNode.children || []) {
+    if (child.id === nodeId) return currentNode;
+    const found = findParentNode(nodeId, child);
+    if (found) return found;
+  }
   return null;
 }
 
@@ -86,7 +100,7 @@ function renderTree() {
   });
 
   updateOutput();
-  updateDestinationOptions();
+  updateDestinationGuide();
 }
 
 function renderNode(node, depth) {
@@ -96,6 +110,7 @@ function renderNode(node, depth) {
   const row = document.createElement("div");
   row.className = "tree-node";
   if (node.fixed && node.id !== "root") row.classList.add("main-category-node");
+  if (node.id === destinationCurrentNodeId) row.classList.add("selected-destination-node");
   row.style.marginLeft = depth * 22 + "px";
 
   const content = document.createElement("div");
@@ -116,7 +131,7 @@ function renderNode(node, depth) {
   if (node.childLayerType) {
     const nextType = document.createElement("div");
     nextType.className = "node-next-layer";
-    nextType.textContent = "The next layer here is: " + thinkingTypes[node.childLayerType].label;
+    nextType.textContent = "Next layer: " + thinkingTypes[node.childLayerType].label;
     content.appendChild(nextType);
   }
 
@@ -252,6 +267,7 @@ function deleteNode(nodeId, currentNode = tree) {
   const index = currentNode.children.findIndex(child => child.id === nodeId);
   if (index >= 0) {
     currentNode.children.splice(index, 1);
+    if (destinationCurrentNodeId === nodeId) destinationCurrentNodeId = null;
     if (currentNode.children.length === 0) currentNode.childLayerType = null;
     renderTree();
     return true;
@@ -279,40 +295,104 @@ function buildFolderPaths(node, currentPath = "") {
   return paths.filter(Boolean);
 }
 
-function getDestinationNodes(node = tree, currentPath = "") {
-  const nodePath = currentPath ? currentPath + "\\" + node.name : node.name;
-  const destinations = [];
-
-  if (node.id !== "root") {
-    destinations.push({
-      id: node.id,
-      path: nodePath.replace(/^DOCUMENTS\\?/, ""),
-      thinkingType: node.thinkingType || ""
-    });
-  }
-
-  (node.children || []).forEach(child => destinations.push(...getDestinationNodes(child, nodePath)));
-  return destinations;
+function getNodeFolderPath(nodeId) {
+  return getNodePath(nodeId)
+    .filter(node => node.id !== "root")
+    .map(node => node.name)
+    .join("\\");
 }
 
-function updateDestinationOptions() {
-  const select = document.getElementById("destinationNodeSelect");
-  if (!select) return;
+function resetDestinationGuide() {
+  destinationCurrentNodeId = null;
+  updateDestinationGuide();
+  renderTree();
+}
 
-  const previousValue = select.value;
-  const destinations = getDestinationNodes();
-  select.innerHTML = "";
+function selectDestinationNode(nodeId) {
+  destinationCurrentNodeId = nodeId;
+  updateDestinationGuide();
+  renderTree();
+}
 
-  destinations.forEach(destination => {
-    const option = document.createElement("option");
-    option.value = destination.path;
-    const typeText = destination.thinkingType ? " [" + thinkingTypes[destination.thinkingType].label + "]" : "";
-    option.textContent = destination.path + typeText;
-    select.appendChild(option);
+function chooseCurrentAsFinal() {
+  const finalBox = document.getElementById("finalDestinationBox");
+  const node = findNode(destinationCurrentNodeId);
+  if (!node) return;
+
+  finalBox.classList.remove("hidden");
+  finalBox.textContent = "Final destination selected: " + getNodeFolderPath(node.id);
+}
+
+function updateDestinationGuide() {
+  const breadcrumb = document.getElementById("destinationBreadcrumb");
+  const question = document.getElementById("destinationStepQuestion");
+  const choices = document.getElementById("destinationChoices");
+  const finalBox = document.getElementById("finalDestinationBox");
+  if (!breadcrumb || !question || !choices || !finalBox) return;
+
+  const currentNode = destinationCurrentNodeId ? findNode(destinationCurrentNodeId) : null;
+  const availableChildren = currentNode ? currentNode.children : tree.children;
+
+  finalBox.classList.add("hidden");
+  finalBox.textContent = "";
+  choices.innerHTML = "";
+
+  if (!currentNode) {
+    breadcrumb.textContent = "No folder selected yet.";
+    question.textContent = "Start by choosing one of the main categories.";
+  } else {
+    breadcrumb.textContent = getNodeFolderPath(currentNode.id);
+    if (currentNode.children.length > 0) {
+      const nextType = currentNode.childLayerType ? thinkingTypes[currentNode.childLayerType] : null;
+      question.textContent = nextType ? nextType.question : "Choose the next folder.";
+    } else {
+      question.textContent = "This is a final folder unless you add more child folders on the left.";
+    }
+  }
+
+  availableChildren.forEach(child => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choice-button";
+    button.onclick = () => selectDestinationNode(child.id);
+
+    const name = document.createElement("strong");
+    name.textContent = child.name;
+    button.appendChild(name);
+
+    if (child.thinkingType) {
+      const type = document.createElement("span");
+      type.textContent = thinkingTypes[child.thinkingType].label;
+      button.appendChild(type);
+    }
+
+    choices.appendChild(button);
   });
 
-  if (previousValue && Array.from(select.options).some(option => option.value === previousValue)) {
-    select.value = previousValue;
+  if (currentNode) {
+    const finalButton = document.createElement("button");
+    finalButton.type = "button";
+    finalButton.className = "final-choice-button";
+    finalButton.textContent = currentNode.children.length > 0 ? "Use this folder as final destination" : "Confirm this final folder";
+    finalButton.onclick = chooseCurrentAsFinal;
+    choices.appendChild(finalButton);
+
+    const parentNode = findParentNode(currentNode.id);
+    if (parentNode && parentNode.id !== "root") {
+      const backButton = document.createElement("button");
+      backButton.type = "button";
+      backButton.className = "secondary choice-button";
+      backButton.textContent = "Go back one level";
+      backButton.onclick = () => selectDestinationNode(parentNode.id);
+      choices.appendChild(backButton);
+    } else if (parentNode && parentNode.id === "root") {
+      const backButton = document.createElement("button");
+      backButton.type = "button";
+      backButton.className = "secondary choice-button";
+      backButton.textContent = "Back to main categories";
+      backButton.onclick = resetDestinationGuide;
+      choices.appendChild(backButton);
+    }
   }
 }
 
@@ -326,7 +406,8 @@ function updateOutput() {
     "- Each layer has one thinking type",
     "- The thinking type guides the folder names; it is not a folder",
     "",
-    ...buildOutputLines(tree)
+    "DOCUMENTS",
+    ...tree.children.flatMap(child => buildOutputLines(child, 1))
   ];
 
   latestFolderPaths = buildFolderPaths(tree);
@@ -335,8 +416,10 @@ function updateOutput() {
 
 function previewFileDestination() {
   const fileName = document.getElementById("destinationFileName").value.trim() || "[New file]";
-  const destination = document.getElementById("destinationNodeSelect").value || "[Choose a folder from the tree]";
+  const destination = destinationCurrentNodeId ? getNodeFolderPath(destinationCurrentNodeId) : "[No final folder selected]";
   const reason = document.getElementById("destinationReason").value.trim() || "No reason written yet.";
+  const node = destinationCurrentNodeId ? findNode(destinationCurrentNodeId) : null;
+  const status = node && node.children.length === 0 ? "Final folder reached." : "Review whether this is final, or continue one level deeper.";
 
   const advice = [
     "File destination advice",
@@ -346,6 +429,9 @@ function previewFileDestination() {
     "",
     "Suggested folder:",
     destination,
+    "",
+    "Status:",
+    status,
     "",
     "Reason / memory clue:",
     reason,
