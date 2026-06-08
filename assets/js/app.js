@@ -80,7 +80,11 @@ function getAllowedThinkingTypes(parentNode) {
 function renderTree() {
   const treeContainer = document.getElementById("treeContainer");
   treeContainer.innerHTML = "";
-  treeContainer.appendChild(renderNode(tree, 0));
+
+  tree.children.forEach(mainCategory => {
+    treeContainer.appendChild(renderNode(mainCategory, 0));
+  });
+
   updateOutput();
   updateDestinationOptions();
 }
@@ -91,6 +95,7 @@ function renderNode(node, depth) {
 
   const row = document.createElement("div");
   row.className = "tree-node";
+  if (node.fixed && node.id !== "root") row.classList.add("main-category-node");
   row.style.marginLeft = depth * 22 + "px";
 
   const content = document.createElement("div");
