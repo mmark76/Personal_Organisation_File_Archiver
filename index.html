@@ -8,9 +8,18 @@
 </head>
 <body>
   <header>
-    <div>
-      <h1>Personal Memory-Based File Advisor</h1>
-      <p>Build a personal folder tree and use it to decide where each new file belongs. The app does not move, delete, upload, or modify files.</p>
+    <div class="header-row">
+      <div>
+        <h1 data-i18n="appTitle">Personal Memory-Based File Advisor</h1>
+        <p data-i18n="appSubtitle">Build a personal folder tree and use it to decide where each new file belongs. The app does not move, delete, upload, or modify files.</p>
+      </div>
+      <div class="language-box">
+        <label for="languageSelect" data-i18n="languageLabel">Language</label>
+        <select id="languageSelect" onchange="changeLanguage()">
+          <option value="en" selected>English</option>
+          <option value="el">Ελληνικά</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -18,15 +27,15 @@
     <section class="panel tree-panel">
       <div class="panel-header">
         <div>
-          <h2>Folder Tree</h2>
-          <p>Fixed first level. Add unlimited layers below it.</p>
+          <h2 data-i18n="folderTreeTitle">Folder Tree</h2>
+          <p data-i18n="folderTreeSubtitle">Fixed first level. Add unlimited layers below it.</p>
         </div>
-        <button type="button" class="secondary" onclick="loadMarkellosExample()">Load Markellos Example</button>
+        <button type="button" class="secondary" onclick="loadMarkellosExample()" data-i18n="loadExampleButton">Load Markellos Example</button>
       </div>
 
       <div class="guidance-card">
-        <strong>Before adding folders, choose one thinking type for the next layer.</strong>
-        <span>Chronological, thematic, functional, or role-based. The type guides the names; it does not become a folder.</span>
+        <strong data-i18n="guidanceTitle">Before adding folders, choose one thinking type for the next layer.</strong>
+        <span data-i18n="guidanceText">Chronological, thematic, functional, or role-based. The type guides the names; it does not become a folder.</span>
       </div>
 
       <div id="treeContainer" class="tree-container"></div>
@@ -34,48 +43,48 @@
 
     <aside class="side-stack">
       <section class="panel inspector-panel">
-        <h2>File Destination Guide</h2>
-        <p>Use the tree you built to decide where a new file should be archived.</p>
+        <h2 data-i18n="fileDestinationTitle">File Destination Guide</h2>
+        <p data-i18n="fileDestinationSubtitle">Use the tree you built to decide where a new file should be archived.</p>
 
-        <label for="destinationFileName">File name</label>
-        <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" />
+        <label for="destinationFileName" data-i18n="fileNameLabel">File name</label>
+        <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" data-placeholder-key="fileNamePlaceholder" />
 
-        <label for="destinationNodeSelect">Suggested destination folder</label>
+        <label for="destinationNodeSelect" data-i18n="destinationFolderLabel">Suggested destination folder</label>
         <select id="destinationNodeSelect"></select>
 
-        <label for="destinationReason">Reason / memory clue</label>
-        <textarea id="destinationReason" placeholder="Example: This is the final CV version for future applications."></textarea>
+        <label for="destinationReason" data-i18n="reasonLabel">Reason / memory clue</label>
+        <textarea id="destinationReason" placeholder="Example: This is the final CV version for future applications." data-placeholder-key="reasonPlaceholder"></textarea>
 
         <div class="actions">
-          <button type="button" onclick="previewFileDestination()">Preview Advice</button>
-          <button type="button" class="secondary" onclick="copyFileAdvice()">Copy Advice</button>
+          <button type="button" onclick="previewFileDestination()" data-i18n="previewAdviceButton">Preview Advice</button>
+          <button type="button" class="secondary" onclick="copyFileAdvice()" data-i18n="copyAdviceButton">Copy Advice</button>
         </div>
 
-        <pre id="fileDestinationOutput" class="advice-output">Archiving advice will appear here.</pre>
+        <pre id="fileDestinationOutput" class="advice-output" data-i18n="adviceDefault">Archiving advice will appear here.</pre>
       </section>
 
       <section class="panel inspector-panel">
-        <h2>Current Structure</h2>
+        <h2 data-i18n="currentStructureTitle">Current Structure</h2>
         <pre id="treeOutput" class="output"></pre>
 
         <div class="actions">
-          <button type="button" onclick="copyTreeOutput()">Copy Structure</button>
-          <button type="button" class="secondary" onclick="downloadStructureText()">Download TXT</button>
-          <button type="button" class="secondary" onclick="downloadWindowsBatch()">Download Windows .BAT</button>
-          <button type="button" class="success" onclick="createFoldersOnComputer()">Create Folders on This PC</button>
+          <button type="button" onclick="copyTreeOutput()" data-i18n="copyStructureButton">Copy Structure</button>
+          <button type="button" class="secondary" onclick="downloadStructureText()" data-i18n="downloadTxtButton">Download TXT</button>
+          <button type="button" class="secondary" onclick="downloadWindowsBatch()" data-i18n="downloadBatButton">Download Windows .BAT</button>
+          <button type="button" class="success" onclick="createFoldersOnComputer()" data-i18n="createFoldersButton">Create Folders on This PC</button>
         </div>
 
-        <p class="small-note">Folder creation is optional and works only in supported browsers after you choose a local destination folder.</p>
+        <p class="small-note" data-i18n="folderCreationNote">Folder creation is optional and works only in supported browsers after you choose a local destination folder.</p>
       </section>
     </aside>
   </main>
 
   <div id="nodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
-      <h2 id="modalTitle">Add Folder</h2>
+      <h2 id="modalTitle" data-i18n="addFolderTitle">Add Folder</h2>
       <p id="modalContext" class="modal-context"></p>
 
-      <label for="thinkingTypeSelect">Thinking type for this layer</label>
+      <label for="thinkingTypeSelect" data-i18n="thinkingTypeLabel">Thinking type for this layer</label>
       <select id="thinkingTypeSelect" onchange="updateThinkingPrompt()">
         <option value="001_CHRONOLOGICAL">001 - Chronological</option>
         <option value="002_THEMATIC">002 - Thematic</option>
@@ -91,8 +100,8 @@
       <div id="examplesBox" class="examples-box"></div>
 
       <div class="modal-actions">
-        <button type="button" onclick="confirmAddChild()">Add</button>
-        <button type="button" class="secondary" onclick="closeNodeModal()">Cancel</button>
+        <button type="button" onclick="confirmAddChild()" data-i18n="addButton">Add</button>
+        <button type="button" class="secondary" onclick="closeNodeModal()" data-i18n="cancelButton">Cancel</button>
       </div>
     </div>
   </div>
