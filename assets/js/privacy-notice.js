@@ -1,5 +1,9 @@
 const PRIVACY_NOTICE_KEY = "personalFileAdvisorPrivacyNoticeAccepted";
 
+function getCookieNoticeElement() {
+  return document.getElementById("cookieNotice");
+}
+
 function safeGetPrivacyNoticeValue() {
   try {
     return window.localStorage.getItem(PRIVACY_NOTICE_KEY);
@@ -16,13 +20,30 @@ function safeSetPrivacyNoticeValue(value) {
   }
 }
 
-function showPrivacyNoticeIfNeeded() {
-  const notice = document.getElementById("cookieNotice");
+function showCookieNotice() {
+  const notice = getCookieNoticeElement();
   if (!notice) return;
 
+  notice.hidden = false;
+  notice.classList.remove("hidden");
+  notice.style.display = "";
+}
+
+function hideCookieNotice() {
+  const notice = getCookieNoticeElement();
+  if (!notice) return;
+
+  notice.classList.add("hidden");
+  notice.hidden = true;
+  notice.style.display = "none";
+}
+
+function showPrivacyNoticeIfNeeded() {
   const accepted = safeGetPrivacyNoticeValue() === "true";
   if (!accepted) {
-    notice.classList.remove("hidden");
+    showCookieNotice();
+  } else {
+    hideCookieNotice();
   }
 }
 
@@ -31,15 +52,23 @@ function acceptCookieNotice() {
   hideCookieNotice();
 }
 
-function hideCookieNotice() {
-  const notice = document.getElementById("cookieNotice");
-  if (!notice) return;
+function initialiseCookieNoticeControls() {
+  const acceptButton = document.getElementById("cookieAcceptButton");
+  const laterButton = document.getElementById("cookieLaterButton");
 
-  notice.classList.add("hidden");
+  if (acceptButton) {
+    acceptButton.addEventListener("click", acceptCookieNotice);
+  }
+
+  if (laterButton) {
+    laterButton.addEventListener("click", hideCookieNotice);
+  }
+
+  showPrivacyNoticeIfNeeded();
 }
 
 window.acceptCookieNotice = acceptCookieNotice;
 window.hideCookieNotice = hideCookieNotice;
 window.showPrivacyNoticeIfNeeded = showPrivacyNoticeIfNeeded;
 
-window.addEventListener("DOMContentLoaded", showPrivacyNoticeIfNeeded);
+window.addEventListener("DOMContentLoaded", initialiseCookieNoticeControls);
