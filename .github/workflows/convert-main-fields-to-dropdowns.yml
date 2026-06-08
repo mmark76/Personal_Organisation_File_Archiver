@@ -1,0 +1,110 @@
+name: Convert main fields to dropdowns
+
+on:
+  push:
+    paths:
+      - '.github/workflows/convert-main-fields-to-dropdowns.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Convert selected fields
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          index_path = Path('index.html')
+          js_path = Path('assets/js/app.js')
+          workflow_path = Path('.github/workflows/convert-main-fields-to-dropdowns.yml')
+
+          index = index_path.read_text(encoding='utf-8')
+          js = js_path.read_text(encoding='utf-8')
+
+          index = index.replace(
+            '<input type="text" id="mainRole" placeholder="Example: Civil Engineer, Teacher, Parent, Student" />',
+            '''<select id="mainRole">
+            <option value="">Select...</option>
+            <option value="Civil Engineer">Civil Engineer</option>
+            <option value="Project Manager">Project Manager</option>
+            <option value="Health and Safety Officer">Health and Safety Officer</option>
+            <option value="Public Sector Officer">Public Sector Officer</option>
+            <option value="Teacher">Teacher</option>
+            <option value="Parent">Parent</option>
+            <option value="Student">Student</option>
+            <option value="Other">Other</option>
+          </select>'''
+          )
+
+          index = index.replace(
+            '<input type="text" id="levelTwo" placeholder="Example: 2019-01-01_to_NOW_MECI, HEALTH, CV" />',
+            '''<select id="levelTwo">
+            <option value="">Select...</option>
+            <option value="CURRENT_ROLE">CURRENT_ROLE</option>
+            <option value="PRIVATE_SECTOR">PRIVATE_SECTOR</option>
+            <option value="PUBLIC_SECTOR">PUBLIC_SECTOR</option>
+            <option value="HEALTH">HEALTH</option>
+            <option value="FAMILY">FAMILY</option>
+            <option value="FINANCIAL">FINANCIAL</option>
+            <option value="CV">CV</option>
+            <option value="CERTIFICATES">CERTIFICATES</option>
+            <option value="APPLICATIONS">APPLICATIONS</option>
+            <option value="REFERENCE">REFERENCE</option>
+          </select>'''
+          )
+
+          index = index.replace(
+            '<input type="text" id="levelThree" placeholder="Example: HEALTH_AND_SAFETY, CERTIFICATES, GENERAL" />',
+            '''<select id="levelThree">
+            <option value="">Select...</option>
+            <option value="GENERAL">GENERAL</option>
+            <option value="PROJECTS">PROJECTS</option>
+            <option value="ADMINISTRATION">ADMINISTRATION</option>
+            <option value="HEALTH_AND_SAFETY">HEALTH_AND_SAFETY</option>
+            <option value="CERTIFICATES">CERTIFICATES</option>
+            <option value="APPLICATIONS">APPLICATIONS</option>
+            <option value="REFERENCE">REFERENCE</option>
+          </select>'''
+          )
+
+          index = index.replace(
+            '<input type="text" id="statusDestination" placeholder="Example: 00_PENDING or 03_PROFILE\\APPLICATIONS" />',
+            '''<select id="statusDestination">
+            <option value="">Select...</option>
+            <option value="00_PENDING">00_PENDING</option>
+            <option value="00_TO_REVIEW">00_TO_REVIEW</option>
+            <option value="00_WAITING">00_WAITING</option>
+            <option value="00_REMINDERS">00_REMINDERS</option>
+            <option value="01_WORK">01_WORK</option>
+            <option value="02_PERSONAL">02_PERSONAL</option>
+            <option value="03_PROFILE">03_PROFILE</option>
+            <option value="04_REFERENCE">04_REFERENCE</option>
+            <option value="05_ARCHIVE">05_ARCHIVE</option>
+          </select>'''
+          )
+
+          js = js.replace(
+            'document.getElementById("mainRole").value = "Civil Engineer / Project Manager / Health and Safety Officer";',
+            'document.getElementById("mainRole").value = "Civil Engineer";'
+          )
+
+          index_path.write_text(index, encoding='utf-8')
+          js_path.write_text(js, encoding='utf-8')
+
+          if workflow_path.exists():
+            workflow_path.unlink()
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/js/app.js .github/workflows/convert-main-fields-to-dropdowns.yml
+          git commit -m "Convert main fixed fields to dropdowns" || echo "No changes to commit"
+          git push
