@@ -3,8 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personal Memory-Based File Advisor</title>
+  <title>Personal Memory-Based File Advisor | Memory-Based File Organisation Tool</title>
+  <meta name="description" content="A private browser-based file organisation advisor that helps users build a memory-based folder tree and decide where new files should be archived." />
+  <meta name="keywords" content="file organisation, file archiving, folder tree, memory-based organisation, personal productivity, document management, browser app, local file advisor, Markellos Markides" />
+  <meta name="author" content="Markellos Markides" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta name="application-name" content="Personal Memory-Based File Advisor" />
+  <link rel="canonical" href="https://mmark76.github.io/Personal_Organisation_File_Archiver/" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="license" href="LICENSE" />
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/legal.css" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Personal Memory-Based File Advisor" />
+  <meta property="og:description" content="A private browser-based tool for building a personal folder tree and choosing memory-based file destinations." />
+  <meta property="og:url" content="https://mmark76.github.io/Personal_Organisation_File_Archiver/" />
+  <meta property="og:site_name" content="Personal Memory-Based File Advisor" />
+  <meta property="og:locale" content="en_US" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Personal Memory-Based File Advisor" />
+  <meta name="twitter:description" content="A private browser-based file organisation advisor built around natural memory, context, roles, periods, themes and document function." />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Personal Memory-Based File Advisor",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Any modern browser",
+    "description": "A private browser-based file organisation advisor that helps users build a memory-based folder tree and decide where new files should be archived.",
+    "creator": {
+      "@type": "Person",
+      "name": "Markellos Markides"
+    },
+    "url": "https://mmark76.github.io/Personal_Organisation_File_Archiver/",
+    "isAccessibleForFree": true
+  }
+  </script>
 </head>
 <body>
   <header>
@@ -87,6 +125,7 @@
 
   <footer class="site-footer">
     <p>© 2025-2026 Markellos Markides. All rights reserved.</p>
+    <p class="footer-links"><a href="LICENSE">License</a> · <a href="PRIVACY.md">Privacy</a> · <a href="robots.txt">Robots</a> · <a href="sitemap.xml">Sitemap</a></p>
   </footer>
 
   <div id="nodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -141,7 +180,19 @@
     </div>
   </div>
 
+  <div id="cookieNotice" class="cookie-notice hidden" role="region" aria-label="Cookie and local storage notice">
+    <div>
+      <strong>Privacy notice</strong>
+      <p>This app runs locally in your browser. It may use local browser storage only to remember simple preferences such as this notice being accepted.</p>
+    </div>
+    <div class="cookie-actions">
+      <button type="button" onclick="acceptCookieNotice()">Accept</button>
+      <button type="button" class="secondary" onclick="hideCookieNotice()">Later</button>
+    </div>
+  </div>
+
   <script src="assets/js/app.js"></script>
   <script src="assets/js/feedback.js"></script>
+  <script src="assets/js/cookie-notice.js"></script>
 </body>
 </html>
