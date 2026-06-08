@@ -4,7 +4,7 @@
 
 The app suggests possible folder structures and file destinations based on how the user naturally remembers files: by context, period of life, role, responsibility, project, subject, person, or pending action.
 
-The tool is designed as an advisor. It does not move, delete, create, upload, or modify files.
+The tool is designed mainly as an advisor. It does not move, delete, upload, read, or modify files. It can optionally create the suggested folder tree locally on the user's computer, only after the user chooses a destination folder and gives browser permission.
 
 ## Current App
 
@@ -36,6 +36,8 @@ It uses a guided interview approach. The user enters information such as:
 
 The app then suggests a possible folder structure that follows the user's natural way of remembering information.
 
+The user can also create the suggested folder tree locally by using the **Create Folders on This PC** button. This works only in supported browsers and only after the user gives explicit permission by selecting a local destination folder.
+
 ### 2. Suggest File Destination
 
 This section helps the user decide where a specific file may belong.
@@ -50,19 +52,35 @@ This section helps the user identify files or matters that should remain visible
 
 It is intended for cases where a file should not simply be archived and forgotten.
 
+## Folder Tree Creation
+
+The app can create the suggested folder tree locally on the user's computer.
+
+This is done in two possible ways:
+
+1. **Direct browser folder creation**
+   - The user clicks **Create Folders on This PC**.
+   - The browser asks the user to choose a destination folder.
+   - The app creates the suggested folder tree inside that chosen folder.
+   - This requires a supported browser such as Chrome or Edge.
+
+2. **Windows .BAT export**
+   - The user downloads a Windows `.BAT` file.
+   - The user reviews it before running it.
+   - The `.BAT` file creates the suggested folder tree under the folder where it is executed.
+
 ## What the App Does Not Do
 
 The app does not:
 
 - move files;
 - delete files;
-- create folders automatically;
 - upload files;
 - read the user's file system automatically;
 - modify documents;
 - replace the user's final decision.
 
-It is an advisory and thinking-support tool, not an automated file manager.
+Folder creation is optional and controlled by the user.
 
 ## Core Idea
 
@@ -85,7 +103,11 @@ The app is local and browser-based.
 
 It does not upload files or send data to a server.
 
-Because it is advisory only, the user should manually check every suggested folder structure or file destination before taking action.
+It does not read or inspect the user's files automatically.
+
+When folder creation is used, the user must manually choose a destination folder and give permission through the browser.
+
+The user should manually check every suggested folder structure or file destination before taking action.
 
 ## Related Documentation
 
@@ -99,7 +121,7 @@ That document explains the memory-based file organisation principles in more dep
 
 ## Project Status
 
-This project is currently a standalone HTML advisory tool.
+This project is currently a standalone HTML advisory tool with optional local folder tree creation.
 
 Possible future improvements may include:
 
@@ -109,4 +131,4 @@ Possible future improvements may include:
 - metadata-based suggestions;
 - search or index functions;
 - AI-assisted classification;
-- automated folder creation, only if explicitly designed and safely controlled.
+- safer and clearer folder creation controls.
