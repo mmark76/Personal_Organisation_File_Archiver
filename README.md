@@ -1,56 +1,123 @@
 # Personal Memory-Based File Advisor
 
-**Personal Memory-Based File Advisor** is a simple browser-based tool that helps the user think through personal file organisation in a structured but memory-friendly way.
+**Personal Memory-Based File Advisor** is a simple browser-based tool that helps the user build a personal folder tree and decide where new files should be archived.
 
-The app suggests possible folder structures and file destinations based on how the user naturally remembers files: by context, period of life, role, responsibility, project, subject, person, or pending action.
+The app follows a memory-based approach: files are organised according to how the user naturally remembers them, such as by life area, work period, responsibility, project, subject, interest, or document function.
 
-The tool is designed mainly as an advisor. It does not move, delete, upload, read, or modify files. It can optionally create the suggested folder tree locally on the user's computer, only after the user chooses a destination folder and gives browser permission.
+The app is designed as an advisor. It does not move, delete, upload, or modify files. It can optionally create the suggested folder tree locally on the user's computer, only after the user chooses a destination folder and gives browser permission.
 
 ## Current App
 
-The app is implemented as a standalone HTML file:
+The app is implemented as a standalone browser app:
 
 ```text
 index.html
+assets/css/styles.css
+assets/js/app.js
 ```
 
 It can be opened directly in a web browser.
 
+The visible app interface is English-only. Imported files may be in English, Greek, Greeklish, or another language, depending on the keywords that can be matched.
+
 ## What the App Does
 
-The app provides three main functions.
+The app provides two main working areas.
 
-### 1. Suggest Folder Structure
+### 1. Folder Tree
 
-This section helps the user design a folder structure based on personal memory patterns, work periods, responsibilities, life themes, and interests.
+The left panel allows the user to build and review a personal folder tree.
 
-It uses a guided interview approach. The user enters information such as:
+The first level is fixed:
 
-- profile name;
-- main work or life role;
-- what they usually remember first when searching for a file;
-- work periods or roles;
-- work subjects or responsibilities;
-- personal life themes;
-- interests.
+```text
+01_PROFILE
+02_PERSONAL
+03_PROFESSIONAL
+```
 
-The app then suggests a possible folder structure that follows the user's natural way of remembering information.
+Each layer below the fixed first level uses one thinking type:
 
-The user can also create the suggested folder tree locally by using the **Create Folders on This PC** button. This works only in supported browsers and only after the user gives explicit permission by selecting a local destination folder.
+```text
+001_CHRONOLOGICAL
+002_THEMATIC
+003_FUNCTIONAL
+004_ROLE_BASED
+```
 
-### 2. Suggest File Destination
+The thinking type guides the naming of the next layer. It does not become a folder name by itself.
 
-This section helps the user decide where a specific file may belong.
+The current default example tree includes:
 
-The suggestion is based on the file's context, subject, role, period, person, theme, or pending action.
+```text
+01_PROFILE
+├── CVS
+├── DEGREES
+├── CERTIFICATES
+├── REFERENCES
+└── SUPPORTING_EVIDENCE
 
-The app does not analyse the file automatically. The user remains responsible for describing the file and deciding whether the suggested destination is correct.
+02_PERSONAL
+├── FAMILY
+├── HEALTH
+├── FINANCIAL
+├── INTERESTS
+│   ├── CHESS
+│   ├── SWIMMING
+│   ├── MNEMONIC_TECHNIQUES
+│   ├── BLOG_WRITING
+│   └── WEB_APPS
+└── LEARNING
 
-### 3. Pending / Reminder
+03_PROFESSIONAL
+├── 2002-2010_PRIVATE_SECTOR
+├── 2010-2019_MARINAS_PPP_DBFOT
+├── 2019-2026_STATE_FAIR_SITE_MANAGEMENT
+└── 2026-NOW_HEALTH_AND_SAFETY_OFFICER
+```
 
-This section helps the user identify files or matters that should remain visible because they require future attention or action.
+The user can copy the structure, download it as text, download a Windows `.BAT` file, or optionally create the folders locally through a supported browser.
 
-It is intended for cases where a file should not simply be archived and forgotten.
+### 2. File Destination Guide
+
+The right panel helps the user decide where a new file should be archived.
+
+The user can:
+
+- type a file name manually;
+- import a file for local browser-based analysis;
+- follow the folder tree step by step until a final folder is selected;
+- accept an automatic folder suggestion when one is available;
+- preview and copy the resulting file destination advice.
+
+The file destination guide does not move the file. It only suggests a folder and leaves the final decision to the user.
+
+## File Import Analysis
+
+When the user imports a file, the app uses browser-available information to suggest the most relevant folder.
+
+The app may use:
+
+- file name;
+- browser metadata, such as file type, size, and modified date;
+- readable text content where the browser can read it directly.
+
+Readable text content is currently supported for simple text-based files such as:
+
+```text
+.txt
+.md
+.csv
+.json
+.html
+.htm
+.xml
+.rtf
+```
+
+For files such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, the browser may provide only the filename and basic metadata unless additional parsing libraries are added later.
+
+The app includes keyword matching for English, Greek, and Greeklish where specific keyword mappings exist.
 
 ## Folder Tree Creation
 
@@ -69,6 +136,8 @@ This is done in two possible ways:
    - The user reviews it before running it.
    - The `.BAT` file creates the suggested folder tree under the folder where it is executed.
 
+Folder creation is optional and controlled by the user.
+
 ## What the App Does Not Do
 
 The app does not:
@@ -76,11 +145,10 @@ The app does not:
 - move files;
 - delete files;
 - upload files;
-- read the user's file system automatically;
 - modify documents;
+- read the user's file system automatically;
+- monitor folders in the background;
 - replace the user's final decision.
-
-Folder creation is optional and controlled by the user.
 
 ## Core Idea
 
@@ -93,6 +161,7 @@ Instead, they often remember:
 - the project or responsibility involved;
 - the life theme or interest connected to the file;
 - the person connected to the file;
+- the reason the file matters;
 - whether the file requires future action.
 
 For this reason, the app follows a memory-based approach to file organisation.
@@ -103,7 +172,7 @@ The app is local and browser-based.
 
 It does not upload files or send data to a server.
 
-It does not read or inspect the user's files automatically.
+It does not read or inspect the user's files automatically. A file is analysed only when the user imports it through the file input.
 
 When folder creation is used, the user must manually choose a destination folder and give permission through the browser.
 
@@ -121,14 +190,21 @@ That document explains the memory-based file organisation principles in more dep
 
 ## Project Status
 
-This project is currently a standalone HTML advisory tool with optional local folder tree creation.
+This project is currently a standalone browser-based advisory tool with:
+
+- English-only app UI;
+- editable personal folder tree;
+- default memory-based example tree;
+- step-by-step destination guidance;
+- local file import analysis;
+- optional local folder creation;
+- text export and Windows `.BAT` export.
 
 Possible future improvements may include:
 
-- clearer user guide documentation;
-- export of suggested folder structures;
+- richer file parsing for PDF, DOCX, XLSX, and other formats;
 - optional local storage;
-- metadata-based suggestions;
-- search or index functions;
-- AI-assisted classification;
-- safer and clearer folder creation controls.
+- safer import/export of tree templates;
+- more multilingual keyword mappings;
+- improved scoring for automatic folder suggestions;
+- clearer user guide documentation.
