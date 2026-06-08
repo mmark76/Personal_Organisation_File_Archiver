@@ -46,7 +46,7 @@
 
           <label data-i18n="nextLayerTitle">Next layer categorisation</label>
 
-          <label for="profileLayerType" data-i18n="profileLayerType">01_PROFILE next layer</label>
+          <label for="profileLayerType" data-i18n="profileLayerType">01_PROFILE next layer logic</label>
           <select id="profileLayerType">
             <option value="001_CHRONOLOGICAL">001 - ΧΡΟΝΙΚΗ</option>
             <option value="002_THEMATIC">002 - ΘΕΜΑΤΙΚΗ</option>
@@ -54,7 +54,15 @@
             <option value="004_ROLE_BASED">004 - ΡΟΛΟΥ</option>
           </select>
 
-          <label for="personalLayerType" data-i18n="personalLayerType">02_PERSONAL next layer</label>
+          <label for="profileSecondLevelCategories" data-i18n="profileSecondLevelCategories">01_PROFILE second-level categories, named one per line</label>
+          <textarea id="profileSecondLevelCategories" placeholder="One per line. Example:
+CV
+CERTIFICATES
+APPLICATIONS
+PORTFOLIO
+REFERENCE"></textarea>
+
+          <label for="personalLayerType" data-i18n="personalLayerType">02_PERSONAL next layer logic</label>
           <select id="personalLayerType">
             <option value="001_CHRONOLOGICAL">001 - ΧΡΟΝΙΚΗ</option>
             <option value="002_THEMATIC" selected>002 - ΘΕΜΑΤΙΚΗ</option>
@@ -62,13 +70,29 @@
             <option value="004_ROLE_BASED">004 - ΡΟΛΟΥ</option>
           </select>
 
-          <label for="professionalLayerType" data-i18n="professionalLayerType">03_PROFESSIONAL next layer</label>
+          <label for="personalSecondLevelCategories" data-i18n="personalSecondLevelCategories">02_PERSONAL second-level categories, named one per line</label>
+          <textarea id="personalSecondLevelCategories" placeholder="One per line. Example:
+FAMILY
+HEALTH
+FINANCIAL
+INTERESTS
+REFERENCE"></textarea>
+
+          <label for="professionalLayerType" data-i18n="professionalLayerType">03_PROFESSIONAL next layer logic</label>
           <select id="professionalLayerType">
             <option value="001_CHRONOLOGICAL" selected>001 - ΧΡΟΝΙΚΗ</option>
             <option value="002_THEMATIC">002 - ΘΕΜΑΤΙΚΗ</option>
             <option value="003_FUNCTIONAL">003 - ΛΕΙΤΟΥΡΓΙΚΗ</option>
             <option value="004_ROLE_BASED">004 - ΡΟΛΟΥ</option>
           </select>
+
+          <label for="professionalSecondLevelCategories" data-i18n="professionalSecondLevelCategories">03_PROFESSIONAL second-level categories, named one per line</label>
+          <textarea id="professionalSecondLevelCategories" placeholder="One per line. Example:
+2002-2010_PRIVATE_SECTOR
+2010-2019_PUBLIC_SECTOR
+2019-NOW_CURRENT_ROLE
+PROJECTS
+HEALTH_AND_SAFETY"></textarea>
 
           <label data-i18n="memoryQuestion">When searching for a file, what do you remember first?</label>
           <div class="checkbox-group">
@@ -81,46 +105,6 @@
             <label class="checkbox-item"><input type="checkbox" value="filetype" class="memoryPattern" /> <span data-i18n="memoryFiletype">File type</span></label>
             <label class="checkbox-item"><input type="checkbox" value="action" class="memoryPattern" /> <span data-i18n="memoryAction">Pending action</span></label>
           </div>
-
-          <label for="workPeriods" data-i18n="workPeriods">Professional periods / roles</label>
-          <textarea id="workPeriods" placeholder="One per line. Example:
-2002-2010_PRIVATE_SECTOR
-2010-2019_PUBLIC_SECTOR
-2019-NOW_CURRENT_ROLE"></textarea>
-
-          <label for="workSubjects" data-i18n="workSubjects">Professional subjects / responsibilities</label>
-          <textarea id="workSubjects" placeholder="One per line. Example:
-PROJECTS
-ADMINISTRATION
-HEALTH_AND_SAFETY
-REFERENCE"></textarea>
-
-          <label for="personalThemes" data-i18n="personalThemes">Personal life themes</label>
-          <textarea id="personalThemes" placeholder="One per line. Example:
-FAMILY
-HEALTH
-FINANCIAL
-TRAVELS
-INTERESTS
-REFERENCE"></textarea>
-
-          <label for="interests" data-i18n="interests">Interests / long-term areas</label>
-          <textarea id="interests" placeholder="One per line. Example:
-CHESS
-MNEMONICS
-BLOGS
-AI
-MEDITATION"></textarea>
-
-          <label for="profileAreas" data-i18n="profileAreas">Profile / identity areas</label>
-          <textarea id="profileAreas" placeholder="One per line. Example:
-CV
-BIOGRAPHY
-CERTIFICATES
-APPLICATIONS
-PRESENTATIONS
-PORTFOLIO
-REFERENCE"></textarea>
 
           <div class="actions">
             <button onclick="suggestStructure()" data-i18n="suggestStructureButton">Suggest Structure</button>
