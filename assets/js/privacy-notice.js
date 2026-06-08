@@ -4,22 +4,6 @@ function getCookieNoticeElement() {
   return document.getElementById("cookieNotice");
 }
 
-function safeGetPrivacyNoticeValue() {
-  try {
-    return window.localStorage.getItem(PRIVACY_NOTICE_KEY);
-  } catch (error) {
-    return null;
-  }
-}
-
-function safeSetPrivacyNoticeValue(value) {
-  try {
-    window.localStorage.setItem(PRIVACY_NOTICE_KEY, value);
-  } catch (error) {
-    // Local storage may be unavailable in some browser privacy modes.
-  }
-}
-
 function showCookieNotice() {
   const notice = getCookieNoticeElement();
   if (!notice) return;
@@ -38,17 +22,13 @@ function hideCookieNotice() {
   notice.style.display = "none";
 }
 
-function showPrivacyNoticeIfNeeded() {
-  const accepted = safeGetPrivacyNoticeValue() === "true";
-  if (!accepted) {
-    showCookieNotice();
-  } else {
-    hideCookieNotice();
-  }
-}
-
 function acceptCookieNotice() {
-  safeSetPrivacyNoticeValue("true");
+  try {
+    window.localStorage.setItem(PRIVACY_NOTICE_KEY, "true");
+  } catch (error) {
+    // Local storage may be unavailable in some browser privacy modes.
+  }
+
   hideCookieNotice();
 }
 
@@ -64,11 +44,11 @@ function initialiseCookieNoticeControls() {
     laterButton.addEventListener("click", hideCookieNotice);
   }
 
-  showPrivacyNoticeIfNeeded();
+  showCookieNotice();
 }
 
 window.acceptCookieNotice = acceptCookieNotice;
 window.hideCookieNotice = hideCookieNotice;
-window.showPrivacyNoticeIfNeeded = showPrivacyNoticeIfNeeded;
+window.showCookieNotice = showCookieNotice;
 
 window.addEventListener("DOMContentLoaded", initialiseCookieNoticeControls);
