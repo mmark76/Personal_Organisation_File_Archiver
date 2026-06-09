@@ -13,9 +13,11 @@ header {
 }
 
 header h1 {
-  font-size: clamp(58px, 7vw, 92px);
-  line-height: 0.95;
+  color: #facc15;
+  font-size: clamp(68px, 8vw, 112px);
+  line-height: 0.92;
   margin-bottom: 14px;
+  text-shadow: 0 4px 18px rgba(15, 23, 42, 0.22);
 }
 
 header .app-subtitle {
@@ -75,7 +77,7 @@ header p {
   }
 
   header h1 {
-    font-size: clamp(46px, 12vw, 68px);
+    font-size: clamp(52px, 13vw, 76px);
   }
 
   .header-actions {
