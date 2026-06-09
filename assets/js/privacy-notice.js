@@ -15,6 +15,39 @@ function getDefaultConsentPreferences() {
   };
 }
 
+function renderConsentBannerContent() {
+  const notice = getCookieNoticeElement();
+  if (!notice) return;
+
+  notice.setAttribute("aria-label", "Privacy and consent preferences");
+  notice.innerHTML = `
+    <div class="cookie-content">
+      <strong>Privacy and consent preferences</strong>
+      <p>This app runs locally in your browser. Essential storage is used for simple preferences. Analytics and advertising cookies are optional and will only be used if you allow them after Google Analytics or Google Ads tracking is added.</p>
+      <div id="cookiePreferences" class="cookie-preferences hidden" hidden>
+        <label class="consent-option">
+          <input type="checkbox" checked disabled />
+          <span><strong>Essential preferences</strong><small>Required for local settings such as theme and saved consent choice.</small></span>
+        </label>
+        <label class="consent-option">
+          <input id="analyticsConsentCheckbox" type="checkbox" />
+          <span><strong>Analytics</strong><small>Allow anonymous usage measurement when analytics is added.</small></span>
+        </label>
+        <label class="consent-option">
+          <input id="adsConsentCheckbox" type="checkbox" />
+          <span><strong>Advertising</strong><small>Allow advertising measurement or conversion tracking when Google Ads is added.</small></span>
+        </label>
+      </div>
+    </div>
+    <div class="cookie-actions">
+      <button id="cookieAcceptAllButton" type="button">Accept all</button>
+      <button id="cookieRejectOptionalButton" type="button" class="secondary">Reject optional</button>
+      <button id="cookieManageButton" type="button" class="secondary">Manage</button>
+      <button id="cookieSavePreferencesButton" type="button" class="secondary hidden" hidden>Save choices</button>
+    </div>
+  `;
+}
+
 function readConsentPreferences() {
   try {
     const savedPreferences = localStorage.getItem(consentPreferencesStorageKey);
@@ -134,6 +167,8 @@ function saveSelectedConsentPreferences() {
 }
 
 function initialiseCookieNoticeControls() {
+  renderConsentBannerContent();
+
   const acceptAllButton = document.getElementById("cookieAcceptAllButton");
   const rejectOptionalButton = document.getElementById("cookieRejectOptionalButton");
   const manageButton = document.getElementById("cookieManageButton");
