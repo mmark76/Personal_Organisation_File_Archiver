@@ -4,7 +4,12 @@
 
 The app follows a memory-based approach: files are organised according to how the user naturally remembers them, such as by life area, work period, responsibility, project, subject, interest, or document function.
 
-The app is an advisor. It does not move, delete, upload, rename, or modify files. It can optionally create the suggested folder tree locally on the user's computer, only after the user chooses a destination folder and gives browser permission.
+The app has two workflow modes:
+
+- **Advisor Mode** — suggests destinations and prepares filing advice only.
+- **Archiver Mode** — can copy the currently imported file to one user-confirmed destination folder after the user chooses a root folder and gives browser permission.
+
+The app does not delete, upload, rename, modify, or automatically move files. Archiver Mode copies the imported file and leaves the original file untouched.
 
 ## Current App Structure
 
@@ -27,6 +32,7 @@ assets/css/theme-toggle.css
 assets/js/app.js
 assets/js/folder-tree-codes.js
 assets/js/top-folder-suggestions.js
+assets/js/workflow-mode.js
 assets/js/folder-creation.js
 assets/js/json-export.js
 assets/js/example-import.js
@@ -43,14 +49,14 @@ The visible app interface is English-only. Imported files may be in English, Gre
 
 Open `index.html` in a modern browser.
 
-For direct local folder creation, use a supported browser such as Chrome or Edge. Browser support may depend on secure-context rules and the File System Access API.
+For direct local folder creation and Archiver Mode copy operations, use a supported browser such as Chrome or Edge. Browser support may depend on secure-context rules and the File System Access API.
 
 ## What the App Does
 
 The app provides two main working areas:
 
 1. **Folder Tree** — the user can build, review, copy, download, and optionally create a personal folder tree. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
-2. **File Destination Guide** — the user can type or import a file name, review up to three ranked folder suggestions, choose one final destination, follow the tree step by step, and copy the resulting filing advice.
+2. **File Destination Guide** — the user can type or import a file name, review up to three ranked folder suggestions, choose one final destination, follow the tree step by step, copy the resulting filing advice, or use Archiver Mode to copy the imported file to the confirmed destination.
 
 The first level is fixed:
 
@@ -115,7 +121,27 @@ Readable text content is currently supported for simple text-based files such as
 
 For files such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, the browser may provide only the filename and basic metadata unless additional parsing libraries are added later.
 
-The app may show up to three suggested destination folders. The user must choose one final destination. The suggestions are advisory only and do not move, copy, rename, delete, upload, or modify the file.
+The app may show up to three suggested destination folders. The user must choose one final destination. The suggestions are advisory until the user confirms a destination.
+
+## Advisor Mode and Archiver Mode
+
+In **Advisor Mode**, the app only:
+
+- analyses the imported file or typed file name;
+- suggests up to three relevant destination folders;
+- lets the user choose one final destination;
+- prepares advice that can be previewed or copied.
+
+In **Archiver Mode**, the app can additionally copy the currently imported file to the confirmed destination folder.
+
+Archiver Mode works only when all of the following are true:
+
+1. A file has been imported through the browser file input.
+2. The user has confirmed one final destination folder.
+3. The browser supports direct folder access.
+4. The user chooses the root folder and gives permission.
+
+Archiver Mode copies the file. It does not delete, move, rename, upload, or modify the original file. If a file with the same name already exists in the destination, the app creates a safe copy name instead of overwriting the existing file.
 
 ## One File, One Canonical Destination
 
@@ -135,27 +161,29 @@ It does not upload imported files or send imported file data to a server. It doe
 
 The app may use local browser storage only for simple preferences, such as theme preference and whether the privacy notice has been accepted.
 
-When folder creation is used, the user must manually choose a destination folder and give permission through the browser.
+When folder creation or Archiver Mode is used, the user must manually choose a destination/root folder and give permission through the browser.
 
 ## Third-Party Copyright Badge Script
 
 The page currently loads a third-party helper script from Copyrighted.com to display the copyright registration badge in the footer.
 
-This script is separate from the file advisor logic. The app does not use it to analyse files, upload files, move files, create folders, or classify documents.
+This script is separate from the file advisor and archiver logic. The app does not use it to analyse files, upload files, move files, copy files, create folders, or classify documents.
 
 If a fully self-contained offline build is required, this external badge helper can be removed or replaced with a static local badge/link.
 
 ## Known Limitations
 
-- The app is an advisory tool, not an automatic file manager.
+- The app is an advisory tool and optional user-controlled copy archiver, not a background automatic file manager.
 - Automatic suggestions are based on folder names, keyword mappings, file name, browser metadata, and readable text content where available.
 - Suggestions may be incomplete or inaccurate when file names are vague or when readable text is not available.
 - The app may show up to three ranked destination suggestions, but the user remains responsible for selecting the final folder.
+- Archiver Mode copies only the currently imported file after user confirmation and browser permission.
+- Archiver Mode does not move, delete, rename, upload, or modify the original file.
 - PDF, DOCX, XLSX, PPTX, scanned documents, and images are not deeply parsed by the current version.
 - Keyword mappings are limited and do not cover every possible English, Greek, or Greeklish term.
 - Folder selection codes are visual aids generated from the current tree order. They are not permanent IDs stored inside the actual folder names.
-- Folder creation depends on browser support for direct local folder access.
-- Direct folder creation may require a supported browser and a secure context, depending on browser rules.
+- Folder creation and Archiver Mode depend on browser support for direct local folder access.
+- Direct folder access may require a supported browser and a secure context, depending on browser rules.
 - The app does not currently include user accounts, cloud sync, background monitoring, automatic indexing, or automatic file moving.
 - Persistent custom tree storage is a future improvement.
 
@@ -171,12 +199,14 @@ That document explains the memory-based file organisation principles in more dep
 
 ## Project Status
 
-This project is currently a standalone browser-based advisory tool with:
+This project is currently a standalone browser-based advisory and optional copy-archiving tool with:
 
 - English-only app UI;
 - editable personal folder tree;
 - default memory-based example tree;
 - visual folder selection codes in the left folder tree;
+- Advisor Mode for advice only;
+- Archiver Mode for user-confirmed file copying;
 - step-by-step destination guidance;
 - up to three ranked folder suggestions;
 - one final user-selected destination for each file;
