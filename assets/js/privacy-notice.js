@@ -4,6 +4,14 @@ function getCookieNoticeElement() {
   return document.getElementById("cookieNotice");
 }
 
+function hasAcceptedCookieNotice() {
+  try {
+    return window.localStorage.getItem(PRIVACY_NOTICE_KEY) === "true";
+  } catch (error) {
+    return false;
+  }
+}
+
 function showCookieNotice() {
   const notice = getCookieNoticeElement();
   if (!notice) return;
@@ -44,7 +52,11 @@ function initialiseCookieNoticeControls() {
     laterButton.addEventListener("click", hideCookieNotice);
   }
 
-  showCookieNotice();
+  if (hasAcceptedCookieNotice()) {
+    hideCookieNotice();
+  } else {
+    showCookieNotice();
+  }
 }
 
 window.acceptCookieNotice = acceptCookieNotice;
