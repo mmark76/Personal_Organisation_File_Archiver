@@ -33,11 +33,23 @@ function appendFolderCode(content, node) {
   content.appendChild(codeElement);
 }
 
+function getFolderOutputDisplayName(node) {
+  const code = getFolderDisplayCode(node);
+  return code ? `${code}  ${node.name}` : node.name;
+}
+
 const originalAppendNodeMetadata = appendNodeMetadata;
 
 appendNodeMetadata = function appendNodeMetadataWithFolderCode(content, node) {
   appendFolderCode(content, node);
   originalAppendNodeMetadata(content, node);
+};
+
+buildOutputLines = function buildOutputLinesWithFolderCodes(node, depth = 0, lines = []) {
+  const indent = depth === 0 ? "" : "│   ".repeat(Math.max(0, depth - 1)) + "├── ";
+  lines.push(indent + getFolderOutputDisplayName(node));
+  (node.children || []).forEach(child => buildOutputLinesWithFolderCodes(child, depth + 1, lines));
+  return lines;
 };
 
 function injectFolderTreeCodeStyles() {
