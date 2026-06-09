@@ -1,0 +1,61 @@
+.app-explanation {
+  width: min(1500px, calc(100% - 40px));
+  margin: 24px auto 0;
+  display: grid;
+  gap: 18px;
+}
+
+.disclaimer-card,
+.guidance-overview-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  padding: 22px 24px;
+}
+
+.disclaimer-card {
+  border-left: 6px solid #2563eb;
+}
+
+.disclaimer-card h2,
+.guidance-overview-card h2 {
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.disclaimer-card p,
+.guidance-overview-card p {
+  margin: 0 0 12px;
+  color: #475569;
+  line-height: 1.65;
+}
+
+.disclaimer-card p:last-child,
+.guidance-overview-card p:last-child {
+  margin-bottom: 0;
+}
+
+.guidance-overview-card ol {
+  margin: 0 0 14px 22px;
+  padding: 0;
+  color: #475569;
+  line-height: 1.65;
+}
+
+.guidance-overview-card li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 720px) {
+  .app-explanation {
+    width: min(100% - 24px, 1500px);
+    margin-top: 18px;
+  }
+
+  .disclaimer-card,
+  .guidance-overview-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+}
