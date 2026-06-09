@@ -1,15 +1,5 @@
-const PRIVACY_NOTICE_KEY = "personalFileAdvisorPrivacyNoticeAccepted";
-
 function getCookieNoticeElement() {
   return document.getElementById("cookieNotice");
-}
-
-function hasAcceptedCookieNotice() {
-  try {
-    return window.localStorage.getItem(PRIVACY_NOTICE_KEY) === "true";
-  } catch (error) {
-    return false;
-  }
 }
 
 function showCookieNotice() {
@@ -17,8 +7,9 @@ function showCookieNotice() {
   if (!notice) return;
 
   notice.hidden = false;
+  notice.removeAttribute("hidden");
   notice.classList.remove("hidden");
-  notice.style.display = "";
+  notice.style.removeProperty("display");
 }
 
 function hideCookieNotice() {
@@ -27,17 +18,6 @@ function hideCookieNotice() {
 
   notice.classList.add("hidden");
   notice.hidden = true;
-  notice.style.display = "none";
-}
-
-function acceptCookieNotice() {
-  try {
-    window.localStorage.setItem(PRIVACY_NOTICE_KEY, "true");
-  } catch (error) {
-    // Local storage may be unavailable in some browser privacy modes.
-  }
-
-  hideCookieNotice();
 }
 
 function initialiseCookieNoticeControls() {
@@ -45,21 +25,16 @@ function initialiseCookieNoticeControls() {
   const laterButton = document.getElementById("cookieLaterButton");
 
   if (acceptButton) {
-    acceptButton.addEventListener("click", acceptCookieNotice);
+    acceptButton.addEventListener("click", hideCookieNotice);
   }
 
   if (laterButton) {
     laterButton.addEventListener("click", hideCookieNotice);
   }
 
-  if (hasAcceptedCookieNotice()) {
-    hideCookieNotice();
-  } else {
-    showCookieNotice();
-  }
+  showCookieNotice();
 }
 
-window.acceptCookieNotice = acceptCookieNotice;
 window.hideCookieNotice = hideCookieNotice;
 window.showCookieNotice = showCookieNotice;
 
