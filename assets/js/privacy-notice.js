@@ -1,5 +1,6 @@
 const consentPreferencesStorageKey = "organizeYourPcConsentPreferences";
 const legacyPrivacyNoticeStorageKey = "organizeYourPcPrivacyNoticeAccepted";
+const consentPreferencesVersion = 2;
 
 function getCookieNoticeElement() {
   return document.getElementById("cookieNotice");
@@ -7,7 +8,7 @@ function getCookieNoticeElement() {
 
 function getDefaultConsentPreferences() {
   return {
-    version: 1,
+    version: consentPreferencesVersion,
     essential: true,
     analytics: false,
     ads: false,
@@ -66,13 +67,15 @@ function readConsentPreferences() {
 }
 
 function hasSavedConsentPreferences() {
-  return Boolean(readConsentPreferences());
+  const preferences = readConsentPreferences();
+  return Boolean(preferences && preferences.version === consentPreferencesVersion);
 }
 
 function saveConsentPreferences(preferences) {
   const consentPreferences = {
     ...getDefaultConsentPreferences(),
     ...preferences,
+    version: consentPreferencesVersion,
     essential: true,
     savedAt: new Date().toISOString()
   };
