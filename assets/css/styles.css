@@ -34,7 +34,7 @@ body {
 header {
   background: rgba(255, 255, 255, 0.88);
   border-bottom: 1px solid var(--border);
-  padding: 22px 28px;
+  padding: 34px 40px;
   backdrop-filter: blur(8px);
 }
 
@@ -50,13 +50,27 @@ header {
 }
 
 header h1 {
-  margin: 0 0 8px 0;
+  margin: 0 0 14px 0;
+  font-size: 60px;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+header .app-subtitle {
+  margin: 0 0 18px 0;
+  color: var(--text);
   font-size: 26px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 header p {
   margin: 0;
   color: var(--muted);
+  font-size: 17px;
+  line-height: 1.5;
+  max-width: 1280px;
 }
 
 .feedback-open-button {
