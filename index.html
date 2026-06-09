@@ -60,7 +60,7 @@
       <div class="header-copy">
         <h1>Organize Your PC</h1>
         <p class="app-subtitle">Personal Memory-Based File Advisor</p>
-        <p>Build a personal folder tree, see visual folder codes, and get up to three suggested destinations for a file. The app does not move, copy, delete, upload, rename, or modify files.</p>
+        <p>Build a personal folder tree, see visual folder codes, and choose between Advisor Mode or Archiver Mode. Advisor Mode gives filing advice only. Archiver Mode can copy an imported file to one confirmed folder after user permission.</p>
         <div class="header-actions">
           <button type="button" id="themeToggleButton" class="secondary theme-toggle-button" onclick="toggleTheme()" aria-pressed="false">Black Background</button>
           <button type="button" class="feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
@@ -79,25 +79,26 @@
   <section class="app-explanation" aria-label="Important disclaimer and guidance">
     <article class="disclaimer-card">
       <h2>Important Disclaimer</h2>
-      <p>Organize Your PC is a file organisation advisor for your computer.</p>
-      <p>It does <strong>not</strong> reorganize your existing files on your PC. It does <strong>not</strong> move, copy, delete, upload, rename, or modify any files.</p>
-      <p>The app may suggest up to three relevant destination folders, but the user chooses one final destination. The only optional action the app can perform on your PC is to create a new folder tree inside a destination folder that you choose.</p>
+      <p>Organize Your PC is a file organisation advisor and optional user-controlled copy archiver for your computer.</p>
+      <p>It does <strong>not</strong> reorganize your existing files automatically. It does <strong>not</strong> delete, upload, rename, or modify files.</p>
+      <p>In Advisor Mode, the app only suggests destinations and prepares filing advice. In Archiver Mode, the app can copy the currently imported file to one user-confirmed destination folder after the user chooses a root folder and gives browser permission. It does not remove the original file.</p>
+      <p>The app can also optionally create a new folder tree inside a destination folder that you choose.</p>
     </article>
 
     <article class="guidance-overview-card">
       <h2>How This App Works</h2>
       <p>Organize Your PC helps you organise your files by first helping you build a clear folder tree.</p>
-      <p>The app does three things:</p>
+      <p>The app does four things:</p>
       <ol>
         <li><strong>It builds a folder tree</strong> based on the folder names and structure you define.</li>
         <li><strong>It shows visual folder codes</strong> beside the folder tree, such as <code>01</code>, <code>01.001</code>, or <code>02.004.001</code>. These are display aids and do not change the real folder names.</li>
         <li><strong>It guides you on where to archive a file</strong>, using the file title and other available parameters. It may show up to three ranked folder suggestions, and the user selects one final destination.</li>
+        <li><strong>It can copy an imported file in Archiver Mode</strong> after the user confirms one destination folder, chooses a root folder, and grants browser permission. Existing files are not overwritten; a safe copy name is created if needed.</li>
       </ol>
       <p>Before the app can suggest where a file should be placed, the folder tree must first exist. Once the tree is ready, the app can compare a file, such as the built-in example file <code>CV.pdf</code>, with the available folders and suggest useful destinations.</p>
-      <p>The app does not interfere with your existing file organisation. Existing files can remain where they are, or they can be kept separately in an archive folder. From that point onward, you can start using the new folder tree for clearer future filing.</p>
-      <p>The purpose of Organize Your PC is not to automate your computer. Its main purpose is to help organise the way you think about your files.</p>
-      <p>The only optional automation is the creation of a new folder tree inside a destination folder chosen by the user.</p>
-      <p>The app does <strong>not</strong> move, copy, delete, upload, rename, or modify files.</p>
+      <p>The app does not interfere with your existing file organisation unless the user explicitly chooses Archiver Mode, confirms one destination, chooses a root folder, and allows the browser copy action.</p>
+      <p>The purpose of Organize Your PC is not to automate your computer blindly. Its main purpose is to help organise the way you think about your files.</p>
+      <p>The app does <strong>not</strong> delete, upload, rename, modify, or automatically move files.</p>
     </article>
   </section>
 
@@ -135,7 +136,7 @@
 
     <section class="panel destination-panel accent-destination">
       <h2>File Destination Guide</h2>
-      <p>Import a file or type its name. The app reads basic browser-available file data, may suggest up to three relevant folders, and lets the user choose one final destination. It does not move, copy, delete, upload, rename, or modify the file.</p>
+      <p>Import a file or type its name. The app reads basic browser-available file data, may suggest up to three relevant folders, and lets the user choose one final destination. Advisor Mode gives advice only. Archiver Mode can copy the imported file to the confirmed folder after user permission.</p>
 
       <div class="example-file-card">
         <div>
@@ -248,6 +249,7 @@
   <script src="assets/js/app.js"></script>
   <script src="assets/js/folder-tree-codes.js"></script>
   <script src="assets/js/top-folder-suggestions.js"></script>
+  <script src="assets/js/workflow-mode.js"></script>
   <script src="assets/js/folder-creation.js"></script>
   <script src="assets/js/json-export.js"></script>
   <script src="assets/js/example-import.js"></script>
