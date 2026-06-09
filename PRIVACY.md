@@ -1,15 +1,17 @@
 # Privacy Notice
 
-The **Personal Memory-Based File Advisor** is designed as a local, browser-based advisory tool.
+The **Personal Memory-Based File Advisor** is designed as a local, browser-based advisory and optional copy-archiving tool.
 
 ## Local Use
 
 The app runs in the user's browser.
 
 It does not upload imported files to a server.
-It does not move, delete, rename, copy, or modify files.
+It does not delete, move, rename, or modify files.
 It does not scan the user's file system automatically.
 It analyses a file only when the user manually imports it through the browser file input.
+
+In Archiver Mode, the app can copy the currently imported file to one confirmed destination folder only after the user chooses a root folder and gives browser permission. The original file is not deleted or moved.
 
 ## File Analysis
 
@@ -29,7 +31,7 @@ The app may show up to three suggested destination folders for an imported file 
 
 These suggestions are generated locally in the browser from the available file information, folder names, keyword mappings, and the current folder tree.
 
-The user chooses one final destination. The app does not move, copy, rename, delete, upload, or modify the file.
+The user chooses one final destination. In Advisor Mode, the app only prepares advice. In Archiver Mode, the app can copy the imported file to the confirmed destination after explicit browser permission.
 
 ## Folder Selection Codes
 
@@ -56,7 +58,7 @@ The message is sent only if the user chooses to send it through their email clie
 
 The page currently loads a helper script from Copyrighted.com to display the copyright registration badge in the footer.
 
-This script is separate from the file advisor logic. The app does not use it to analyse files, upload files, move files, create folders, or classify documents.
+This script is separate from the file advisor and archiver logic. The app does not use it to analyse files, upload files, move files, copy files, create folders, or classify documents.
 
 If a fully self-contained offline build is required, the external badge helper can be removed or replaced with a static local badge/link.
 
