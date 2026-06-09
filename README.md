@@ -25,7 +25,10 @@ assets/css/app-explanation.css
 assets/css/theme-toggle.css
 
 assets/js/app.js
+assets/js/folder-tree-codes.js
+assets/js/top-folder-suggestions.js
 assets/js/folder-creation.js
+assets/js/json-export.js
 assets/js/example-import.js
 assets/js/feedback.js
 assets/js/privacy-notice.js
@@ -46,8 +49,8 @@ For direct local folder creation, use a supported browser such as Chrome or Edge
 
 The app provides two main working areas:
 
-1. **Folder Tree** — the user can build, review, copy, download, and optionally create a personal folder tree.
-2. **File Destination Guide** — the user can type or import a file name, follow the tree step by step, accept an automatic suggestion, and copy the resulting filing advice.
+1. **Folder Tree** — the user can build, review, copy, download, and optionally create a personal folder tree. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
+2. **File Destination Guide** — the user can type or import a file name, review up to three ranked folder suggestions, choose one final destination, follow the tree step by step, and copy the resulting filing advice.
 
 The first level is fixed:
 
@@ -67,6 +70,27 @@ Each layer below the fixed first level uses one thinking type:
 ```
 
 The thinking type guides the naming of the next layer. It does not become a folder name by itself.
+
+## Folder Selection Codes
+
+The app displays visual folder selection codes beside folders in the left folder tree.
+
+Example:
+
+```text
+01        01_PROFILE
+01.001    CVS
+01.002    DEGREES
+
+02        02_PERSONAL
+02.001    FAMILY
+02.002    HEALTH
+02.003    FINANCIAL
+02.004    INTERESTS
+02.004.001 CHESS
+```
+
+These codes help the user identify a destination quickly. They are generated from the current tree order and are not inserted into the real folder names.
 
 ## File Import Analysis
 
@@ -91,6 +115,18 @@ Readable text content is currently supported for simple text-based files such as
 
 For files such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, the browser may provide only the filename and basic metadata unless additional parsing libraries are added later.
 
+The app may show up to three suggested destination folders. The user must choose one final destination. The suggestions are advisory only and do not move, copy, rename, delete, upload, or modify the file.
+
+## One File, One Canonical Destination
+
+The app follows this principle:
+
+```text
+One file → one canonical destination
+```
+
+The app may suggest several relevant folders, but the user should select only one final folder for the file. This avoids duplicate filing, conflicting versions, and uncertainty about which copy is the final one.
+
 ## Privacy and Safety
 
 The app is local and browser-based.
@@ -114,13 +150,14 @@ If a fully self-contained offline build is required, this external badge helper 
 - The app is an advisory tool, not an automatic file manager.
 - Automatic suggestions are based on folder names, keyword mappings, file name, browser metadata, and readable text content where available.
 - Suggestions may be incomplete or inaccurate when file names are vague or when readable text is not available.
+- The app may show up to three ranked destination suggestions, but the user remains responsible for selecting the final folder.
 - PDF, DOCX, XLSX, PPTX, scanned documents, and images are not deeply parsed by the current version.
 - Keyword mappings are limited and do not cover every possible English, Greek, or Greeklish term.
-- The current app usually presents one best automatic suggestion rather than several ranked alternatives.
+- Folder selection codes are visual aids generated from the current tree order. They are not permanent IDs stored inside the actual folder names.
 - Folder creation depends on browser support for direct local folder access.
 - Direct folder creation may require a supported browser and a secure context, depending on browser rules.
-- The app does not currently include user accounts, cloud sync, background monitoring, or automatic indexing.
-- Persistent custom tree storage and full template import/export are future improvements.
+- The app does not currently include user accounts, cloud sync, background monitoring, automatic indexing, or automatic file moving.
+- Persistent custom tree storage is a future improvement.
 
 ## Related Documentation
 
@@ -139,9 +176,13 @@ This project is currently a standalone browser-based advisory tool with:
 - English-only app UI;
 - editable personal folder tree;
 - default memory-based example tree;
+- visual folder selection codes in the left folder tree;
 - step-by-step destination guidance;
+- up to three ranked folder suggestions;
+- one final user-selected destination for each file;
 - local file import analysis;
 - optional local folder creation;
+- JSON export and import of the folder tree;
 - local privacy notice preference;
 - local theme preference;
 - text export.
