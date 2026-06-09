@@ -107,6 +107,18 @@ function getAllowedThinkingTypes(parentNode) {
   return values;
 }
 
+function createExampleNode(name, branch, thinkingType, childLayerType = null, children = []) {
+  return {
+    id: "node_" + nextNodeId++,
+    name,
+    fixed: false,
+    branch,
+    thinkingType,
+    childLayerType,
+    children
+  };
+}
+
 function renderTree() {
   const treeContainer = document.getElementById("treeContainer");
   treeContainer.innerHTML = "";
@@ -121,9 +133,9 @@ function renderNode(node, depth) {
 
   const row = document.createElement("div");
   row.className = "tree-node";
+  row.style.marginLeft = depth * 22 + "px";
   if (node.fixed && node.id !== "root") row.classList.add("main-category-node");
   if (node.id === destinationCurrentNodeId) row.classList.add("selected-destination-node");
-  row.style.marginLeft = depth * 22 + "px";
 
   const content = document.createElement("div");
   content.className = "node-content";
@@ -218,6 +230,7 @@ function closeNodeModal() {
 function updateThinkingPrompt() {
   const select = document.getElementById("thinkingTypeSelect");
   if (!select) return;
+
   const thinkingType = select.value;
   const label = document.getElementById("folderNameLabel");
   const examplesBox = document.getElementById("examplesBox");
@@ -233,7 +246,9 @@ function updateThinkingPrompt() {
     const tag = document.createElement("span");
     tag.className = "example-tag";
     tag.textContent = example;
-    tag.onclick = () => { document.getElementById("folderNameInput").value = example; };
+    tag.onclick = () => {
+      document.getElementById("folderNameInput").value = example;
+    };
     examplesBox.appendChild(tag);
   });
 }
@@ -272,6 +287,7 @@ function deleteNode(nodeId, currentNode = tree) {
   for (const child of currentNode.children) {
     if (deleteNode(nodeId, child)) return true;
   }
+
   return false;
 }
 
@@ -313,6 +329,7 @@ function chooseCurrentAsFinal() {
   const finalBox = document.getElementById("finalDestinationBox");
   const node = findNode(destinationCurrentNodeId);
   if (!node) return;
+
   finalBox.classList.remove("hidden");
   finalBox.textContent = "Final destination selected: " + getNodeFolderPath(node.id);
 }
@@ -363,30 +380,30 @@ function updateDestinationGuide() {
     choices.appendChild(button);
   });
 
-  if (currentNode) {
-    const finalButton = document.createElement("button");
-    finalButton.type = "button";
-    finalButton.className = "final-choice-button";
-    finalButton.textContent = currentNode.children.length > 0 ? "Use this folder as final destination" : "Confirm this final folder";
-    finalButton.onclick = chooseCurrentAsFinal;
-    choices.appendChild(finalButton);
+  if (!currentNode) return;
 
-    const parentNode = findParentNode(currentNode.id);
-    if (parentNode && parentNode.id !== "root") {
-      const backButton = document.createElement("button");
-      backButton.type = "button";
-      backButton.className = "secondary choice-button";
-      backButton.textContent = "Go back one level";
-      backButton.onclick = () => selectDestinationNode(parentNode.id);
-      choices.appendChild(backButton);
-    } else if (parentNode && parentNode.id === "root") {
-      const backButton = document.createElement("button");
-      backButton.type = "button";
-      backButton.className = "secondary choice-button";
-      backButton.textContent = "Back to main categories";
-      backButton.onclick = resetDestinationGuide;
-      choices.appendChild(backButton);
-    }
+  const finalButton = document.createElement("button");
+  finalButton.type = "button";
+  finalButton.className = "final-choice-button";
+  finalButton.textContent = currentNode.children.length > 0 ? "Use this folder as final destination" : "Confirm this final folder";
+  finalButton.onclick = chooseCurrentAsFinal;
+  choices.appendChild(finalButton);
+
+  const parentNode = findParentNode(currentNode.id);
+  if (parentNode && parentNode.id !== "root") {
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className = "secondary choice-button";
+    backButton.textContent = "Go back one level";
+    backButton.onclick = () => selectDestinationNode(parentNode.id);
+    choices.appendChild(backButton);
+  } else if (parentNode && parentNode.id === "root") {
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.className = "secondary choice-button";
+    backButton.textContent = "Back to main categories";
+    backButton.onclick = resetDestinationGuide;
+    choices.appendChild(backButton);
   }
 }
 
@@ -634,18 +651,6 @@ function loadMarkellosExample() {
   analyzeCurrentFileData();
 }
 
-function createExampleNode(name, branch, thinkingType, childLayerType = null, children = []) {
-  return {
-    id: "node_" + nextNodeId++,
-    name,
-    fixed: false,
-    branch,
-    thinkingType,
-    childLayerType,
-    children
-  };
-}
-
 function downloadFile(filename, content, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -661,36 +666,6 @@ function downloadFile(filename, content, mimeType) {
 function downloadStructureText() {
   const content = document.getElementById("treeOutput").textContent + "\n\nFolder paths:\n" + latestFolderPaths.join("\n");
   downloadFile("suggested_folder_structure.txt", content, "text/plain;charset=utf-8");
-}
-
-function downloadWindowsBatch() {
-  let content = "@echo off\r\nREM Suggested folder structure creator\r\nREM Review this file before running it.\r\n\r\n";
-  latestFolderPaths.forEach(path => {
-    content += 'mkdir "' + path + '" 2>nul\r\n';
-  });
-  content += "\r\necho Done.\r\npause\r\n";
-  downloadFile("create_suggested_folder_structure.bat", content, "application/x-bat;charset=utf-8");
-}
-
-async function createFoldersOnComputer() {
-  if (!window.showDirectoryPicker) {
-    alert("This browser does not support direct folder creation. Use Chrome or Edge, or download the Windows .BAT file.");
-    return;
-  }
-
-  try {
-    const rootHandle = await window.showDirectoryPicker();
-    for (const folderPath of latestFolderPaths) {
-      const parts = folderPath.split("\\").filter(Boolean);
-      let currentHandle = rootHandle;
-      for (const part of parts) {
-        currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
-      }
-    }
-    alert("Folder structure created successfully.");
-  } catch (error) {
-    alert("Folder creation was cancelled or failed.");
-  }
 }
 
 function copyTreeOutput() {
