@@ -55,6 +55,27 @@ const tree = {
   ]
 };
 
+function byId(id) {
+  return document.getElementById(id);
+}
+
+function createTextElement(tagName, className, textContent = "") {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  element.textContent = textContent;
+  return element;
+}
+
+function createButton(textContent, onClick, className = "", title = "") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = textContent;
+  if (className) button.className = className;
+  if (title) button.title = title;
+  if (onClick) button.onclick = onClick;
+  return button;
+}
+
 function normalizeText(value) {
   return String(value || "")
     .normalize("NFD")
@@ -120,7 +141,7 @@ function createExampleNode(name, branch, thinkingType, childLayerType = null, ch
 }
 
 function renderTree() {
-  const treeContainer = document.getElementById("treeContainer");
+  const treeContainer = byId("treeContainer");
   treeContainer.innerHTML = "";
   tree.children.forEach(mainCategory => treeContainer.appendChild(renderNode(mainCategory, 0)));
   updateOutput();
@@ -128,58 +149,18 @@ function renderTree() {
 }
 
 function renderNode(node, depth) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "tree-node-wrapper";
-
-  const row = document.createElement("div");
-  row.className = "tree-node";
+  const wrapper = createTextElement("div", "tree-node-wrapper");
+  const row = createTextElement("div", "tree-node");
   row.style.marginLeft = depth * 22 + "px";
+
   if (node.fixed && node.id !== "root") row.classList.add("main-category-node");
   if (node.id === destinationCurrentNodeId) row.classList.add("selected-destination-node");
 
-  const content = document.createElement("div");
-  content.className = "node-content";
+  const content = createTextElement("div", "node-content");
+  appendNodeMetadata(content, node);
 
-  if (node.thinkingType) {
-    const type = document.createElement("div");
-    type.className = "node-thinking-type";
-    type.textContent = "Type: " + thinkingTypes[node.thinkingType].label;
-    content.appendChild(type);
-  }
-
-  const name = document.createElement("div");
-  name.className = "node-name";
-  name.textContent = node.name;
-  content.appendChild(name);
-
-  if (node.childLayerType) {
-    const nextType = document.createElement("div");
-    nextType.className = "node-next-layer";
-    nextType.textContent = "Next layer: " + thinkingTypes[node.childLayerType].label;
-    content.appendChild(nextType);
-  }
-
-  const actions = document.createElement("div");
-  actions.className = "node-actions";
-
-  if (node.id !== "root") {
-    const addButton = document.createElement("button");
-    addButton.type = "button";
-    addButton.textContent = "+";
-    addButton.title = "Add child folder";
-    addButton.onclick = () => openNodeModal(node.id);
-    actions.appendChild(addButton);
-  }
-
-  if (!node.fixed) {
-    const deleteButton = document.createElement("button");
-    deleteButton.type = "button";
-    deleteButton.className = "danger small-button";
-    deleteButton.textContent = "×";
-    deleteButton.title = "Delete folder";
-    deleteButton.onclick = () => deleteNode(node.id);
-    actions.appendChild(deleteButton);
-  }
+  const actions = createTextElement("div", "node-actions");
+  appendNodeActions(actions, node);
 
   row.appendChild(content);
   row.appendChild(actions);
@@ -188,14 +169,36 @@ function renderNode(node, depth) {
   return wrapper;
 }
 
+function appendNodeMetadata(content, node) {
+  if (node.thinkingType) {
+    content.appendChild(createTextElement("div", "node-thinking-type", "Type: " + thinkingTypes[node.thinkingType].label));
+  }
+
+  content.appendChild(createTextElement("div", "node-name", node.name));
+
+  if (node.childLayerType) {
+    content.appendChild(createTextElement("div", "node-next-layer", "Next layer: " + thinkingTypes[node.childLayerType].label));
+  }
+}
+
+function appendNodeActions(actions, node) {
+  if (node.id !== "root") {
+    actions.appendChild(createButton("+", () => openNodeModal(node.id), "", "Add child folder"));
+  }
+
+  if (!node.fixed) {
+    actions.appendChild(createButton("×", () => deleteNode(node.id), "danger small-button", "Delete folder"));
+  }
+}
+
 function openNodeModal(parentId) {
   selectedParentId = parentId;
   const parentNode = findNode(parentId);
-  const modal = document.getElementById("nodeModal");
-  const select = document.getElementById("thinkingTypeSelect");
-  const fixedType = document.getElementById("fixedThinkingType");
-  const context = document.getElementById("modalContext");
-  const folderNameInput = document.getElementById("folderNameInput");
+  const modal = byId("nodeModal");
+  const select = byId("thinkingTypeSelect");
+  const fixedType = byId("fixedThinkingType");
+  const context = byId("modalContext");
+  const folderNameInput = byId("folderNameInput");
 
   context.textContent = "Parent folder: " + parentNode.name;
   folderNameInput.value = "";
@@ -224,30 +227,25 @@ function openNodeModal(parentId) {
 
 function closeNodeModal() {
   selectedParentId = null;
-  document.getElementById("nodeModal").classList.add("hidden");
+  byId("nodeModal").classList.add("hidden");
 }
 
 function updateThinkingPrompt() {
-  const select = document.getElementById("thinkingTypeSelect");
+  const select = byId("thinkingTypeSelect");
   if (!select) return;
 
   const thinkingType = select.value;
-  const label = document.getElementById("folderNameLabel");
-  const examplesBox = document.getElementById("examplesBox");
+  const label = byId("folderNameLabel");
+  const examplesBox = byId("examplesBox");
 
   label.textContent = thinkingTypes[thinkingType].prompt;
   examplesBox.innerHTML = "";
-
-  const title = document.createElement("strong");
-  title.textContent = "Examples from your tree:";
-  examplesBox.appendChild(title);
+  examplesBox.appendChild(createTextElement("strong", "", "Examples from your tree:"));
 
   thinkingTypes[thinkingType].examples.forEach(example => {
-    const tag = document.createElement("span");
-    tag.className = "example-tag";
-    tag.textContent = example;
+    const tag = createTextElement("span", "example-tag", example);
     tag.onclick = () => {
-      document.getElementById("folderNameInput").value = example;
+      byId("folderNameInput").value = example;
     };
     examplesBox.appendChild(tag);
   });
@@ -255,8 +253,8 @@ function updateThinkingPrompt() {
 
 function confirmAddChild() {
   const parentNode = findNode(selectedParentId);
-  const cleanName = sanitizeFolderName(document.getElementById("folderNameInput").value);
-  const thinkingType = document.getElementById("thinkingTypeSelect").value;
+  const cleanName = sanitizeFolderName(byId("folderNameInput").value);
+  const thinkingType = byId("thinkingTypeSelect").value;
 
   if (!cleanName) {
     alert("Please enter a folder name.");
@@ -326,7 +324,7 @@ function selectDestinationNode(nodeId) {
 }
 
 function chooseCurrentAsFinal() {
-  const finalBox = document.getElementById("finalDestinationBox");
+  const finalBox = byId("finalDestinationBox");
   const node = findNode(destinationCurrentNodeId);
   if (!node) return;
 
@@ -335,10 +333,10 @@ function chooseCurrentAsFinal() {
 }
 
 function updateDestinationGuide() {
-  const breadcrumb = document.getElementById("destinationBreadcrumb");
-  const question = document.getElementById("destinationStepQuestion");
-  const choices = document.getElementById("destinationChoices");
-  const finalBox = document.getElementById("finalDestinationBox");
+  const breadcrumb = byId("destinationBreadcrumb");
+  const question = byId("destinationStepQuestion");
+  const choices = byId("destinationChoices");
+  const finalBox = byId("finalDestinationBox");
   if (!breadcrumb || !question || !choices || !finalBox) return;
 
   const currentNode = destinationCurrentNodeId ? findNode(destinationCurrentNodeId) : null;
@@ -348,62 +346,49 @@ function updateDestinationGuide() {
   finalBox.textContent = "";
   choices.innerHTML = "";
 
+  updateDestinationPrompt(breadcrumb, question, currentNode);
+  availableChildren.forEach(child => choices.appendChild(createDestinationChoiceButton(child)));
+  appendDestinationNavigationButtons(choices, currentNode);
+}
+
+function updateDestinationPrompt(breadcrumb, question, currentNode) {
   if (!currentNode) {
     breadcrumb.textContent = "No folder selected yet.";
     question.textContent = "Start by choosing one of the main categories.";
-  } else {
-    breadcrumb.textContent = getNodeFolderPath(currentNode.id);
-    if (currentNode.children.length > 0) {
-      const nextType = currentNode.childLayerType ? thinkingTypes[currentNode.childLayerType] : null;
-      question.textContent = nextType ? nextType.question : "Choose the next folder.";
-    } else {
-      question.textContent = "This is a final folder unless you add more child folders on the left.";
-    }
+    return;
   }
 
-  availableChildren.forEach(child => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "choice-button";
-    button.onclick = () => selectDestinationNode(child.id);
+  breadcrumb.textContent = getNodeFolderPath(currentNode.id);
+  if (currentNode.children.length > 0) {
+    const nextType = currentNode.childLayerType ? thinkingTypes[currentNode.childLayerType] : null;
+    question.textContent = nextType ? nextType.question : "Choose the next folder.";
+  } else {
+    question.textContent = "This is a final folder unless you add more child folders on the left.";
+  }
+}
 
-    const name = document.createElement("strong");
-    name.textContent = child.name;
-    button.appendChild(name);
+function createDestinationChoiceButton(child) {
+  const button = createButton("", () => selectDestinationNode(child.id), "choice-button");
+  button.appendChild(createTextElement("strong", "", child.name));
 
-    if (child.thinkingType) {
-      const type = document.createElement("span");
-      type.textContent = thinkingTypes[child.thinkingType].label;
-      button.appendChild(type);
-    }
+  if (child.thinkingType) {
+    button.appendChild(createTextElement("span", "", thinkingTypes[child.thinkingType].label));
+  }
 
-    choices.appendChild(button);
-  });
+  return button;
+}
 
+function appendDestinationNavigationButtons(choices, currentNode) {
   if (!currentNode) return;
 
-  const finalButton = document.createElement("button");
-  finalButton.type = "button";
-  finalButton.className = "final-choice-button";
-  finalButton.textContent = currentNode.children.length > 0 ? "Use this folder as final destination" : "Confirm this final folder";
-  finalButton.onclick = chooseCurrentAsFinal;
-  choices.appendChild(finalButton);
+  const finalButtonText = currentNode.children.length > 0 ? "Use this folder as final destination" : "Confirm this final folder";
+  choices.appendChild(createButton(finalButtonText, chooseCurrentAsFinal, "final-choice-button"));
 
   const parentNode = findParentNode(currentNode.id);
   if (parentNode && parentNode.id !== "root") {
-    const backButton = document.createElement("button");
-    backButton.type = "button";
-    backButton.className = "secondary choice-button";
-    backButton.textContent = "Go back one level";
-    backButton.onclick = () => selectDestinationNode(parentNode.id);
-    choices.appendChild(backButton);
+    choices.appendChild(createButton("Go back one level", () => selectDestinationNode(parentNode.id), "secondary choice-button"));
   } else if (parentNode && parentNode.id === "root") {
-    const backButton = document.createElement("button");
-    backButton.type = "button";
-    backButton.className = "secondary choice-button";
-    backButton.textContent = "Back to main categories";
-    backButton.onclick = resetDestinationGuide;
-    choices.appendChild(backButton);
+    choices.appendChild(createButton("Back to main categories", resetDestinationGuide, "secondary choice-button"));
   }
 }
 
@@ -422,11 +407,11 @@ function updateOutput() {
   ];
 
   latestFolderPaths = buildFolderPaths(tree);
-  document.getElementById("treeOutput").textContent = output.join("\n");
+  byId("treeOutput").textContent = output.join("\n");
 }
 
 async function handleImportedFile() {
-  const input = document.getElementById("importedFileInput");
+  const input = byId("importedFileInput");
   const file = input.files && input.files[0];
   if (!file) return;
 
@@ -438,7 +423,7 @@ async function handleImportedFile() {
     text: ""
   };
 
-  document.getElementById("destinationFileName").value = file.name;
+  byId("destinationFileName").value = file.name;
 
   if (isTextReadableFile(file)) {
     try {
@@ -459,7 +444,7 @@ function isTextReadableFile(file) {
 }
 
 function updateFileAnalysisBox() {
-  const box = document.getElementById("fileAnalysisBox");
+  const box = byId("fileAnalysisBox");
   if (!box || !importedFileData) return;
 
   const textStatus = importedFileData.text ? "Text content was read and included in keyword matching." : "Only filename and browser metadata were available for keyword matching.";
@@ -477,10 +462,10 @@ function updateFileAnalysisBox() {
 }
 
 function analyzeCurrentFileData() {
-  const suggestionBox = document.getElementById("autoSuggestionBox");
+  const suggestionBox = byId("autoSuggestionBox");
   if (!suggestionBox) return;
 
-  const fileName = document.getElementById("destinationFileName").value.trim();
+  const fileName = byId("destinationFileName").value.trim();
   const analysisText = buildAnalysisText(fileName);
   const suggestion = suggestBestFolder(analysisText);
 
@@ -490,27 +475,16 @@ function analyzeCurrentFileData() {
     return;
   }
 
+  renderSuggestionBox(suggestionBox, suggestion);
+}
+
+function renderSuggestionBox(suggestionBox, suggestion) {
   suggestionBox.classList.remove("hidden");
   suggestionBox.innerHTML = "";
-
-  const title = document.createElement("strong");
-  title.textContent = "Automatic suggestion";
-  suggestionBox.appendChild(title);
-
-  const text = document.createElement("div");
-  text.textContent = suggestion.path + " — confidence: " + suggestion.confidence;
-  suggestionBox.appendChild(text);
-
-  const reason = document.createElement("div");
-  reason.className = "suggestion-reason";
-  reason.textContent = "Matched keywords: " + suggestion.matches.join(", ");
-  suggestionBox.appendChild(reason);
-
-  const applyButton = document.createElement("button");
-  applyButton.type = "button";
-  applyButton.textContent = "Use suggested folder";
-  applyButton.onclick = () => selectDestinationNode(suggestion.nodeId);
-  suggestionBox.appendChild(applyButton);
+  suggestionBox.appendChild(createTextElement("strong", "", "Automatic suggestion"));
+  suggestionBox.appendChild(createTextElement("div", "", suggestion.path + " — confidence: " + suggestion.confidence));
+  suggestionBox.appendChild(createTextElement("div", "suggestion-reason", "Matched keywords: " + suggestion.matches.join(", ")));
+  suggestionBox.appendChild(createButton("Use suggested folder", () => selectDestinationNode(suggestion.nodeId)));
 }
 
 function buildAnalysisText(fileName) {
@@ -588,9 +562,9 @@ function buildCandidateKeywords(candidate) {
 }
 
 function previewFileDestination() {
-  const fileName = document.getElementById("destinationFileName").value.trim() || "[New file]";
+  const fileName = byId("destinationFileName").value.trim() || "[New file]";
   const destination = destinationCurrentNodeId ? getNodeFolderPath(destinationCurrentNodeId) : "[No final folder selected]";
-  const reason = document.getElementById("destinationReason").value.trim() || "No reason written yet.";
+  const reason = byId("destinationReason").value.trim() || "No reason written yet.";
   const node = destinationCurrentNodeId ? findNode(destinationCurrentNodeId) : null;
   const status = node && node.children.length === 0 ? "Final folder reached." : "Review whether this is final, or continue one level deeper.";
 
@@ -613,11 +587,11 @@ function previewFileDestination() {
     "This is guidance only. The app does not move the file."
   ].join("\n");
 
-  document.getElementById("fileDestinationOutput").textContent = advice;
+  byId("fileDestinationOutput").textContent = advice;
 }
 
 function copyFileAdvice() {
-  navigator.clipboard.writeText(document.getElementById("fileDestinationOutput").textContent);
+  navigator.clipboard.writeText(byId("fileDestinationOutput").textContent);
 }
 
 function loadMarkellosExample() {
@@ -664,12 +638,12 @@ function downloadFile(filename, content, mimeType) {
 }
 
 function downloadStructureText() {
-  const content = document.getElementById("treeOutput").textContent + "\n\nFolder paths:\n" + latestFolderPaths.join("\n");
+  const content = byId("treeOutput").textContent + "\n\nFolder paths:\n" + latestFolderPaths.join("\n");
   downloadFile("suggested_folder_structure.txt", content, "text/plain;charset=utf-8");
 }
 
 function copyTreeOutput() {
-  navigator.clipboard.writeText(document.getElementById("treeOutput").textContent);
+  navigator.clipboard.writeText(byId("treeOutput").textContent);
 }
 
 renderTree();
