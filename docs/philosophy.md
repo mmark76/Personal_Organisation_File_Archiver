@@ -112,6 +112,8 @@ The first level is fixed. Each layer below the fixed first level may be organise
 
 The thinking type guides the naming of the next layer. It is not itself a folder name.
 
+The app may also display visual folder selection codes beside folders, such as `01`, `01.001`, or `02.004.001`. These codes help the user identify folders quickly in the interface. They are visual aids generated from the current tree order and are not part of the real folder names.
+
 ## 4. Logic Behind 01_PROFILE
 
 The `01_PROFILE` branch contains documents that define, prove, support, or present my personal and professional identity.
@@ -273,6 +275,10 @@ The app may consider:
 - Keyword mappings
 - English, Greek, and Greeklish keywords where mappings exist
 
+The app may show up to three ranked destination suggestions. These suggestions are possible destinations, not automatic filing decisions.
+
+The user chooses one final folder.
+
 The result is guidance, not an automatic decision.
 
 The user should always ask:
@@ -287,7 +293,21 @@ not only:
 What type of file is this?
 ```
 
-## 10. Privacy and Safety Principle
+## 10. One File, One Canonical Destination
+
+The system follows this rule:
+
+```text
+One file → one canonical destination
+```
+
+A file may be relevant to more than one theme, function, period, or role. The app may therefore show several useful suggestions.
+
+However, the file should be assigned to one final folder only. This avoids duplicate copies, conflicting versions, and confusion about which file is the final or authoritative version.
+
+If a file is related to other areas, that relationship can be remembered through notes, tags, references, or future metadata, but not by placing duplicate copies in multiple folders.
+
+## 11. Privacy and Safety Principle
 
 The app is local and browser-based.
 
@@ -296,6 +316,8 @@ It does not:
 - Upload files
 - Delete files
 - Move files
+- Copy files
+- Rename files
 - Modify documents
 - Read the user's file system automatically
 - Monitor folders in the background
@@ -305,7 +327,7 @@ A file is analysed only when the user imports it through the file input.
 
 Folder creation is optional and controlled by the user. If direct folder creation is used, the user must choose a destination folder and give browser permission.
 
-## 11. Inbox Handling
+## 12. Inbox Handling
 
 The current app does not use `00_INBOX_FROM_NOW` as a fixed first-level folder.
 
@@ -332,7 +354,7 @@ The principle remains:
 3. They should later be assigned to the most natural memory-based destination.
 4. The inbox should reduce decision fatigue, not become a dumping ground.
 
-## 12. Reference Handling
+## 13. Reference Handling
 
 Reference material should be stored where it is most naturally remembered.
 
@@ -349,25 +371,26 @@ Examples of reference material:
 
 If a document clearly belongs to a specific profile function, personal theme, professional period, responsibility, project, or interest, it should be stored there instead.
 
-## 13. Future Development
+## 14. Future Development
 
 Future improvements may include:
 
 - Local saving of the folder tree
-- JSON export and import of tree templates
 - Safer import and export of personal folder structures
 - Richer file parsing for PDF, DOCX, XLSX, PPTX, scanned documents, and images
 - Improved keyword mappings in English, Greek, and Greeklish
 - Better scoring for automatic folder suggestions
-- Multiple suggested destinations instead of only one
 - Clearer explanation of why a folder was suggested
 - Optional local indexing
 - Optional tagging system
 - Optional semantic search or AI classification in a future version
+- Optional user-approved file copy or move workflow in a future version
+
+The current app already includes JSON export and import of the folder tree, visual folder selection codes, and up to three ranked destination suggestions.
 
 The objective is not only to store files efficiently, but also to retrieve information quickly and naturally.
 
-## 14. Final Principle
+## 15. Final Principle
 
 The system is built around a simple observation:
 
@@ -383,7 +406,7 @@ is the foundation of the current file organisation system.
 
 The file organisation system should follow memory first and storage structure second.
 
-## 15. Consolidation Notes
+## 16. Consolidation Notes
 
 This file replaces the older philosophy structure that used `00_INBOX_FROM_NOW`, `01_OFFICE`, and `02_PERSONAL` as the master first-level layout.
 
