@@ -16,6 +16,7 @@
   <link rel="icon" href="assets/images/organize-your-pc-logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="assets/css/legal.css" />
+  <link rel="stylesheet" href="assets/css/examples.css" />
   <link rel="stylesheet" href="assets/css/responsive.css" />
 
   <meta property="og:type" content="website" />
@@ -100,6 +101,14 @@
     <section class="panel destination-panel accent-destination">
       <h2>File Destination Guide</h2>
       <p>Import a file or type its name. The app reads basic browser-available file data and suggests the most relevant folder. It does not move the file.</p>
+
+      <div class="example-file-card">
+        <div>
+          <strong>Complete example file</strong>
+          <span>Click the empty sample file <code>CV.pdf</code> to import it directly into the guide and see a complete archiving example.</span>
+        </div>
+        <button type="button" class="example-file-button" onclick="importExampleCvFile()">Import CV.pdf Example</button>
+      </div>
 
       <label for="importedFileInput">Import file for analysis</label>
       <input type="file" id="importedFileInput" onchange="handleImportedFile()" />
@@ -202,6 +211,7 @@
   </div>
 
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/example-import.js"></script>
   <script src="assets/js/feedback.js"></script>
   <script src="assets/js/privacy-notice.js"></script>
 </body>
