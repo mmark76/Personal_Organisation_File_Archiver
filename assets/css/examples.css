@@ -1,0 +1,24 @@
+.example-file-card {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 16px;
+  padding: 14px;
+  border: 1px solid var(--destination-border);
+  border-radius: 14px;
+  background: #ecfdf5;
+}
+
+.example-file-card span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.example-file-button {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
