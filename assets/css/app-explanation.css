@@ -20,15 +20,15 @@
 
 .disclaimer-card h2,
 .guidance-overview-card h2 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: #0f172a;
 }
 
 .disclaimer-card p,
 .guidance-overview-card p {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   color: #475569;
-  line-height: 1.65;
+  line-height: 1.38;
 }
 
 .disclaimer-card p:last-child,
@@ -37,14 +37,14 @@
 }
 
 .guidance-overview-card ol {
-  margin: 0 0 14px 22px;
+  margin: 0 0 10px 22px;
   padding: 0;
   color: #475569;
-  line-height: 1.65;
+  line-height: 1.38;
 }
 
 .guidance-overview-card li {
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 
 @media (max-width: 720px) {
