@@ -76,7 +76,7 @@ The current default example tree includes:
 └── 2026-NOW_HEALTH_AND_SAFETY_OFFICER
 ```
 
-The user can copy the structure, download it as text, download a Windows `.BAT` file, or optionally create the folders locally through a supported browser.
+The user can copy the structure, download it as text, or optionally create the folders locally through a supported browser.
 
 ### 2. File Destination Guide
 
@@ -123,18 +123,12 @@ The app includes keyword matching for English, Greek, and Greeklish where specif
 
 The app can create the suggested folder tree locally on the user's computer.
 
-This is done in two possible ways:
+This is done through direct browser folder creation:
 
-1. **Direct browser folder creation**
-   - The user clicks **Create Folders on This PC**.
-   - The browser asks the user to choose a destination folder.
-   - The app creates the suggested folder tree inside that chosen folder.
-   - This requires a supported browser such as Chrome or Edge.
-
-2. **Windows .BAT export**
-   - The user downloads a Windows `.BAT` file.
-   - The user reviews it before running it.
-   - The `.BAT` file creates the suggested folder tree under the folder where it is executed.
+- The user clicks **Create Folders on This PC**.
+- The browser asks the user to choose a destination folder.
+- The app creates the suggested folder tree inside that chosen folder.
+- This requires a supported browser such as Chrome or Edge.
 
 Folder creation is optional and controlled by the user.
 
@@ -198,7 +192,7 @@ This project is currently a standalone browser-based advisory tool with:
 - step-by-step destination guidance;
 - local file import analysis;
 - optional local folder creation;
-- text export and Windows `.BAT` export.
+- text export.
 
 Possible future improvements may include:
 
