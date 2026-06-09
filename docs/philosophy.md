@@ -262,7 +262,7 @@ HEALTH_AND_SAFETY_OFFICER
 
 ## 9. File Destination Philosophy
 
-The app is an advisor.
+The app is primarily an advisor.
 
 It helps the user decide where a file should belong, but it does not replace the user's final judgement.
 
@@ -279,7 +279,7 @@ The app may show up to three ranked destination suggestions. These suggestions a
 
 The user chooses one final folder.
 
-The result is guidance, not an automatic decision.
+The result is guidance first. If the user chooses Archiver Mode, confirms one destination, chooses a root folder, and gives browser permission, the app may copy the imported file to that confirmed destination.
 
 The user should always ask:
 
@@ -293,7 +293,19 @@ not only:
 What type of file is this?
 ```
 
-## 10. One File, One Canonical Destination
+## 10. Advisor Mode and Archiver Mode
+
+The current app has two workflow modes.
+
+**Advisor Mode** is the default decision mode. It analyses the imported file or typed file name, shows suggestions, lets the user choose one final destination, and prepares advice. It does not copy, move, delete, upload, rename, or modify files.
+
+**Archiver Mode** is an optional user-controlled copy workflow. It can copy the currently imported file into the confirmed destination folder only after the user chooses a root folder and gives browser permission.
+
+Archiver Mode copies the file. It does not move or delete the original file.
+
+If a file with the same name already exists in the destination, the app creates a safe copy name instead of overwriting the existing file.
+
+## 11. One File, One Canonical Destination
 
 The system follows this rule:
 
@@ -307,7 +319,7 @@ However, the file should be assigned to one final folder only. This avoids dupli
 
 If a file is related to other areas, that relationship can be remembered through notes, tags, references, or future metadata, but not by placing duplicate copies in multiple folders.
 
-## 11. Privacy and Safety Principle
+## 12. Privacy and Safety Principle
 
 The app is local and browser-based.
 
@@ -315,8 +327,7 @@ It does not:
 
 - Upload files
 - Delete files
-- Move files
-- Copy files
+- Move files automatically
 - Rename files
 - Modify documents
 - Read the user's file system automatically
@@ -325,9 +336,11 @@ It does not:
 
 A file is analysed only when the user imports it through the file input.
 
+Archiver Mode can copy the currently imported file to the confirmed destination only after the user explicitly chooses that mode, confirms one destination, chooses a root folder, and grants browser permission.
+
 Folder creation is optional and controlled by the user. If direct folder creation is used, the user must choose a destination folder and give browser permission.
 
-## 12. Inbox Handling
+## 13. Inbox Handling
 
 The current app does not use `00_INBOX_FROM_NOW` as a fixed first-level folder.
 
@@ -345,7 +358,7 @@ Possible options:
 
 - Keep a temporary inbox outside the app-generated structure
 - Add an `INBOX` folder manually under one of the fixed branches
-- Use the file destination guide before moving files into their final place
+- Use the file destination guide before copying or moving files into their final place
 
 The principle remains:
 
@@ -354,7 +367,7 @@ The principle remains:
 3. They should later be assigned to the most natural memory-based destination.
 4. The inbox should reduce decision fatigue, not become a dumping ground.
 
-## 13. Reference Handling
+## 14. Reference Handling
 
 Reference material should be stored where it is most naturally remembered.
 
@@ -371,7 +384,7 @@ Examples of reference material:
 
 If a document clearly belongs to a specific profile function, personal theme, professional period, responsibility, project, or interest, it should be stored there instead.
 
-## 14. Future Development
+## 15. Future Development
 
 Future improvements may include:
 
@@ -384,13 +397,13 @@ Future improvements may include:
 - Optional local indexing
 - Optional tagging system
 - Optional semantic search or AI classification in a future version
-- Optional user-approved file copy or move workflow in a future version
+- Optional user-approved file move workflow in a future version
 
-The current app already includes JSON export and import of the folder tree, visual folder selection codes, and up to three ranked destination suggestions.
+The current app already includes JSON export and import of the folder tree, visual folder selection codes, up to three ranked destination suggestions, Advisor Mode, and Archiver Mode for user-confirmed file copying.
 
 The objective is not only to store files efficiently, but also to retrieve information quickly and naturally.
 
-## 15. Final Principle
+## 16. Final Principle
 
 The system is built around a simple observation:
 
@@ -406,7 +419,7 @@ is the foundation of the current file organisation system.
 
 The file organisation system should follow memory first and storage structure second.
 
-## 16. Consolidation Notes
+## 17. Consolidation Notes
 
 This file replaces the older philosophy structure that used `00_INBOX_FROM_NOW`, `01_OFFICE`, and `02_PERSONAL` as the master first-level layout.
 
