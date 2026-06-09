@@ -7,7 +7,7 @@
 
 body.theme-dark {
   background: #020617;
-  color: #e5e7eb;
+  color: #f8fafc;
 }
 
 body.theme-dark .panel,
@@ -22,8 +22,8 @@ body.theme-dark .file-analysis-box,
 body.theme-dark .output,
 body.theme-dark .advice-output {
   background: #0f172a;
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.28);
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 body.theme-dark .panel h2,
@@ -33,7 +33,7 @@ body.theme-dark .modal-card h2,
 body.theme-dark .node-name,
 body.theme-dark label,
 body.theme-dark strong {
-  color: #f8fafc;
+  color: #ffffff;
 }
 
 body.theme-dark .panel p,
@@ -48,7 +48,54 @@ body.theme-dark .breadcrumb,
 body.theme-dark .step-question,
 body.theme-dark .node-thinking-type,
 body.theme-dark .node-next-layer {
+  color: #e2e8f0;
+}
+
+body.theme-dark .tree-node {
+  background: #111827;
+  color: #f8fafc;
+  border-color: rgba(147, 197, 253, 0.45);
+}
+
+body.theme-dark .main-category-node {
+  background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+  border-color: #60a5fa;
+  border-left-color: #93c5fd;
+}
+
+body.theme-dark .main-category-node .node-name {
+  color: #ffffff;
+}
+
+body.theme-dark .breadcrumb,
+body.theme-dark .choice-button {
+  background: #020617;
+  color: #f8fafc;
+  border-color: rgba(134, 239, 172, 0.45);
+}
+
+body.theme-dark .choice-button span {
   color: #cbd5e1;
+}
+
+body.theme-dark .choice-button:hover {
+  background: #064e3b;
+}
+
+body.theme-dark .final-destination-box,
+body.theme-dark .auto-suggestion-box {
+  background: #064e3b;
+  color: #f0fdf4;
+  border-color: rgba(134, 239, 172, 0.55);
+}
+
+body.theme-dark .suggestion-reason {
+  color: #bbf7d0;
+}
+
+body.theme-dark button.secondary {
+  background: #e5e7eb;
+  color: #111827;
 }
 
 body.theme-dark input,
@@ -56,12 +103,12 @@ body.theme-dark textarea,
 body.theme-dark select {
   background: #020617;
   color: #f8fafc;
-  border-color: rgba(148, 163, 184, 0.35);
+  border-color: rgba(148, 163, 184, 0.45);
 }
 
 body.theme-dark input::placeholder,
 body.theme-dark textarea::placeholder {
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 @media (max-width: 980px) {
