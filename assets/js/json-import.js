@@ -1,0 +1,72 @@
+function openStructureJsonImport() {
+  const input = document.getElementById("jsonImportInput");
+  if (!input) return;
+
+  input.value = "";
+  input.click();
+}
+
+async function handleStructureJsonImport(event) {
+  const input = event.target;
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    importFolderTreeTemplate(data);
+    alert("Folder tree JSON imported successfully.");
+  } catch (error) {
+    alert("Import failed. Please choose a valid folder_tree_template.json file exported from this app.");
+  }
+}
+
+function importFolderTreeTemplate(data) {
+  if (!data || data.type !== "personal-memory-based-folder-tree" || data.schemaVersion !== 1) {
+    throw new Error("Unsupported folder tree template.");
+  }
+
+  if (!data.folderTree || data.folderTree.name !== "DOCUMENTS" || !Array.isArray(data.folderTree.children)) {
+    throw new Error("Invalid folder tree template.");
+  }
+
+  nextNodeId = 1;
+  selectedParentId = null;
+  destinationCurrentNodeId = null;
+
+  tree.name = "DOCUMENTS";
+  tree.fixed = true;
+  tree.children = data.folderTree.children.map(importFolderNode);
+
+  renderTree();
+  analyzeCurrentFileData();
+}
+
+function importFolderNode(node) {
+  if (!node || typeof node.name !== "string") {
+    throw new Error("Invalid folder node.");
+  }
+
+  const branch = typeof node.branch === "string" ? node.branch : null;
+
+  return {
+    id: getImportedNodeId(node.name, branch),
+    name: node.name,
+    fixed: Boolean(node.fixed),
+    branch,
+    thinkingType: isValidThinkingType(node.thinkingType) ? node.thinkingType : null,
+    childLayerType: isValidThinkingType(node.childLayerType) ? node.childLayerType : null,
+    children: Array.isArray(node.children) ? node.children.map(importFolderNode) : []
+  };
+}
+
+function getImportedNodeId(name, branch) {
+  if (name === "01_PROFILE" || branch === "profile") return "profile";
+  if (name === "02_PERSONAL" || branch === "personal") return "personal";
+  if (name === "03_PROFESSIONAL" || branch === "professional") return "professional";
+  return "node_" + nextNodeId++;
+}
+
+function isValidThinkingType(value) {
+  return Boolean(value && thinkingTypes[value]);
+}
