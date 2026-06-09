@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="stylesheet" href="assets/css/legal.css" />
   <link rel="stylesheet" href="assets/css/examples.css" />
+  <link rel="stylesheet" href="assets/css/header-hero.css" />
   <link rel="stylesheet" href="assets/css/responsive.css" />
 
   <meta property="og:type" content="website" />
@@ -54,12 +55,17 @@
 <body>
   <header>
     <div class="header-row">
-      <div>
+      <div class="header-copy">
         <h1>Organize Your PC</h1>
         <p class="app-subtitle">Personal Memory-Based File Advisor</p>
         <p>Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC. It does not move, delete, upload, or modify files.</p>
+        <div class="header-actions">
+          <button type="button" class="feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
+        </div>
       </div>
-      <button type="button" class="secondary feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
+      <div class="header-visual" aria-label="Organize Your PC brand image">
+        <img src="assets/images/organize-your-pc-logo.svg" alt="Organize Your PC - A memory-based file advisor" />
+      </div>
     </div>
   </header>
 
