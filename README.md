@@ -1,32 +1,53 @@
 # Personal Memory-Based File Advisor
 
-**Personal Memory-Based File Advisor** is a simple browser-based tool that helps the user build a personal folder tree and decide where new files should be archived.
+**Personal Memory-Based File Advisor** is a standalone browser-based tool that helps the user build a personal folder tree and decide where new files should be archived.
 
 The app follows a memory-based approach: files are organised according to how the user naturally remembers them, such as by life area, work period, responsibility, project, subject, interest, or document function.
 
-The app is designed as an advisor. It does not move, delete, upload, or modify files. It can optionally create the suggested folder tree locally on the user's computer, only after the user chooses a destination folder and gives browser permission.
+The app is an advisor. It does not move, delete, upload, rename, or modify files. It can optionally create the suggested folder tree locally on the user's computer, only after the user chooses a destination folder and gives browser permission.
 
-## Current App
-
-The app is implemented as a standalone browser app:
+## Current App Structure
 
 ```text
 index.html
-assets/css/styles.css
-assets/js/app.js
-```
+site.webmanifest
+LICENSE.md
+PRIVACY.md
 
-It can be opened directly in a web browser.
+docs/philosophy.md
+
+assets/css/styles.css
+assets/css/legal.css
+assets/css/examples.css
+assets/css/header-hero.css
+assets/css/responsive.css
+assets/css/app-explanation.css
+assets/css/theme-toggle.css
+
+assets/js/app.js
+assets/js/folder-creation.js
+assets/js/example-import.js
+assets/js/feedback.js
+assets/js/privacy-notice.js
+assets/js/theme-toggle.js
+
+assets/images/organize-your-pc-logo.svg
+```
 
 The visible app interface is English-only. Imported files may be in English, Greek, Greeklish, or another language, depending on the keywords that can be matched.
 
+## How to Run
+
+Open `index.html` in a modern browser.
+
+For direct local folder creation, use a supported browser such as Chrome or Edge. Browser support may depend on secure-context rules and the File System Access API.
+
 ## What the App Does
 
-The app provides two main working areas.
+The app provides two main working areas:
 
-### 1. Folder Tree
-
-The left panel allows the user to build and review a personal folder tree.
+1. **Folder Tree** — the user can build, review, copy, download, and optionally create a personal folder tree.
+2. **File Destination Guide** — the user can type or import a file name, follow the tree step by step, accept an automatic suggestion, and copy the resulting filing advice.
 
 The first level is fixed:
 
@@ -47,56 +68,9 @@ Each layer below the fixed first level uses one thinking type:
 
 The thinking type guides the naming of the next layer. It does not become a folder name by itself.
 
-The current default example tree includes:
-
-```text
-01_PROFILE
-├── CVS
-├── DEGREES
-├── CERTIFICATES
-├── REFERENCES
-└── SUPPORTING_EVIDENCE
-
-02_PERSONAL
-├── FAMILY
-├── HEALTH
-├── FINANCIAL
-├── INTERESTS
-│   ├── CHESS
-│   ├── SWIMMING
-│   ├── MNEMONIC_TECHNIQUES
-│   ├── BLOG_WRITING
-│   └── WEB_APPS
-└── LEARNING
-
-03_PROFESSIONAL
-├── 2002-2010_PRIVATE_SECTOR
-├── 2010-2019_MARINAS_PPP_DBFOT
-├── 2019-2026_STATE_FAIR_SITE_MANAGEMENT
-└── 2026-NOW_HEALTH_AND_SAFETY_OFFICER
-```
-
-The user can copy the structure, download it as text, or optionally create the folders locally through a supported browser.
-
-### 2. File Destination Guide
-
-The right panel helps the user decide where a new file should be archived.
-
-The user can:
-
-- type a file name manually;
-- import a file for local browser-based analysis;
-- follow the folder tree step by step until a final folder is selected;
-- accept an automatic folder suggestion when one is available;
-- preview and copy the resulting file destination advice.
-
-The file destination guide does not move the file. It only suggests a folder and leaves the final decision to the user.
-
 ## File Import Analysis
 
-When the user imports a file, the app uses browser-available information to suggest the most relevant folder.
-
-The app may use:
+When the user imports a file, the app may use:
 
 - file name;
 - browser metadata, such as file type, size, and modified date;
@@ -117,60 +91,36 @@ Readable text content is currently supported for simple text-based files such as
 
 For files such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, the browser may provide only the filename and basic metadata unless additional parsing libraries are added later.
 
-The app includes keyword matching for English, Greek, and Greeklish where specific keyword mappings exist.
-
-## Folder Tree Creation
-
-The app can create the suggested folder tree locally on the user's computer.
-
-This is done through direct browser folder creation:
-
-- The user clicks **Create Folders on This PC**.
-- The browser asks the user to choose a destination folder.
-- The app creates the suggested folder tree inside that chosen folder.
-- This requires a supported browser such as Chrome or Edge.
-
-Folder creation is optional and controlled by the user.
-
-## What the App Does Not Do
-
-The app does not:
-
-- move files;
-- delete files;
-- upload files;
-- modify documents;
-- read the user's file system automatically;
-- monitor folders in the background;
-- replace the user's final decision.
-
-## Core Idea
-
-People often do not remember files by file type, exact date, or exact storage location.
-
-Instead, they often remember:
-
-- the context in which the file was created;
-- the role they had at the time;
-- the project or responsibility involved;
-- the life theme or interest connected to the file;
-- the person connected to the file;
-- the reason the file matters;
-- whether the file requires future action.
-
-For this reason, the app follows a memory-based approach to file organisation.
-
 ## Privacy and Safety
 
 The app is local and browser-based.
 
-It does not upload files or send data to a server.
+It does not upload imported files or send imported file data to a server. It does not read or inspect the user's files automatically. A file is analysed only when the user imports it through the file input.
 
-It does not read or inspect the user's files automatically. A file is analysed only when the user imports it through the file input.
+The app may use local browser storage only for simple preferences, such as theme preference and whether the privacy notice has been accepted.
 
 When folder creation is used, the user must manually choose a destination folder and give permission through the browser.
 
-The user should manually check every suggested folder structure or file destination before taking action.
+## Third-Party Copyright Badge Script
+
+The page currently loads a third-party helper script from Copyrighted.com to display the copyright registration badge in the footer.
+
+This script is separate from the file advisor logic. The app does not use it to analyse files, upload files, move files, create folders, or classify documents.
+
+If a fully self-contained offline build is required, this external badge helper can be removed or replaced with a static local badge/link.
+
+## Known Limitations
+
+- The app is an advisory tool, not an automatic file manager.
+- Automatic suggestions are based on folder names, keyword mappings, file name, browser metadata, and readable text content where available.
+- Suggestions may be incomplete or inaccurate when file names are vague or when readable text is not available.
+- PDF, DOCX, XLSX, PPTX, scanned documents, and images are not deeply parsed by the current version.
+- Keyword mappings are limited and do not cover every possible English, Greek, or Greeklish term.
+- The current app usually presents one best automatic suggestion rather than several ranked alternatives.
+- Folder creation depends on browser support for direct local folder access.
+- Direct folder creation may require a supported browser and a secure context, depending on browser rules.
+- The app does not currently include user accounts, cloud sync, background monitoring, or automatic indexing.
+- Persistent custom tree storage and full template import/export are future improvements.
 
 ## Related Documentation
 
@@ -192,13 +142,6 @@ This project is currently a standalone browser-based advisory tool with:
 - step-by-step destination guidance;
 - local file import analysis;
 - optional local folder creation;
+- local privacy notice preference;
+- local theme preference;
 - text export.
-
-Possible future improvements may include:
-
-- richer file parsing for PDF, DOCX, XLSX, and other formats;
-- optional local storage;
-- safer import/export of tree templates;
-- more multilingual keyword mappings;
-- improved scoring for automatic folder suggestions;
-- clearer user guide documentation.
