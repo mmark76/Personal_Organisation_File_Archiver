@@ -13,11 +13,18 @@ header {
 }
 
 header h1 {
-  color: #facc15;
+  color: #d97706;
   font-size: clamp(68px, 8vw, 112px);
   line-height: 0.92;
   margin-bottom: 14px;
-  text-shadow: 0 4px 18px rgba(15, 23, 42, 0.22);
+  text-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.7),
+    0 8px 24px rgba(15, 23, 42, 0.18);
+}
+
+body.theme-dark header h1 {
+  color: #facc15;
+  text-shadow: 0 4px 18px rgba(15, 23, 42, 0.45);
 }
 
 header .app-subtitle {
