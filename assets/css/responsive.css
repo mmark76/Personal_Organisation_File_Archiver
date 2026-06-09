@@ -61,7 +61,15 @@ svg {
 
 @media (min-width: 1280px) {
   header {
-    padding: 26px 40px;
+    padding: 38px 48px;
+  }
+
+  header h1 {
+    font-size: 72px;
+  }
+
+  header .app-subtitle {
+    font-size: 28px;
   }
 
   .app-shell {
@@ -79,10 +87,15 @@ svg {
 
 @media (min-width: 721px) and (max-width: 1279px) {
   header {
-    padding: 22px 24px;
+    padding: 30px 28px;
   }
 
   header h1 {
+    font-size: 54px;
+    line-height: 1.05;
+  }
+
+  header .app-subtitle {
     font-size: 24px;
   }
 
@@ -108,7 +121,7 @@ svg {
 
 @media (max-width: 720px) {
   header {
-    padding: 16px;
+    padding: 20px 16px;
   }
 
   .header-row {
@@ -117,8 +130,13 @@ svg {
   }
 
   header h1 {
-    font-size: 22px;
-    line-height: 1.2;
+    font-size: 38px;
+    line-height: 1.08;
+  }
+
+  header .app-subtitle {
+    font-size: 18px;
+    line-height: 1.25;
   }
 
   header p {
@@ -223,7 +241,11 @@ svg {
 
 @media (max-width: 420px) {
   header h1 {
-    font-size: 20px;
+    font-size: 32px;
+  }
+
+  header .app-subtitle {
+    font-size: 17px;
   }
 
   .app-shell {
