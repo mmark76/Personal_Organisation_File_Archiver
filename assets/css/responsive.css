@@ -270,8 +270,13 @@ header {
 }
 
 .app-shell {
+  align-items: stretch;
   padding-left: 0;
   padding-right: 0;
+}
+
+.app-shell > .panel {
+  height: 100%;
 }
 
 @media (max-width: 720px) {
