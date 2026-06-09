@@ -1,5 +1,3 @@
-window.downloadWindowsBatch = undefined;
-
 window.createFoldersOnComputer = async function createFoldersOnComputer() {
   if (!window.showDirectoryPicker) {
     alert("This browser does not support direct folder creation. Use Chrome or Edge.");
