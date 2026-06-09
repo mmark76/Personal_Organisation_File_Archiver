@@ -24,7 +24,12 @@
   color: #0f172a;
 }
 
-.disclaimer-card p,
+.disclaimer-card p {
+  margin: 0 0 5px;
+  color: #475569;
+  line-height: 1.22;
+}
+
 .guidance-overview-card p {
   margin: 0 0 8px;
   color: #475569;
