@@ -1,0 +1,79 @@
+.theme-toggle-button {
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+body.theme-dark {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+body.theme-dark .panel,
+body.theme-dark .disclaimer-card,
+body.theme-dark .guidance-overview-card,
+body.theme-dark .modal-card,
+body.theme-dark .cookie-notice,
+body.theme-dark .example-file-card,
+body.theme-dark .guidance-card,
+body.theme-dark .destination-wizard,
+body.theme-dark .file-analysis-box,
+body.theme-dark .output,
+body.theme-dark .advice-output {
+  background: #0f172a;
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.28);
+}
+
+body.theme-dark .panel h2,
+body.theme-dark .disclaimer-card h2,
+body.theme-dark .guidance-overview-card h2,
+body.theme-dark .modal-card h2,
+body.theme-dark .node-name,
+body.theme-dark label,
+body.theme-dark strong {
+  color: #f8fafc;
+}
+
+body.theme-dark .panel p,
+body.theme-dark .disclaimer-card p,
+body.theme-dark .guidance-overview-card p,
+body.theme-dark .guidance-overview-card ol,
+body.theme-dark .small-note,
+body.theme-dark .file-analysis-box,
+body.theme-dark .advice-output,
+body.theme-dark .output,
+body.theme-dark .breadcrumb,
+body.theme-dark .step-question,
+body.theme-dark .node-thinking-type,
+body.theme-dark .node-next-layer {
+  color: #cbd5e1;
+}
+
+body.theme-dark input,
+body.theme-dark textarea,
+body.theme-dark select {
+  background: #020617;
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+body.theme-dark input::placeholder,
+body.theme-dark textarea::placeholder {
+  color: #94a3b8;
+}
+
+@media (max-width: 980px) {
+  .theme-toggle-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .theme-toggle-button {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+}
