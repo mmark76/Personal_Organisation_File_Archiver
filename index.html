@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personal Memory-Based File Advisor | Memory-Based File Organisation Tool</title>
-  <meta name="description" content="A private browser-based file organisation advisor that helps users build a memory-based folder tree and decide where new files should be archived." />
+  <title>Organize Your PC | Personal Memory-Based File Advisor</title>
+  <meta name="description" content="A private browser-based file organisation advisor that helps users build a personal folder tree and decide where new files should be archived." />
   <meta name="keywords" content="file organisation, file archiving, folder tree, memory-based organisation, personal productivity, document management, browser app, local file advisor, Markellos Markides" />
   <meta name="author" content="Markellos Markides" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#2563eb" />
-  <meta name="application-name" content="Personal Memory-Based File Advisor" />
+  <meta name="application-name" content="Organize Your PC" />
   <link rel="canonical" href="https://organizeyourpc.com/" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="license" href="LICENSE.md" />
@@ -19,26 +19,27 @@
   <link rel="stylesheet" href="assets/css/responsive.css" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Personal Memory-Based File Advisor" />
-  <meta property="og:description" content="A private browser-based tool for building a personal folder tree and choosing memory-based file destinations." />
+  <meta property="og:title" content="Organize Your PC" />
+  <meta property="og:description" content="Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC." />
   <meta property="og:url" content="https://organizeyourpc.com/" />
-  <meta property="og:site_name" content="Personal Memory-Based File Advisor" />
+  <meta property="og:site_name" content="Organize Your PC" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:image" content="https://organizeyourpc.com/assets/images/organize-your-pc-logo.svg" />
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Personal Memory-Based File Advisor" />
-  <meta name="twitter:description" content="A private browser-based file organisation advisor built around natural memory, context, roles, periods, themes and document function." />
+  <meta name="twitter:title" content="Organize Your PC" />
+  <meta name="twitter:description" content="Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC." />
   <meta name="twitter:image" content="https://organizeyourpc.com/assets/images/organize-your-pc-logo.svg" />
 
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Personal Memory-Based File Advisor",
+    "name": "Organize Your PC",
+    "alternateName": "Personal Memory-Based File Advisor",
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Any modern browser",
-    "description": "A private browser-based file organisation advisor that helps users build a memory-based folder tree and decide where new files should be archived.",
+    "description": "A private browser-based file organisation advisor that helps users build a personal folder tree and decide where new files should be archived. It does not reorganize files on the user's PC.",
     "creator": {
       "@type": "Person",
       "name": "Markellos Markides"
@@ -53,8 +54,9 @@
   <header>
     <div class="header-row">
       <div>
-        <h1>Personal Memory-Based File Advisor</h1>
-        <p>Build a personal folder tree and use it to decide where each new file belongs. The app does not move, delete, upload, or modify files.</p>
+        <h1>Organize Your PC</h1>
+        <p class="app-subtitle">Personal Memory-Based File Advisor</p>
+        <p>Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC. It does not move, delete, upload, or modify files.</p>
       </div>
       <button type="button" class="secondary feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
     </div>
@@ -88,7 +90,6 @@
         <div class="actions">
           <button type="button" onclick="copyTreeOutput()">Copy Structure</button>
           <button type="button" class="secondary" onclick="downloadStructureText()">Download TXT</button>
-          <button type="button" class="secondary" onclick="downloadWindowsBatch()">Download Windows .BAT</button>
           <button type="button" class="success" onclick="createFoldersOnComputer()">Create Folders on This PC</button>
         </div>
 
