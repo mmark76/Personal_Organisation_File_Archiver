@@ -305,8 +305,6 @@ A file is analysed only when the user imports it through the file input.
 
 Folder creation is optional and controlled by the user. If direct folder creation is used, the user must choose a destination folder and give browser permission.
 
-The Windows `.BAT` export should always be reviewed before execution.
-
 ## 11. Inbox Handling
 
 The current app does not use `00_INBOX_FROM_NOW` as a fixed first-level folder.
