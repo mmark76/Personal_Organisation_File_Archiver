@@ -138,6 +138,41 @@ body.theme-dark textarea::placeholder {
   color: #cbd5e1;
 }
 
+body.theme-dark .feedback-modal-card {
+  background: var(--card);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+body.theme-dark .feedback-modal-card h2,
+body.theme-dark .feedback-modal-card label,
+body.theme-dark .feedback-modal-card strong {
+  color: var(--text);
+}
+
+body.theme-dark .feedback-modal-card .feedback-intro {
+  background: var(--soft);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+body.theme-dark .feedback-modal-card .feedback-intro span,
+body.theme-dark .feedback-modal-card .icon-button {
+  color: var(--muted);
+}
+
+body.theme-dark .feedback-modal-card input,
+body.theme-dark .feedback-modal-card textarea {
+  background: #ffffff;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+body.theme-dark .feedback-modal-card input::placeholder,
+body.theme-dark .feedback-modal-card textarea::placeholder {
+  color: var(--muted);
+}
+
 @media (max-width: 980px) {
   .theme-toggle-button {
     padding: 10px 16px;
