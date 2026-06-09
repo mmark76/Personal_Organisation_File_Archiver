@@ -1,6 +1,6 @@
 window.createFoldersOnComputer = async function createFoldersOnComputer() {
   if (!window.showDirectoryPicker) {
-    alert("This browser does not support direct folder creation. Use Chrome or Edge.");
+    alert("Direct folder creation is not available in this browser. The advisory features still work. Use a browser that supports direct folder access, such as Chrome or Edge, to create folders from the app.");
     return;
   }
 
