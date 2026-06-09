@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="assets/css/header-hero.css" />
   <link rel="stylesheet" href="assets/css/responsive.css" />
   <link rel="stylesheet" href="assets/css/app-explanation.css" />
+  <link rel="stylesheet" href="assets/css/theme-toggle.css" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Organize Your PC" />
@@ -61,6 +62,7 @@
         <p class="app-subtitle">Personal Memory-Based File Advisor</p>
         <p>Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC. It does not move, delete, upload, or modify files.</p>
         <div class="header-actions">
+          <button type="button" id="themeToggleButton" class="secondary theme-toggle-button" onclick="toggleTheme()" aria-pressed="false">Black Background</button>
           <button type="button" class="feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
         </div>
       </div>
@@ -246,5 +248,6 @@
   <script src="assets/js/example-import.js"></script>
   <script src="assets/js/feedback.js"></script>
   <script src="assets/js/privacy-notice.js"></script>
+  <script src="assets/js/theme-toggle.js"></script>
 </body>
 </html>
