@@ -54,19 +54,23 @@
 }
 
 .tree-node {
-  border-color: var(--refined-border-soft);
-  border-radius: 10px;
+  border-color: transparent;
+  border-radius: 8px;
   padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: var(--refined-shadow-soft);
+  background: transparent;
+  box-shadow: none;
+}
+
+.tree-node:hover {
+  background: rgba(148, 163, 184, 0.10);
 }
 
 .main-category-node {
-  border: 1px solid rgba(147, 197, 253, 0.45);
-  border-left: 3px solid #2563eb;
-  border-radius: 10px;
+  border: none;
+  border-left: 3px solid #9ca3af;
+  border-radius: 8px;
   padding: 10px 11px;
-  background: rgba(239, 246, 255, 0.82);
+  background: transparent;
 }
 
 .selected-destination-node {
@@ -193,7 +197,6 @@ label {
 }
 
 body.theme-dark .panel,
-body.theme-dark .tree-node,
 body.theme-dark .guidance-card,
 body.theme-dark .destination-wizard,
 body.theme-dark .file-analysis-box,
@@ -205,6 +208,21 @@ body.theme-dark .breadcrumb,
 body.theme-dark .final-destination-box {
   border-color: rgba(148, 163, 184, 0.24);
   box-shadow: none;
+}
+
+body.theme-dark .tree-node,
+body.theme-dark .main-category-node {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+body.theme-dark .tree-node:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.theme-dark .main-category-node {
+  border-left: 3px solid #737373;
 }
 
 body.theme-dark .node-actions button {
