@@ -1,0 +1,48 @@
+/* Privacy and future analytics consent notice. */
+
+.privacy-notice {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: 54px;
+  z-index: 70;
+  width: min(860px, calc(100% - 28px));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 13px 14px;
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--app-radius-sm);
+}
+
+.privacy-content {
+  display: grid;
+  gap: 3px;
+}
+
+.privacy-content strong {
+  font-size: 13px;
+}
+
+.privacy-content p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.privacy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.privacy-notice .button-secondary {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
+}
