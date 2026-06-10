@@ -64,16 +64,18 @@ function injectAppEntryStyles() {
   style.id = "appEntryStyles";
   style.textContent = `
     .app-entry-screen {
-      width: min(980px, calc(100% - 40px));
+      width: min(760px, calc(100% - 40px));
       margin: 28px auto 34px;
       display: grid;
-      gap: 18px;
+      gap: 16px;
+      justify-items: center;
     }
 
     .app-entry-heading {
       display: grid;
       gap: 6px;
       text-align: center;
+      width: 100%;
     }
 
     .app-entry-heading h2 {
@@ -93,21 +95,26 @@ function injectAppEntryStyles() {
 
     .app-entry-options {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(2, minmax(230px, 1fr));
+      gap: 14px;
+      width: 100%;
+      justify-content: center;
+      align-items: stretch;
     }
 
     .app-entry-card {
       display: grid;
-      gap: 10px;
+      align-content: center;
+      gap: 8px;
       text-align: left;
       background: #ffffff !important;
       color: var(--ui-text, #111827) !important;
       border: 1px solid var(--ui-border-soft, #e5e7eb) !important;
-      border-radius: 14px !important;
-      padding: 22px !important;
-      box-shadow: 0 14px 38px rgba(15, 23, 42, 0.07) !important;
-      min-height: 150px;
+      border-radius: 12px !important;
+      padding: 18px 20px !important;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+      min-height: 108px;
+      width: 100% !important;
     }
 
     .app-entry-card:hover {
@@ -116,14 +123,14 @@ function injectAppEntryStyles() {
     }
 
     .app-entry-card strong {
-      font-size: 17px;
+      font-size: 16px;
       line-height: 1.25;
       font-weight: 700;
     }
 
     .app-entry-card span {
       color: var(--ui-muted, #6b7280);
-      font-size: 13px;
+      font-size: 12.5px;
       line-height: 1.45;
       font-weight: 400;
     }
@@ -151,11 +158,15 @@ function injectAppEntryStyles() {
 
     @media (max-width: 720px) {
       .app-entry-screen {
-        width: min(100% - 24px, 980px);
+        width: min(100% - 24px, 760px);
       }
 
       .app-entry-options {
         grid-template-columns: 1fr;
+      }
+
+      .app-entry-card {
+        min-height: 96px;
       }
     }
   `;
