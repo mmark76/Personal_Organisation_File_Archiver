@@ -32,6 +32,12 @@ The advisor uses only the imported file's name, extension, browser file type, si
 
 The advisor only suggests a destination. It does not archive anything automatically.
 
+## Existing Folder Tree Reading
+
+The app can read an existing folder tree only after the user chooses one local root folder through the browser directory picker.
+
+It reads only the names of first-level subfolders inside the selected root folder. It does not read files, inspect file content, perform OCR, or scan deeper folder levels.
+
 ## Folder Tree
 
 The app lets the user build, import, export, copy, and optionally create a folder tree on the local computer.
