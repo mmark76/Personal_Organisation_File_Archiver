@@ -1,7 +1,7 @@
 /* Screen navigation: one active mode at a time. */
 
 window.AppNavigation = (() => {
-  const screenIds = ["mainChoiceScreen", "folderTreeScreen", "archiveFileScreen"];
+  const screenIds = ["mainChoiceScreen", "folderTreeScreen", "existingFolderTreeScreen", "archiveFileScreen"];
 
   function showScreen(screenId) {
     screenIds.forEach(id => {
@@ -27,6 +27,11 @@ window.AppNavigation = (() => {
     showScreen("folderTreeScreen");
   }
 
+  function showExistingFolderTreeMode() {
+    showScreen("existingFolderTreeScreen");
+    window.FolderTreeExisting?.renderExistingTreePreview();
+  }
+
   function showArchiveMode() {
     showScreen("archiveFileScreen");
     if (window.FolderTreeRender) {
@@ -38,6 +43,7 @@ window.AppNavigation = (() => {
     showScreen,
     showMainChoices,
     showFolderTreeMode,
+    showExistingFolderTreeMode,
     showArchiveMode
   };
 })();
