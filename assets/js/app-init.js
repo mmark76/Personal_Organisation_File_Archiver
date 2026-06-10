@@ -45,6 +45,7 @@ window.AppInit = (() => {
     qs("#importFileButton")?.addEventListener("click", window.FileImport.openFileInput);
     qs("#archiveFileInput")?.addEventListener("change", event => window.FileImport.handleFileInput(event.target));
     qs("#archiveFileButton")?.addEventListener("click", window.FileArchive.archiveLoadedFile);
+    window.FileAdvisor?.bindEvents();
   }
 
   function bindFeedbackActions() {
@@ -70,6 +71,7 @@ window.AppInit = (() => {
     window.AppAccessibility.bindKeyboardHandlers();
     window.FolderTreeRender.renderAll();
     window.FileImport.renderFileStatus();
+    window.FileAdvisor?.renderSuggestion();
     window.AppPrivacyNotice.showNoticeIfNeeded();
   }
 
