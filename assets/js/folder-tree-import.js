@@ -180,6 +180,7 @@ window.FolderTreeImport = (() => {
     data.folderTree.children.forEach(child => validateNode(child, child.branch));
 
     resetNodeCounter();
+    state.selectedArchiveFolderId = null;
     state.tree = {
       id: "documents",
       name: fixedRootName,
