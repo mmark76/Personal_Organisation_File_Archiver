@@ -218,8 +218,14 @@
         </div>
 
         <div id="archiveTreeChoicePanel" class="action-row" hidden>
-          <button type="button" id="useCurrentArchiveTreeButton" class="button button-secondary">Use current folder tree</button>
-          <button type="button" id="importArchiveTreeButton" class="button button-secondary">Import folder tree JSON</button>
+          <label for="archiveTreeDepthSelect">Folder depth to read</label>
+          <select id="archiveTreeDepthSelect">
+            <option value="1">1 level</option>
+            <option value="2" selected>2 levels</option>
+            <option value="3">3 levels</option>
+          </select>
+          <button type="button" id="useArchiveFolderTreeOnPcButton" class="button button-secondary">Use folder tree on this PC</button>
+          <button type="button" id="importArchiveTreeButton" class="button button-secondary">Import tree JSON</button>
         </div>
 
         <input type="file" id="archiveTreeImportInput" accept="application/json,.json" hidden />
