@@ -11,6 +11,19 @@ function getConfirmedDestinationPath() {
   return getNodeFolderPath(confirmedDestinationNodeId);
 }
 
+function getWorkflowFolderCode(nodeId) {
+  const node = nodeId ? findNode(nodeId) : null;
+  if (!node || typeof getFolderDisplayCode !== "function") return "";
+  return getFolderDisplayCode(node);
+}
+
+function getWorkflowNumberedPath(nodeId) {
+  if (!nodeId) return "";
+  const code = getWorkflowFolderCode(nodeId);
+  const path = getNodeFolderPath(nodeId);
+  return code ? code + "  " + path : path;
+}
+
 function hasWorkflowFileLoaded() {
   return Boolean(workflowFileLoaded || importedFileData);
 }
@@ -184,18 +197,19 @@ function updateWorkflowModePanel() {
 
   if (isChoosingDestinationPath()) {
     description.textContent = "Choose the relevant subcategory until you reach the final folder.";
-    actionBox.appendChild(createTextElement("div", "workflow-status", "Current path:\n" + getNodeFolderPath(destinationCurrentNodeId)));
+    actionBox.appendChild(createTextElement("div", "workflow-status", "Current numbered path:\n" + getWorkflowNumberedPath(destinationCurrentNodeId)));
     return;
   }
 
   description.textContent = "Final folder selected. Choose the final action.";
-  actionBox.appendChild(createTextElement("div", "workflow-status", "Final destination:\n" + getConfirmedDestinationPath()));
+  actionBox.appendChild(createTextElement("div", "workflow-status", "Final folder number:\n" + getWorkflowFolderCode(confirmedDestinationNodeId) + "\n\nFinal destination:\n" + getConfirmedDestinationPath()));
   appendFinalActionButtons(actionBox);
 }
 
 async function archiveImportedFileToConfirmedFolder() {
   const importedFile = getImportedFileObject();
   const destinationPath = getConfirmedDestinationPath();
+  const folderCode = getWorkflowFolderCode(confirmedDestinationNodeId);
 
   if (!importedFile) {
     alert("Please import a real file from your computer first.");
@@ -221,7 +235,7 @@ async function archiveImportedFileToConfirmedFolder() {
     await writable.write(importedFile);
     await writable.close();
 
-    showWorkflowArchiveResult("Copied file successfully:\n" + safeFileName + "\n\nDestination:\n" + destinationPath);
+    showWorkflowArchiveResult("Copied file successfully:\n" + safeFileName + "\n\nFolder number:\n" + folderCode + "\n\nDestination:\n" + destinationPath);
   } catch (error) {
     if (error && error.name === "AbortError") {
       showWorkflowArchiveResult("Archiving cancelled by user.");
@@ -362,6 +376,60 @@ function injectWorkflowModeStyles() {
   document.head.appendChild(style);
 }
 
+const originalCreateDestinationChoiceButtonForWorkflow = createDestinationChoiceButton;
+createDestinationChoiceButton = function createDestinationChoiceButtonWithFolderNumber(child) {
+  const button = originalCreateDestinationChoiceButtonForWorkflow(child);
+  const code = getWorkflowFolderCode(child.id);
+
+  if (code) {
+    const codeElement = createTextElement("span", "folder-display-code", code);
+    codeElement.title = "Folder selection code";
+    button.insertBefore(codeElement, button.firstChild);
+  }
+
+  return button;
+};
+
+const originalUpdateDestinationPromptForWorkflow = updateDestinationPrompt;
+updateDestinationPrompt = function updateDestinationPromptWithFolderNumber(breadcrumb, question, currentNode) {
+  originalUpdateDestinationPromptForWorkflow(breadcrumb, question, currentNode);
+  if (currentNode) breadcrumb.textContent = getWorkflowNumberedPath(currentNode.id);
+};
+
+previewFileDestination = function previewFileDestinationWithFolderNumber() {
+  const fileName = byId("destinationFileName").value.trim() || "[New file]";
+  const nodeId = confirmedDestinationNodeId || destinationCurrentNodeId;
+  const destination = nodeId ? getNodeFolderPath(nodeId) : "[No final folder selected]";
+  const folderCode = nodeId ? getWorkflowFolderCode(nodeId) : "[No folder number]";
+  const reason = byId("destinationReason").value.trim() || "No reason written yet.";
+  const node = nodeId ? findNode(nodeId) : null;
+  const status = confirmedDestinationNodeId || (node && node.children.length === 0) ? "Final folder reached." : "Review whether this is final, or continue one level deeper.";
+
+  const advice = [
+    "File destination advice",
+    "",
+    "File:",
+    fileName,
+    "",
+    "Folder number:",
+    folderCode,
+    "",
+    "Suggested folder:",
+    destination,
+    "",
+    "Status:",
+    status,
+    "",
+    "Reason / memory clue:",
+    reason,
+    "",
+    "Important:",
+    "This is guidance only. The app does not move the file."
+  ].join("\n");
+
+  byId("fileDestinationOutput").textContent = advice;
+};
+
 const originalSelectDestinationNodeForWorkflow = selectDestinationNode;
 selectDestinationNode = function selectDestinationNodeWithWorkflow(nodeId) {
   confirmedDestinationNodeId = null;
@@ -382,6 +450,13 @@ chooseCurrentAsFinal = function chooseCurrentAsFinalWithWorkflow() {
   originalChooseCurrentAsFinalForWorkflow();
   confirmedDestinationNodeId = destinationCurrentNodeId;
   workflowMode = "";
+
+  const finalBox = byId("finalDestinationBox");
+  if (finalBox) {
+    finalBox.classList.remove("hidden");
+    finalBox.textContent = "Final destination selected: " + getWorkflowNumberedPath(confirmedDestinationNodeId);
+  }
+
   updateWorkflowModePanel();
 };
 
