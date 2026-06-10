@@ -84,6 +84,10 @@ window.FolderTree = (() => {
     return Object.keys(thinkingTypes).filter(type => type !== "004_ROLE_BASED");
   }
 
+  function hasSiblingFolderName(parent, name) {
+    return (parent.children || []).some(child => child.name === name);
+  }
+
   function updateThinkingPrompt() {
     const select = document.getElementById("thinkingTypeSelect");
     const examplesBox = document.getElementById("examplesBox");
@@ -144,6 +148,11 @@ window.FolderTree = (() => {
     const name = sanitizeFolderName(input.value);
     if (!name) {
       alert(window.AppMessages.invalidFolderName);
+      return;
+    }
+
+    if (hasSiblingFolderName(parent, name)) {
+      alert(window.AppMessages.duplicateFolderName);
       return;
     }
 
