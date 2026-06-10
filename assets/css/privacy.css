@@ -1,10 +1,10 @@
-/* Privacy and future analytics consent notice. */
+/* Privacy notice. */
 
 .privacy-notice {
   position: fixed;
   left: 14px;
   right: 14px;
-  bottom: 54px;
+  bottom: var(--app-footer-space);
   z-index: 70;
   width: min(860px, calc(100% - 28px));
   margin: 0 auto;
