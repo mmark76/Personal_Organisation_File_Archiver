@@ -15,9 +15,33 @@ function hasWorkflowFileLoaded() {
   return Boolean(workflowFileLoaded || importedFileData);
 }
 
+function isAtMainCategoryStep() {
+  return Boolean(workflowMode && hasWorkflowFileLoaded() && !destinationCurrentNodeId);
+}
+
 function openImportedFilePicker() {
   const input = byId("importedFileInput");
   if (input) input.click();
+}
+
+function hideAutomaticSuggestionAtMainCategoryStep() {
+  const suggestionBox = byId("autoSuggestionBox");
+  if (!suggestionBox || !isAtMainCategoryStep()) return;
+  suggestionBox.classList.add("hidden");
+  suggestionBox.textContent = "";
+}
+
+function showMainCategoryChoicesAfterFileLoad() {
+  destinationCurrentNodeId = null;
+  confirmedDestinationNodeId = null;
+  updateDestinationGuide();
+
+  const breadcrumb = byId("destinationBreadcrumb");
+  const question = byId("destinationStepQuestion");
+  if (breadcrumb) breadcrumb.textContent = "File loaded.";
+  if (question) question.textContent = "Choose one main category for this file: Profile, Personal, or Professional.";
+
+  hideAutomaticSuggestionAtMainCategoryStep();
 }
 
 function injectWorkflowModeControls() {
@@ -79,6 +103,11 @@ function shouldHideDestinationPanelChild(child, showWorkflowContent) {
   if (child.classList && child.classList.contains("example-file-card")) return true;
   if (child.id === "importedFileInput") return true;
   if (child.tagName === "LABEL" && child.getAttribute("for") === "importedFileInput") return true;
+
+  if (isAtMainCategoryStep()) {
+    return !(child.classList && child.classList.contains("destination-wizard"));
+  }
+
   return false;
 }
 
@@ -91,6 +120,8 @@ function updateDestinationPanelVisibility() {
   Array.from(destinationPanel.children).forEach(child => {
     child.classList.toggle("hidden", shouldHideDestinationPanelChild(child, showWorkflowContent));
   });
+
+  hideAutomaticSuggestionAtMainCategoryStep();
 }
 
 function appendImportFileButton(actionBox) {
@@ -126,6 +157,11 @@ function updateWorkflowModePanel() {
   appendImportFileButton(actionBox);
 
   if (!hasWorkflowFileLoaded()) {
+    return;
+  }
+
+  if (isAtMainCategoryStep()) {
+    actionBox.appendChild(createTextElement("div", "workflow-status", "File loaded. Choose one main category below."));
     return;
   }
 
@@ -359,6 +395,7 @@ handleImportedFile = async function handleImportedFileWithWorkflow() {
   if (file && importedFileData) {
     importedFileData.file = file;
     workflowFileLoaded = true;
+    showMainCategoryChoicesAfterFileLoad();
   }
   updateWorkflowModePanel();
 };
@@ -368,6 +405,7 @@ if (typeof importExampleCvFile === "function") {
   importExampleCvFile = function importExampleCvFileWithWorkflow() {
     originalImportExampleCvFileForWorkflow();
     workflowFileLoaded = true;
+    showMainCategoryChoicesAfterFileLoad();
     updateWorkflowModePanel();
   };
 }
