@@ -1,26 +1,44 @@
-const appRootFolderName = "Organize Your PC";
+/* User-controlled folder tree creation on the local computer. */
 
-window.createFoldersOnComputer = async function createFoldersOnComputer() {
-  if (!window.showDirectoryPicker) {
-    alert("Direct folder creation is not available in this browser. The advisory features still work. Use a browser that supports direct folder access, such as Chrome or Edge, to create folders from the app.");
-    return;
+window.FolderCreation = (() => {
+  const appRootFolderName = "Organize Your PC";
+
+  async function createDirectoryPath(rootHandle, folderPath) {
+    const parts = folderPath.split("/").filter(Boolean);
+    let currentHandle = rootHandle;
+
+    for (const part of parts) {
+      currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
+    }
   }
 
-  try {
-    const selectedRootHandle = await window.showDirectoryPicker();
-    const appRootHandle = await selectedRootHandle.getDirectoryHandle(appRootFolderName, { create: true });
-    window.organizeYourPcRootDirectoryHandle = appRootHandle;
-
-    for (const folderPath of latestFolderPaths) {
-      const parts = folderPath.split("\\").filter(Boolean);
-      let currentHandle = appRootHandle;
-      for (const part of parts) {
-        currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
-      }
+  async function createFoldersOnComputer() {
+    if (!window.BrowserSupport.supportsDirectoryPicker()) {
+      alert(window.AppMessages.folderCreationUnsupported);
+      return;
     }
 
-    alert("Folder structure created successfully inside: " + appRootFolderName);
-  } catch (error) {
-    alert("Folder creation was cancelled or failed.");
+    try {
+      const selectedRootHandle = await window.showDirectoryPicker();
+      const appRootHandle = await selectedRootHandle.getDirectoryHandle(appRootFolderName, { create: true });
+      const folderPaths = window.FolderTree.getAllFolderPaths();
+
+      for (const folderPath of folderPaths) {
+        await createDirectoryPath(appRootHandle, folderPath);
+      }
+
+      alert(window.AppMessages.folderCreationComplete);
+    } catch (error) {
+      if (error && error.name === "AbortError") {
+        alert(window.AppMessages.folderCreationCancelled);
+        return;
+      }
+
+      alert(window.AppMessages.archiveFailed);
+    }
   }
-};
+
+  return {
+    createFoldersOnComputer
+  };
+})();
