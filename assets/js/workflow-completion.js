@@ -2,14 +2,43 @@ function getWorkflowCompletionActionBox() {
   return document.getElementById("workflowActionBox");
 }
 
+function getWorkflowCompletionStatusText() {
+  const statusBoxes = document.querySelectorAll("#workflowActionBox .workflow-status");
+  return statusBoxes.length ? statusBoxes[statusBoxes.length - 1].textContent : "";
+}
+
+function extractWorkflowCompletionValue(label) {
+  const statusText = getWorkflowCompletionStatusText();
+  const lines = statusText.split("\n");
+  const labelIndex = lines.findIndex(line => line.trim().toLowerCase() === label.toLowerCase());
+  if (labelIndex >= 0 && lines[labelIndex + 1]) return lines[labelIndex + 1].trim();
+  return "";
+}
+
 function getWorkflowCompletionFolderCode() {
-  if (!window.confirmedDestinationNodeId || typeof getWorkflowFolderCode !== "function") return "";
-  return getWorkflowFolderCode(window.confirmedDestinationNodeId);
+  const fromStatus = extractWorkflowCompletionValue("Final folder number:");
+  if (fromStatus) return fromStatus;
+
+  const archiveResult = document.getElementById("workflowArchiveResult");
+  if (!archiveResult) return "";
+
+  const lines = archiveResult.textContent.split("\n");
+  const labelIndex = lines.findIndex(line => line.trim().toLowerCase() === "folder number:");
+  return labelIndex >= 0 && lines[labelIndex + 1] ? lines[labelIndex + 1].trim() : "";
 }
 
 function getWorkflowCompletionDestination() {
-  if (!window.confirmedDestinationNodeId || typeof getConfirmedDestinationPath !== "function") return "";
-  return getConfirmedDestinationPath();
+  if (typeof getConfirmedDestinationPath === "function") {
+    const destination = getConfirmedDestinationPath();
+    if (destination) return destination;
+  }
+
+  const archiveResult = document.getElementById("workflowArchiveResult");
+  if (!archiveResult) return "";
+
+  const lines = archiveResult.textContent.split("\n");
+  const labelIndex = lines.findIndex(line => line.trim().toLowerCase() === "destination:");
+  return labelIndex >= 0 && lines[labelIndex + 1] ? lines[labelIndex + 1].trim() : "";
 }
 
 function showWorkflowCompletionMessage(actionLabel, details) {
