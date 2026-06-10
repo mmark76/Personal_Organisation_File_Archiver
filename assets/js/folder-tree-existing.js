@@ -16,12 +16,38 @@ window.FolderTreeExisting = (() => {
     };
   }
 
-  function buildAppTree(rootFolderName, childFolderNames) {
+  function getSelectedDepth() {
+    const select = document.getElementById("existingTreeDepthSelect");
+    const depth = Number(select?.value || 2);
+    return [1, 2, 3].includes(depth) ? depth : 2;
+  }
+
+  async function readFolderChildren(directoryHandle, currentDepth, maxDepth, counter) {
+    if (currentDepth > maxDepth) return [];
+
+    const folders = [];
+
+    for await (const [name, handle] of directoryHandle.entries()) {
+      if (handle.kind !== "directory") continue;
+
+      counter.count += 1;
+      const children = currentDepth < maxDepth
+        ? await readFolderChildren(handle, currentDepth + 1, maxDepth, counter)
+        : [];
+
+      folders.push(createImportedNode(name, children));
+    }
+
+    folders.sort((a, b) => a.name.localeCompare(b.name));
+    return folders;
+  }
+
+  function buildAppTree(rootFolderName, childNodes) {
     resetNodeCounter();
 
     const rootNode = createImportedNode(
       rootFolderName || "SELECTED_FOLDER",
-      childFolderNames.map(name => createImportedNode(name))
+      childNodes
     );
 
     return {
@@ -54,23 +80,19 @@ window.FolderTreeExisting = (() => {
     }
 
     try {
+      const maxDepth = getSelectedDepth();
       const rootHandle = await window.showDirectoryPicker({ mode: "read" });
-      const childFolderNames = [];
+      const counter = { count: 0 };
+      const childNodes = await readFolderChildren(rootHandle, 1, maxDepth, counter);
+      const tree = buildAppTree(rootHandle.name, childNodes);
 
-      for await (const [name, handle] of rootHandle.entries()) {
-        if (handle.kind === "directory") childFolderNames.push(name);
-      }
-
-      childFolderNames.sort((a, b) => a.localeCompare(b));
-
-      const tree = buildAppTree(rootHandle.name, childFolderNames);
       setTree(tree);
       window.FolderTreeRender.renderAll();
       renderExistingTreePreview();
 
       setText(
         "#existingTreeStatusBox",
-        `Existing folder tree loaded from: ${rootHandle.name}. Read ${childFolderNames.length} first-level folder(s).`
+        `Existing folder tree loaded from: ${rootHandle.name}. Read ${counter.count} folder(s), up to ${maxDepth} level(s) deep.`
       );
     } catch (error) {
       if (error && error.name === "AbortError") {
