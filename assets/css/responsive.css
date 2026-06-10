@@ -285,3 +285,214 @@ header {
     width: min(100% - 24px, 1500px);
   }
 }
+
+@media (max-width: 720px) {
+  header {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .header-row {
+    width: min(100% - 20px, 1500px) !important;
+    padding: 14px !important;
+    gap: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  header h1 {
+    font-size: clamp(34px, 13vw, 48px) !important;
+    line-height: 0.98 !important;
+    margin-bottom: 10px !important;
+  }
+
+  header .app-subtitle {
+    font-size: 18px !important;
+    line-height: 1.22 !important;
+    margin-bottom: 10px !important;
+  }
+
+  header p {
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+  }
+
+  .header-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+  }
+
+  .header-actions button,
+  .feedback-open-button,
+  .theme-toggle-button,
+  #appModeBackButton {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    border-radius: 10px !important;
+    white-space: normal !important;
+  }
+
+  .header-visual {
+    justify-content: center !important;
+  }
+
+  .header-visual img {
+    width: min(190px, 58vw) !important;
+    max-height: 120px !important;
+  }
+
+  .app-shell {
+    width: min(100% - 20px, 1500px) !important;
+    gap: 12px !important;
+  }
+
+  .panel,
+  .simple-file-loader-card,
+  .guidance-card,
+  .destination-wizard,
+  .example-file-card,
+  .feedback-intro {
+    border-radius: 12px !important;
+  }
+
+  .panel-header,
+  .wizard-header,
+  .actions,
+  .modal-actions,
+  .feedback-actions,
+  .cookie-actions,
+  .simple-folder-tree-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+
+  .panel-header button,
+  .wizard-header button,
+  .actions button,
+  .modal-actions button,
+  .feedback-actions button,
+  .cookie-actions button,
+  .simple-file-loader-card button,
+  .simple-folder-tree-actions button,
+  .workflow-final-actions button,
+  .workflow-import-button,
+  .workflow-action-button,
+  .workflow-copy-advice-button,
+  .example-file-button {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    white-space: normal !important;
+  }
+
+  .simple-file-loader-card button.simple-file-loader-import-button {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .tree-node {
+    align-items: flex-start !important;
+    gap: 8px !important;
+    padding: 9px 10px !important;
+  }
+
+  .node-content {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .node-name,
+  .folder-path,
+  .breadcrumb,
+  .simple-folder-tree-view,
+  .simple-file-loader-status,
+  .output,
+  .advice-output {
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .node-actions {
+    flex: 0 0 auto !important;
+    gap: 4px !important;
+  }
+
+  .node-actions button {
+    width: 26px !important;
+    min-width: 26px !important;
+    height: 26px !important;
+    padding: 0 !important;
+  }
+
+  .app-entry-screen {
+    width: min(100% - 20px, 760px) !important;
+    margin: 18px auto 22px !important;
+  }
+
+  .app-entry-options {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .app-entry-card {
+    min-height: 92px !important;
+    padding: 16px !important;
+  }
+
+  .modal-title-row {
+    align-items: flex-start !important;
+  }
+
+  .modal-actions {
+    margin-top: 12px !important;
+  }
+
+  .cookie-notice {
+    left: 10px !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    width: auto !important;
+  }
+
+  .site-footer {
+    padding: 16px 12px 22px !important;
+    line-height: 1.6 !important;
+  }
+
+  .site-footer p {
+    display: grid !important;
+    gap: 8px !important;
+    justify-items: center !important;
+  }
+
+  .site-footer .copyrighted-badge {
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .header-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  header h1 {
+    font-size: clamp(31px, 15vw, 40px) !important;
+  }
+
+  .header-visual img {
+    width: min(160px, 56vw) !important;
+    max-height: 105px !important;
+  }
+}
