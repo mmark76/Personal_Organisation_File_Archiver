@@ -103,14 +103,13 @@ DOCUMENTS
 │   ├── FAMILY
 │   ├── HEALTH
 │   ├── FINANCIAL
-│   ├── INTERESTS
-│   │   ├── CHESS
-│   │   ├── SWIMMING
-│   │   ├── MNEMONIC_TECHNIQUES
-│   │   ├── BLOG_WRITING
-│   │   ├── WEB_APPS
-│   │   └── LEARNING
-│   └── LEARNING
+│   └── INTERESTS
+│       ├── CHESS
+│       ├── SWIMMING
+│       ├── MNEMONIC_TECHNIQUES
+│       ├── BLOG_WRITING
+│       ├── WEB_APPS
+│       └── LEARNING
 │
 └── 03_PROFESSIONAL
     ├── 2002-2010_PRIVATE_SECTOR
