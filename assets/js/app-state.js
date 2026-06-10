@@ -65,7 +65,9 @@ window.AppState = (() => {
   const state = {
     tree: createFixedTree(),
     selectedParentId: null,
+    selectedArchiveFolderId: null,
     loadedFile: null,
+    appRootHandle: null,
     lastFocusedElement: null
   };
 
@@ -83,15 +85,21 @@ window.AppState = (() => {
     resetNodeCounter();
     state.tree = createFixedTree();
     state.selectedParentId = null;
+    state.selectedArchiveFolderId = null;
   }
 
   function setTree(tree) {
     state.tree = tree;
     state.selectedParentId = null;
+    state.selectedArchiveFolderId = null;
   }
 
   function setLoadedFile(file) {
     state.loadedFile = file;
+  }
+
+  function setAppRootHandle(handle) {
+    state.appRootHandle = handle;
   }
 
   return {
@@ -102,6 +110,7 @@ window.AppState = (() => {
     resetTree,
     setTree,
     setLoadedFile,
+    setAppRootHandle,
     createFixedTree
   };
 })();
