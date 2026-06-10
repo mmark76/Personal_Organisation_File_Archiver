@@ -24,6 +24,14 @@ When a file is imported, the current version displays browser-available informat
 
 Some formats, such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, are not deeply parsed by the current version.
 
+## Simple Offline Folder Advisor
+
+The app includes a small rule-based folder advisor. It runs locally in the browser and does not use Ollama, cloud AI, OCR, or external services.
+
+The advisor uses only the imported file's name, extension, browser file type, size, last modified date, and the current folder tree. It does not read the file content.
+
+The advisor only suggests a destination. It does not archive anything automatically.
+
 ## Folder Tree
 
 The app lets the user build, import, export, copy, and optionally create a folder tree on the local computer.
