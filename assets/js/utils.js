@@ -17,13 +17,31 @@ window.AppUtils = (() => {
       .trim();
   }
 
-  function sanitizeFolderName(value) {
+  function getWindowsReservedNameStem(value) {
     return String(value || "")
+      .trim()
+      .split(".")[0]
+      .toUpperCase();
+  }
+
+  function isWindowsReservedFolderName(value) {
+    const stem = getWindowsReservedNameStem(value);
+    if (!stem) return false;
+
+    return ["CON", "PRN", "AUX", "NUL"].includes(stem) ||
+      /^COM[1-9]$/.test(stem) ||
+      /^LPT[1-9]$/.test(stem);
+  }
+
+  function sanitizeFolderName(value) {
+    const name = String(value || "")
       .trim()
       .replace(/[<>:"/\\|?*]+/g, " ")
       .replace(/\s+/g, "_")
       .replace(/^_+|_+$/g, "")
       .toUpperCase();
+
+    return isWindowsReservedFolderName(name) ? "" : name;
   }
 
   function formatBytes(bytes) {
@@ -94,6 +112,8 @@ window.AppUtils = (() => {
     qs,
     qsa,
     normalizeText,
+    getWindowsReservedNameStem,
+    isWindowsReservedFolderName,
     sanitizeFolderName,
     formatBytes,
     downloadTextFile,
