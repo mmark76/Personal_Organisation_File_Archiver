@@ -17,6 +17,19 @@ function formatSimpleFileSize(size) {
   return (size / (1024 * 1024)).toFixed(1) + " MB";
 }
 
+function getSimpleImportedFileStatusLines(fileData) {
+  if (!fileData) return ["No file selected."];
+
+  return [
+    "Selected file:",
+    fileData.name,
+    "",
+    "Type: " + fileData.type,
+    "Size: " + formatSimpleFileSize(fileData.size),
+    "Modified: " + fileData.lastModified
+  ];
+}
+
 function injectSimpleFileLoaderStyles() {
   if (document.getElementById("simpleFileLoaderStyles")) return;
 
@@ -51,6 +64,10 @@ function injectSimpleFileLoaderStyles() {
       justify-content: center;
       padding-left: 18px !important;
       padding-right: 18px !important;
+    }
+
+    .simple-file-loader-archive-button.hidden {
+      display: none !important;
     }
 
     .simple-file-loader-status {
@@ -280,8 +297,19 @@ function moveInfoButtonsToHeader() {
   }
 }
 
-async function handleSimpleImportedFile(file, statusBox) {
-  if (!file) return;
+function updateSimpleArchiveButtonVisibility(archiveButton) {
+  if (!archiveButton) return;
+  const hasImportedFile = Boolean(importedFileData && importedFileData.file);
+  archiveButton.classList.toggle("hidden", !hasImportedFile);
+}
+
+async function handleSimpleImportedFile(file, statusBox, archiveButton) {
+  if (!file) {
+    importedFileData = null;
+    if (statusBox) statusBox.textContent = "No file selected.";
+    updateSimpleArchiveButtonVisibility(archiveButton);
+    return;
+  }
 
   importedFileData = {
     name: file.name,
@@ -301,18 +329,13 @@ async function handleSimpleImportedFile(file, statusBox) {
   }
 
   if (statusBox) {
-    statusBox.textContent = [
-      "Selected file:",
-      importedFileData.name,
-      "",
-      "Type: " + importedFileData.type,
-      "Size: " + formatSimpleFileSize(importedFileData.size),
-      "Modified: " + importedFileData.lastModified
-    ].join("\n");
+    statusBox.textContent = getSimpleImportedFileStatusLines(importedFileData).join("\n");
   }
+
+  updateSimpleArchiveButtonVisibility(archiveButton);
 }
 
-async function openSimpleFilePicker(input, statusBox) {
+async function openSimpleFilePicker(input, statusBox, archiveButton) {
   if (window.showOpenFilePicker && window.organizeYourPcRootDirectoryHandle) {
     try {
       const [fileHandle] = await window.showOpenFilePicker({
@@ -320,7 +343,7 @@ async function openSimpleFilePicker(input, statusBox) {
         multiple: false
       });
       const file = await fileHandle.getFile();
-      await handleSimpleImportedFile(file, statusBox);
+      await handleSimpleImportedFile(file, statusBox, archiveButton);
       return;
     } catch (error) {
       if (error && error.name === "AbortError") return;
@@ -328,6 +351,96 @@ async function openSimpleFilePicker(input, statusBox) {
   }
 
   input.click();
+}
+
+function splitSimpleArchiveFileName(fileName) {
+  const lastDotIndex = fileName.lastIndexOf(".");
+  if (lastDotIndex <= 0) return { base: fileName, extension: "" };
+  return {
+    base: fileName.slice(0, lastDotIndex),
+    extension: fileName.slice(lastDotIndex)
+  };
+}
+
+async function simpleArchiveFileExists(directoryHandle, fileName) {
+  try {
+    await directoryHandle.getFileHandle(fileName, { create: false });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function getAvailableSimpleArchiveFileName(directoryHandle, originalName) {
+  const parsedName = splitSimpleArchiveFileName(originalName);
+  let candidateName = originalName;
+  let counter = 1;
+
+  while (await simpleArchiveFileExists(directoryHandle, candidateName)) {
+    candidateName = `${parsedName.base}_copy_${counter}${parsedName.extension}`;
+    counter += 1;
+  }
+
+  return candidateName;
+}
+
+async function archiveSimpleImportedFile(statusBox) {
+  const importedFile = importedFileData && importedFileData.file ? importedFileData.file : null;
+
+  if (!importedFile) {
+    alert("Please import a file first.");
+    return;
+  }
+
+  if (!window.showDirectoryPicker) {
+    alert("File archiving requires a browser that supports direct folder access, such as Chrome or Edge.");
+    return;
+  }
+
+  try {
+    const pickerOptions = { mode: "readwrite" };
+    if (window.organizeYourPcRootDirectoryHandle) {
+      pickerOptions.startIn = window.organizeYourPcRootDirectoryHandle;
+    }
+
+    const destinationHandle = await window.showDirectoryPicker(pickerOptions);
+    const safeFileName = await getAvailableSimpleArchiveFileName(destinationHandle, importedFile.name);
+    const fileHandle = await destinationHandle.getFileHandle(safeFileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(importedFile);
+    await writable.close();
+
+    if (statusBox) {
+      statusBox.textContent = getSimpleImportedFileStatusLines(importedFileData).concat([
+        "",
+        "Archived file:",
+        safeFileName,
+        "",
+        "Destination:",
+        "The folder selected in the browser picker.",
+        "",
+        "The original file was not moved or deleted."
+      ]).join("\n");
+    }
+  } catch (error) {
+    if (error && error.name === "AbortError") {
+      if (statusBox) {
+        statusBox.textContent = getSimpleImportedFileStatusLines(importedFileData).concat([
+          "",
+          "Archiving cancelled by user."
+        ]).join("\n");
+      }
+      return;
+    }
+
+    console.error(error);
+    if (statusBox) {
+      statusBox.textContent = getSimpleImportedFileStatusLines(importedFileData).concat([
+        "",
+        "Archiving failed. Please check browser permissions and try again."
+      ]).join("\n");
+    }
+  }
 }
 
 function setupSimpleFileLoaderPanel() {
@@ -358,20 +471,29 @@ function setupSimpleFileLoaderPanel() {
   button.type = "button";
   button.textContent = "Import / Load File";
 
+  const archiveButton = document.createElement("button");
+  archiveButton.type = "button";
+  archiveButton.className = "simple-file-loader-archive-button hidden";
+  archiveButton.textContent = "Archive the File";
+
   const status = document.createElement("div");
   status.className = "simple-file-loader-status";
   status.textContent = "No file selected.";
 
-  button.addEventListener("click", () => openSimpleFilePicker(input, status));
+  button.addEventListener("click", () => openSimpleFilePicker(input, status, archiveButton));
+  archiveButton.addEventListener("click", () => archiveSimpleImportedFile(status));
 
   input.addEventListener("change", event => {
     const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
-    handleSimpleImportedFile(file, status);
+    handleSimpleImportedFile(file, status, archiveButton);
   });
 
   card.appendChild(button);
+  card.appendChild(archiveButton);
   card.appendChild(input);
   card.appendChild(status);
+
+  updateSimpleArchiveButtonVisibility(archiveButton);
 
   destinationPanel.appendChild(title);
   destinationPanel.appendChild(description);
