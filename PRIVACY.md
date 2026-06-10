@@ -48,13 +48,11 @@ The feedback form uses the user's email client through a `mailto:` link.
 
 The message is sent only if the user chooses to send it through their email client.
 
-## Third-Party Copyright Badge
+## Local Copyright Badge
 
-The footer currently displays a Copyrighted.com badge image/link.
+The footer displays a local SVG copyright badge stored inside the app files.
 
-This badge is separate from the file archiver logic. The app does not use it to analyse files, upload files, move files, copy files, create folders, or classify documents.
-
-If a fully self-contained offline build is required, the external badge can be removed or replaced with a static local badge/link.
+The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains.
 
 ## No Analytics or Advertising Tracking
 
