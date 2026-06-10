@@ -94,8 +94,10 @@
 .screen-card {
   width: min(760px, 100%);
   margin: 18px auto 24px;
-  padding: 22px;
+  padding: 24px;
   text-align: center;
+  background: #050505;
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .screen-card h2,
@@ -107,10 +109,15 @@
   text-align: center;
 }
 
+.screen-card h2 {
+  color: #fbbf24;
+  font-weight: 850;
+}
+
 .screen-card p {
   max-width: 620px;
   margin: 0 auto;
-  color: var(--app-muted);
+  color: var(--app-muted-strong);
   font-size: 14px;
   text-align: center;
 }
