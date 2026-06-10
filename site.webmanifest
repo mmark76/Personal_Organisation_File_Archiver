@@ -1,11 +1,12 @@
 {
-  "name": "Personal Memory-Based File Advisor",
-  "short_name": "File Advisor",
-  "description": "A private browser-based file organisation advisor built around natural memory, context and personal folder trees.",
+  "name": "Organize Your PC",
+  "short_name": "Organize PC",
+  "description": "A private browser-based file organisation app for building memory-based folder trees and archiving files manually with full user control.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f7fb",
-  "theme_color": "#2563eb",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "lang": "en",
   "categories": ["productivity", "utilities"]
 }
