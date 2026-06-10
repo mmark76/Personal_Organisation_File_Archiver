@@ -3,29 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Organize Your PC | Personal Memory-Based File Advisor</title>
-  <meta name="description" content="A private browser-based file organisation advisor that helps users build a personal folder tree and decide where new files should be archived." />
-  <meta name="keywords" content="file organisation, file archiving, folder tree, memory-based organisation, personal productivity, document management, browser app, local file advisor, Markellos Markides" />
+
+  <title>Organize Your PC | Memory-Based File Organisation</title>
+
+  <meta name="description" content="A private browser-based file organisation app that helps users build a memory-based folder tree and archive files manually with full user control." />
+  <meta name="keywords" content="file organisation, folder tree, file archiving, memory-based organisation, digital information management, personal productivity, local browser app, document management, Organize Your PC" />
   <meta name="author" content="Markellos Markides" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta name="theme-color" content="#2563eb" />
+  <meta name="theme-color" content="#000000" />
   <meta name="application-name" content="Organize Your PC" />
+
   <link rel="canonical" href="https://organizeyourpc.com/" />
   <link rel="manifest" href="site.webmanifest" />
   <link rel="license" href="LICENSE.md" />
   <link rel="icon" href="assets/images/organize-your-pc-logo.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <link rel="stylesheet" href="assets/css/legal.css" />
-  <link rel="stylesheet" href="assets/css/examples.css" />
-  <link rel="stylesheet" href="assets/css/header-hero.css" />
-  <link rel="stylesheet" href="assets/css/responsive.css" />
-  <link rel="stylesheet" href="assets/css/app-explanation.css" />
-  <link rel="stylesheet" href="assets/css/theme-toggle.css" />
-  <link rel="stylesheet" href="assets/css/ui-refinement.css" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Organize Your PC" />
-  <meta property="og:description" content="Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC." />
+  <meta property="og:description" content="Build a memory-based folder tree and archive files manually with full user control." />
   <meta property="og:url" content="https://organizeyourpc.com/" />
   <meta property="og:site_name" content="Organize Your PC" />
   <meta property="og:locale" content="en_US" />
@@ -33,7 +28,7 @@
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Organize Your PC" />
-  <meta name="twitter:description" content="Build a personal folder tree and get guidance on where to archive each new file. The app does not reorganize files on your PC." />
+  <meta name="twitter:description" content="Build a memory-based folder tree and archive files manually with full user control." />
   <meta name="twitter:image" content="https://organizeyourpc.com/assets/images/organize-your-pc-social-preview.png" />
 
   <script type="application/ld+json">
@@ -41,10 +36,10 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "Organize Your PC",
-    "alternateName": "Personal Memory-Based File Advisor",
+    "alternateName": "Memory-Based File Organisation App",
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Any modern browser",
-    "description": "A private browser-based file organisation advisor that helps users build a personal folder tree and decide where new files should be archived. It does not reorganize files on the user's PC.",
+    "description": "A local browser-based app for building a memory-based folder tree and archiving files manually with full user control.",
     "creator": {
       "@type": "Person",
       "name": "Markellos Markides"
@@ -54,103 +49,162 @@
     "isAccessibleForFree": true
   }
   </script>
+
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/modals.css" />
+  <link rel="stylesheet" href="assets/css/privacy.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
 </head>
+
 <body>
-  <header>
-    <div class="header-row">
-      <div class="header-copy">
-        <h1>Organize Your PC</h1>
-        <p class="app-subtitle">Memory-Based Digital Information Management</p>
-        <p>Organize Your PC helps you build a memory-based folder tree first, then load one file and archive it only after you choose the destination and give permission. It keeps the process local, user-controlled, and based on where you will naturally remember to find the file later.</p>
-        <div class="header-actions">
-          <button type="button" id="themeToggleButton" class="secondary theme-toggle-button" onclick="toggleTheme()" aria-pressed="false">Black Background</button>
-          <button type="button" class="feedback-open-button" onclick="openFeedbackModal()">Feedback</button>
+  <noscript>
+    This app needs JavaScript to build folder trees and archive files locally in your browser.
+  </noscript>
+
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-brand">
+        <img class="app-logo" src="assets/images/organize-your-pc-logo.svg" alt="Organize Your PC logo" />
+
+        <div class="app-brand-text">
+          <h1>Organize Your PC</h1>
+          <p class="app-subtitle">Memory-Based Digital Information Management</p>
         </div>
       </div>
-      <div class="header-visual" aria-label="Organize Your PC brand image">
-        <img src="assets/images/organize-your-pc-logo.svg" alt="Organize Your PC - A memory-based file advisor" />
+
+      <p class="app-intro">
+        Build a folder tree based on how you remember your files, then archive each file manually with full control.
+      </p>
+
+      <div class="header-actions" aria-label="General app actions">
+        <button type="button" id="openDisclaimerButton" class="button button-secondary">Disclaimer</button>
+        <button type="button" id="openHowItWorksButton" class="button button-secondary">How This App Works</button>
+        <button type="button" id="openFeedbackButton" class="button button-secondary">Feedback</button>
       </div>
     </div>
   </header>
 
-  <section class="brand-hero" aria-label="Organize Your PC brand image">
-    <img src="assets/images/organize-your-pc-logo.svg" alt="Organize Your PC - A memory-based file advisor" />
-  </section>
+  <main class="app-main">
+    <section id="mainChoiceScreen" class="screen screen-active" aria-labelledby="mainChoiceTitle">
+      <div class="screen-card">
+        <h2 id="mainChoiceTitle">Choose what you want to do</h2>
+        <p>Start by building your folder tree, or archive a file using an existing folder tree.</p>
 
-  <section class="app-explanation" aria-label="Important disclaimer and guidance">
-    <div class="info-modal-actions">
-      <button type="button" class="secondary" onclick="openInfoModal('importantDisclaimerModal')">Important Disclaimer</button>
-      <button type="button" class="secondary" onclick="openInfoModal('howThisAppWorksModal')">How This App Works</button>
-    </div>
-  </section>
+        <div class="choice-grid">
+          <button type="button" id="openFolderTreeModeButton" class="choice-card">
+            <strong>Build Folder Tree</strong>
+            <span>Create, import, export, and manage your memory-based folder structure.</span>
+          </button>
 
-  <main class="app-shell">
-    <section class="panel tree-panel accent-tree">
-      <div class="panel-header">
-        <div>
-          <h2>Folder Tree</h2>
-          <p>Fixed first level. Add unlimited layers below it. Visual codes are shown beside folders for easier selection.</p>
+          <button type="button" id="openArchiveModeButton" class="choice-card">
+            <strong>Archive File</strong>
+            <span>Load one file and copy it manually to a destination you choose.</span>
+          </button>
         </div>
-        <button type="button" class="secondary" onclick="loadMarkellosExample()">Load Example Folder Tree</button>
-      </div>
-
-      <div class="guidance-card">
-        <strong>Before adding folders, choose one thinking type for the next layer.</strong>
-        <span>Chronological, thematic, functional, or role-based. The type guides the names; it does not become a folder.</span>
-      </div>
-
-      <div id="treeContainer" class="tree-container"></div>
-
-      <div class="structure-section">
-        <h2>Current Structure</h2>
-        <pre id="treeOutput" class="output"></pre>
-
-        <div class="actions">
-          <button type="button" onclick="copyTreeOutput()">Copy Structure</button>
-          <button type="button" class="secondary" onclick="downloadStructureText()">Download TXT</button>
-          <button type="button" class="secondary" onclick="downloadStructureJson()">Download JSON</button>
-          <button type="button" class="success" onclick="createFoldersOnComputer()">Create Folders on This PC</button>
-        </div>
-
-        <p class="small-note">Folder creation is optional and works only in browsers that support direct folder access, such as Chrome or Edge. The advisory features work in modern browsers even when folder creation is not available.</p>
       </div>
     </section>
 
-    <section class="panel destination-panel accent-destination">
-      <h2>File Import</h2>
-      <p>Load a file through the native file picker and archive it manually after browser permission. The simple file import panel is the active right-panel mode.</p>
+    <section id="folderTreeScreen" class="screen" aria-labelledby="folderTreeTitle" hidden aria-hidden="true">
+      <div class="screen-toolbar">
+        <button type="button" class="button button-secondary back-to-main-button">Back to main choices</button>
+      </div>
+
+      <section class="work-panel folder-tree-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="folderTreeTitle">Folder Tree</h2>
+            <p>Build a memory-based folder structure. The first level is fixed; all deeper layers are user-defined.</p>
+          </div>
+
+          <button type="button" id="loadExampleTreeButton" class="button button-secondary">Load Example Folder Tree</button>
+        </div>
+
+        <div class="guidance-card">
+          <strong>Before adding folders, choose one thinking type for the next layer.</strong>
+          <span>Chronological, thematic, functional, or role-based. The type guides the folder names.</span>
+        </div>
+
+        <div id="treeContainer" class="tree-container" aria-label="Folder tree"></div>
+
+        <section class="structure-section" aria-labelledby="currentStructureTitle">
+          <h3 id="currentStructureTitle">Current Structure</h3>
+          <pre id="treeOutput" class="structure-output" aria-label="Current folder structure"></pre>
+
+          <div class="action-row">
+            <button type="button" id="copyTreeButton" class="button">Copy Folder Tree</button>
+            <button type="button" id="importTreeButton" class="button button-secondary">Import Folder Tree</button>
+            <button type="button" id="exportTreeButton" class="button button-secondary">Export Folder Tree</button>
+            <button type="button" id="createFoldersButton" class="button button-success">Create Folder Tree on PC</button>
+          </div>
+
+          <input type="file" id="folderTreeImportInput" accept="application/json,.json" hidden />
+
+          <p class="small-note">Folder creation works only in browsers that support direct folder access, such as Chrome or Edge.</p>
+        </section>
+      </section>
+    </section>
+
+    <section id="archiveFileScreen" class="screen" aria-labelledby="archiveFileTitle" hidden aria-hidden="true">
+      <div class="screen-toolbar">
+        <button type="button" class="button button-secondary back-to-main-button">Back to main choices</button>
+      </div>
+
+      <section class="work-panel archive-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="archiveFileTitle">Archive File</h2>
+            <p>Load one file, review its basic information, and copy it manually to a destination folder you choose.</p>
+          </div>
+        </div>
+
+        <div class="archive-actions">
+          <button type="button" id="viewFolderTreeButton" class="button button-secondary">View Folder Tree</button>
+          <button type="button" id="importArchiveTreeButton" class="button button-secondary">Import / Load Folder Tree</button>
+          <button type="button" id="importFileButton" class="button">Import / Load File</button>
+          <button type="button" id="archiveFileButton" class="button button-success">Archive the File</button>
+        </div>
+
+        <input type="file" id="archiveTreeImportInput" accept="application/json,.json" hidden />
+        <input type="file" id="archiveFileInput" hidden />
+
+        <section class="file-status-card" aria-labelledby="fileStatusTitle">
+          <h3 id="fileStatusTitle">Loaded File</h3>
+          <div id="fileStatusBox" class="file-status-box">No file loaded yet.</div>
+        </section>
+
+        <section class="folder-tree-preview-card" aria-labelledby="archiveTreePreviewTitle">
+          <h3 id="archiveTreePreviewTitle">Folder Tree Preview</h3>
+          <pre id="archiveTreePreview" class="folder-tree-preview">No folder tree loaded yet.</pre>
+        </section>
+
+        <section class="archive-result-card" aria-labelledby="archiveResultTitle">
+          <h3 id="archiveResultTitle">Archive Result</h3>
+          <div id="archiveResultBox" class="archive-result-box">No archive action yet.</div>
+        </section>
+      </section>
     </section>
   </main>
 
-  <section id="cookieNotice" class="cookie-notice" role="region" aria-label="Privacy and consent preferences">
-    <div>
-      <strong>Privacy notice</strong>
-      <p>This app runs locally in your browser. It may use local browser storage and cookies only for simple preferences and to display the third-party Copyrighted.com badge. The badge is separate from the file advisor and is not used to analyse, upload, move, rename, or create files.</p>
-    </div>
-    <div class="cookie-actions">
-      <button id="cookieAcceptButton" type="button">Accept</button>
-      <button id="cookieLaterButton" type="button" class="secondary">Later</button>
-    </div>
-  </section>
-
-  <footer class="site-footer">
-    <p>© 2026 Markellos Markides. All rights reserved. · <a href="LICENSE.md">License</a> · <a href="PRIVACY.md" onclick="showCookieNotice(); return false;">Privacy</a> · <a class="copyrighted-badge" title="Copyrighted.com Registered &amp; Protected" target="_blank" href="https://app.copyrighted.com/work/yGitcIDueW2BVZrM/"><img alt="Copyrighted.com Registered &amp; Protected" border="0" width="125" height="25" srcset="https://static.copyrighted.com/badges/125x25/01_1_2x.png 2x" src="https://static.copyrighted.com/badges/125x25/01_1.png"></a></p>
-  </footer>
-
-  <div id="nodeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div id="folderModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="folderModalTitle" hidden>
     <div class="modal-card">
-      <h2 id="modalTitle">Add Folder</h2>
-      <p id="modalContext" class="modal-context"></p>
+      <div class="modal-title-row">
+        <h2 id="folderModalTitle">Add Folder</h2>
+        <button type="button" id="closeFolderModalButton" class="icon-button" aria-label="Close add folder modal">×</button>
+      </div>
+
+      <p id="folderModalContext" class="modal-context"></p>
 
       <label for="thinkingTypeSelect">Thinking type for this layer</label>
-      <select id="thinkingTypeSelect" onchange="updateThinkingPrompt()">
+      <select id="thinkingTypeSelect">
         <option value="001_CHRONOLOGICAL">001 - Chronological</option>
         <option value="002_THEMATIC">002 - Thematic</option>
         <option value="003_FUNCTIONAL">003 - Functional</option>
         <option value="004_ROLE_BASED">004 - Role-based</option>
       </select>
 
-      <div id="fixedThinkingType" class="fixed-type hidden"></div>
+      <div id="fixedThinkingType" class="fixed-type" hidden></div>
 
       <label id="folderNameLabel" for="folderNameInput">Folder name</label>
       <input type="text" id="folderNameInput" />
@@ -158,89 +212,120 @@
       <div id="examplesBox" class="examples-box"></div>
 
       <div class="modal-actions">
-        <button type="button" onclick="confirmAddChild()">Add</button>
-        <button type="button" class="secondary" onclick="closeNodeModal()">Cancel</button>
+        <button type="button" id="confirmAddFolderButton" class="button">Add</button>
+        <button type="button" id="cancelAddFolderButton" class="button button-secondary">Cancel</button>
       </div>
     </div>
   </div>
 
-  <div id="importantDisclaimerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="importantDisclaimerTitle">
-    <div class="modal-card info-modal-card">
+  <div id="disclaimerModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle" hidden>
+    <div class="modal-card">
       <div class="modal-title-row">
-        <h2 id="importantDisclaimerTitle">Important Disclaimer</h2>
-        <button type="button" class="icon-button" aria-label="Close important disclaimer" onclick="closeInfoModal('importantDisclaimerModal')">×</button>
+        <h2 id="disclaimerTitle">Disclaimer</h2>
+        <button type="button" class="icon-button close-modal-button" data-modal-id="disclaimerModal" aria-label="Close disclaimer">×</button>
       </div>
-      <div class="info-modal-content">
-        <p>Organize Your PC is a file organisation advisor and optional user-controlled copy archiver for your computer.</p>
-        <p>It does <strong>not</strong> reorganize your existing files automatically. It does <strong>not</strong> delete, upload, rename, or modify files.</p>
-        <p>The active file workflow uses a simple File Import panel. The app can copy a loaded file only after the user chooses a destination folder through the browser picker and gives permission. It does not remove the original file.</p>
-        <p>The app can also optionally create a new folder tree inside a destination folder that you choose.</p>
+
+      <div class="modal-content">
+        <p>Organize Your PC is a local browser-based file organisation app.</p>
+        <p>It does not delete, upload, rename, modify, or automatically move files.</p>
+        <p>The app can copy a loaded file only after the user chooses a destination folder and gives browser permission.</p>
+        <p>The original file remains untouched.</p>
       </div>
+
       <div class="modal-actions">
-        <button type="button" class="secondary" onclick="closeInfoModal('importantDisclaimerModal')">Close</button>
+        <button type="button" class="button button-secondary close-modal-button" data-modal-id="disclaimerModal">Close</button>
       </div>
     </div>
   </div>
 
-  <div id="howThisAppWorksModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="howThisAppWorksTitle">
-    <div class="modal-card info-modal-card">
+  <div id="howItWorksModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="howItWorksTitle" hidden>
+    <div class="modal-card">
       <div class="modal-title-row">
-        <h2 id="howThisAppWorksTitle">How This App Works</h2>
-        <button type="button" class="icon-button" aria-label="Close app explanation" onclick="closeInfoModal('howThisAppWorksModal')">×</button>
+        <h2 id="howItWorksTitle">How This App Works</h2>
+        <button type="button" class="icon-button close-modal-button" data-modal-id="howItWorksModal" aria-label="Close how this app works">×</button>
       </div>
-      <div class="info-modal-content">
-        <p>Organize Your PC helps you organise your files by first helping you build a clear folder tree.</p>
-        <p>The app does four things:</p>
+
+      <div class="modal-content">
+        <p>The app has two main modes.</p>
         <ol>
-          <li><strong>It builds a folder tree</strong> based on the folder names and structure you define.</li>
-          <li><strong>It shows visual folder codes</strong> beside the folder tree, such as <code>01</code>, <code>01.001</code>, or <code>02.004.001</code>. These are display aids and do not change the real folder names.</li>
-          <li><strong>It imports or loads one file</strong> through the browser or native file picker and shows basic browser-available file information.</li>
-          <li><strong>It can copy the loaded file</strong> after the user chooses a destination folder and grants browser permission. Existing files are not overwritten; a safe copy name is created if needed.</li>
+          <li><strong>Build Folder Tree:</strong> create, import, export, and manage your memory-based folder structure.</li>
+          <li><strong>Archive File:</strong> load one file and copy it manually to a folder you choose.</li>
         </ol>
-        <p>The active right-panel workflow is Simple File Import mode.</p>
-        <p>The app does not interfere with your existing file organisation unless the user explicitly loads a file, chooses to archive it, selects a destination folder, and allows the browser copy action.</p>
-        <p>The purpose of Organize Your PC is not to automate your computer blindly. Its main purpose is to help organise the way you think about your files.</p>
-        <p>The app does <strong>not</strong> delete, upload, rename, modify, or automatically move files.</p>
+        <p>Only one mode is active at a time.</p>
       </div>
+
       <div class="modal-actions">
-        <button type="button" class="secondary" onclick="closeInfoModal('howThisAppWorksModal')">Close</button>
+        <button type="button" class="button button-secondary close-modal-button" data-modal-id="howItWorksModal">Close</button>
       </div>
     </div>
   </div>
 
-  <div id="feedbackModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackModalTitle">
-    <div class="modal-card feedback-modal-card">
+  <div id="feedbackModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="feedbackModalTitle" hidden>
+    <div class="modal-card">
       <div class="modal-title-row">
         <h2 id="feedbackModalTitle">Feedback</h2>
-        <button type="button" class="icon-button" aria-label="Close feedback form" onclick="closeFeedbackModal()">×</button>
+        <button type="button" id="closeFeedbackButton" class="icon-button" aria-label="Close feedback form">×</button>
       </div>
 
       <div class="feedback-intro">
         <strong>Found a bug? Have a suggestion?</strong>
-        <span>Please write a quick note. Thank you!</span>
+        <span>Please write a quick note. Thank you.</span>
       </div>
 
       <label for="feedbackMessage">Message</label>
       <textarea id="feedbackMessage" placeholder="Write your feedback here..."></textarea>
 
-      <label for="feedbackEmail">Email (optional)</label>
+      <label for="feedbackEmail">Email optional</label>
       <input type="email" id="feedbackEmail" placeholder="you@example.com" />
 
-      <div class="modal-actions feedback-actions">
-        <button type="button" onclick="sendFeedback()">Send feedback</button>
-        <button type="button" class="secondary" onclick="closeFeedbackModal()">Cancel</button>
+      <div class="modal-actions">
+        <button type="button" id="sendFeedbackButton" class="button">Send feedback</button>
+        <button type="button" id="cancelFeedbackButton" class="button button-secondary">Cancel</button>
       </div>
     </div>
   </div>
 
-  <script src="https://static.copyrighted.com/badges/helper.js"></script>
-  <script src="assets/js/app.js"></script>
-  <script src="assets/js/folder-tree-codes.js"></script>
-  <script src="assets/js/folder-creation.js"></script>
-  <script src="assets/js/json-export.js"></script>
-  <script src="assets/js/info-modals.js"></script>
-  <script src="assets/js/feedback.js"></script>
-  <script src="assets/js/privacy-notice.js"></script>
-  <script src="assets/js/theme-toggle.js"></script>
+  <section id="privacyNotice" class="privacy-notice" role="region" aria-label="Privacy notice" hidden>
+    <div class="privacy-content">
+      <strong>Privacy notice</strong>
+      <p>This app runs locally in your browser. It does not upload, delete, rename, or automatically move your files.</p>
+    </div>
+
+    <div class="privacy-actions">
+      <button type="button" id="acceptPrivacyNoticeButton" class="button">Accept</button>
+      <button type="button" id="hidePrivacyNoticeButton" class="button button-secondary">Later</button>
+    </div>
+  </section>
+
+  <footer class="app-footer">
+    <p>
+      © 2026 Markellos Markides. All rights reserved.
+      <a href="LICENSE.md">License</a>
+      <a href="PRIVACY.md">Privacy</a>
+      <a class="copyrighted-badge" title="Copyrighted.com Registered &amp; Protected" target="_blank" rel="noopener noreferrer" href="https://app.copyrighted.com/work/yGitcIDueW2BVZrM/"><img alt="Copyrighted.com Registered &amp; Protected" width="125" height="25" srcset="https://static.copyrighted.com/badges/125x25/01_1_2x.png 2x" src="https://static.copyrighted.com/badges/125x25/01_1.png" /></a>
+    </p>
+  </footer>
+
+  <script src="assets/js/app-state.js" defer></script>
+  <script src="assets/js/utils.js" defer></script>
+  <script src="assets/js/error-messages.js" defer></script>
+  <script src="assets/js/browser-support.js" defer></script>
+  <script src="assets/js/accessibility.js" defer></script>
+  <script src="assets/js/app-navigation.js" defer></script>
+
+  <script src="assets/js/folder-tree.js" defer></script>
+  <script src="assets/js/folder-tree-codes.js" defer></script>
+  <script src="assets/js/folder-tree-render.js" defer></script>
+  <script src="assets/js/folder-tree-import.js" defer></script>
+  <script src="assets/js/folder-tree-export.js" defer></script>
+  <script src="assets/js/folder-creation.js" defer></script>
+
+  <script src="assets/js/file-import.js" defer></script>
+  <script src="assets/js/file-archive.js" defer></script>
+
+  <script src="assets/js/modals.js" defer></script>
+  <script src="assets/js/feedback.js" defer></script>
+  <script src="assets/js/privacy-notice.js" defer></script>
+  <script src="assets/js/app-init.js" defer></script>
 </body>
 </html>
