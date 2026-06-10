@@ -113,8 +113,9 @@ function injectAppEntryStyles() {
     .app-entry-card {
       display: grid;
       align-content: center;
+      justify-items: center;
       gap: 8px;
-      text-align: left;
+      text-align: center;
       background: #ffffff !important;
       color: var(--ui-text, #111827) !important;
       border: 1px solid var(--ui-border-soft, #e5e7eb) !important;
@@ -134,6 +135,7 @@ function injectAppEntryStyles() {
       font-size: 16px;
       line-height: 1.25;
       font-weight: 700;
+      text-align: center;
     }
 
     .app-entry-card span {
@@ -141,6 +143,7 @@ function injectAppEntryStyles() {
       font-size: 12.5px;
       line-height: 1.45;
       font-weight: 400;
+      text-align: center;
     }
 
     body.theme-dark .app-entry-heading h2,
