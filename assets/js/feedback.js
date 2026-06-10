@@ -1,65 +1,43 @@
-function openFeedbackModal() {
-  const modal = document.getElementById("feedbackModal");
-  const messageInput = document.getElementById("feedbackMessage");
+/* Feedback mailto behavior. */
 
-  if (!modal) return;
+window.AppFeedback = (() => {
+  const feedbackRecipient = ["markellos.markides", "gmail.com"].join("@");
 
-  modal.classList.remove("hidden");
-
-  if (messageInput) {
-    messageInput.focus();
-  }
-}
-
-function closeFeedbackModal() {
-  const modal = document.getElementById("feedbackModal");
-
-  if (!modal) return;
-
-  modal.classList.add("hidden");
-}
-
-function sendFeedback() {
-  const messageInput = document.getElementById("feedbackMessage");
-  const emailInput = document.getElementById("feedbackEmail");
-
-  const message = messageInput ? messageInput.value.trim() : "";
-  const email = emailInput ? emailInput.value.trim() : "";
-
-  if (!message) {
-    alert("Please write your feedback message before sending.");
-    return;
+  function openFeedback() {
+    window.AppModals.openModal("feedbackModal");
+    const messageInput = document.getElementById("feedbackMessage");
+    if (messageInput) messageInput.focus();
   }
 
-  const subject = "Feedback for Personal Memory-Based File Advisor";
-  const bodyLines = [
-    "Feedback message:",
-    message,
-    "",
-    "Sender email:",
-    email || "Not provided"
-  ];
-
-  const mailtoUrl =
-    "mailto:markellos.markides@gmail.com" +
-    "?subject=" + encodeURIComponent(subject) +
-    "&body=" + encodeURIComponent(bodyLines.join("\n"));
-
-  window.location.href = mailtoUrl;
-}
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") {
-    closeFeedbackModal();
+  function closeFeedback() {
+    window.AppModals.closeModal("feedbackModal");
   }
-});
 
-document.addEventListener("click", event => {
-  const feedbackModal = document.getElementById("feedbackModal");
+  function sendFeedback() {
+    const messageInput = document.getElementById("feedbackMessage");
+    const emailInput = document.getElementById("feedbackEmail");
+    const message = messageInput ? messageInput.value.trim() : "";
+    const email = emailInput ? emailInput.value.trim() : "";
 
-  if (!feedbackModal || feedbackModal.classList.contains("hidden")) return;
+    if (!message) {
+      alert(window.AppMessages.feedbackMissing);
+      return;
+    }
 
-  if (event.target === feedbackModal) {
-    closeFeedbackModal();
+    const subject = "Organize Your PC feedback";
+    const body = [
+      message,
+      "",
+      email ? `Sender email: ${email}` : "Sender email: Not provided"
+    ].join("\n");
+
+    window.location.href = `mailto:${feedbackRecipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    closeFeedback();
   }
-});
+
+  return {
+    openFeedback,
+    closeFeedback,
+    sendFeedback
+  };
+})();
