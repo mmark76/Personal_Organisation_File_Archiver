@@ -74,7 +74,21 @@
     line-height: 1.55;
   }
 
-  .header-actions,
+  .header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .header-actions button {
+    width: auto;
+    flex: 1 1 120px;
+    min-height: 38px;
+    justify-content: center;
+  }
+
   .action-row,
   .archive-actions,
   .modal-actions,
@@ -84,7 +98,6 @@
     width: 100%;
   }
 
-  .header-actions button,
   .action-row button,
   .archive-actions button,
   .modal-actions button,
