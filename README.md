@@ -52,6 +52,7 @@ assets/js/privacy-notice.js
 assets/js/app-init.js
 
 assets/images/organize-your-pc-logo.svg
+assets/images/local-copyright-protected-badge.svg
 ```
 
 The visible app interface is English-only.
@@ -207,13 +208,11 @@ The app may use local browser storage only for simple preferences, such as wheth
 
 When folder creation or copy archiving is used, the user must manually choose a folder and give permission through the browser.
 
-## Third-Party Copyright Badge
+## Local Copyright Badge
 
-The footer currently displays a third-party Copyrighted.com badge image/link.
+The footer displays a local SVG copyright badge stored at `assets/images/local-copyright-protected-badge.svg`.
 
-This badge is separate from the file archiver logic. The app does not use it to analyse files, upload files, move files, copy files, create folders, or classify documents.
-
-If a fully self-contained offline build is required, the external badge can be removed or replaced with a static local badge/link.
+The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains.
 
 ## Known Limitations
 
