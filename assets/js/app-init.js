@@ -11,6 +11,7 @@ window.AppInit = (() => {
 
   function bindNavigationActions() {
     qs("#openFolderTreeModeButton")?.addEventListener("click", window.AppNavigation.showFolderTreeMode);
+    qs("#openExistingFolderTreeModeButton")?.addEventListener("click", window.AppNavigation.showExistingFolderTreeMode);
     qs("#openArchiveModeButton")?.addEventListener("click", window.AppNavigation.showArchiveMode);
 
     qsa(".back-to-main-button").forEach(button => {
@@ -25,6 +26,7 @@ window.AppInit = (() => {
     qs("#createFoldersButton")?.addEventListener("click", window.FolderCreation.createFoldersOnComputer);
     qs("#importTreeButton")?.addEventListener("click", () => qs("#folderTreeImportInput")?.click());
     qs("#folderTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
+    qs("#chooseExistingFolderTreeButton")?.addEventListener("click", window.FolderTreeExisting.chooseExistingFolderTree);
 
     qsa(".template-download-button").forEach(button => {
       button.addEventListener("click", () => window.FolderTreeTemplates.downloadTemplate(button.dataset.templateDownloadId));
@@ -70,6 +72,7 @@ window.AppInit = (() => {
     window.AppModals.bindModalEvents();
     window.AppAccessibility.bindKeyboardHandlers();
     window.FolderTreeRender.renderAll();
+    window.FolderTreeExisting?.renderExistingTreePreview();
     window.FileImport.renderFileStatus();
     window.FileAdvisor?.renderSuggestion();
     window.AppPrivacyNotice.showNoticeIfNeeded();
