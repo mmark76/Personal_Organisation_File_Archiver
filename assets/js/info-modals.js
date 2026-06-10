@@ -42,6 +42,17 @@ function injectSimpleFileLoaderStyles() {
       padding: 12px;
     }
 
+    .simple-file-loader-card button {
+      width: auto !important;
+      max-width: max-content !important;
+      justify-self: start;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      padding-left: 18px !important;
+      padding-right: 18px !important;
+    }
+
     .simple-file-loader-status {
       white-space: pre-wrap;
       color: var(--ui-muted, #6b7280);
