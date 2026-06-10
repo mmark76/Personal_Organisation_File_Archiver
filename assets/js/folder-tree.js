@@ -28,6 +28,12 @@ window.FolderTree = (() => {
     return null;
   }
 
+  function containsNode(current, nodeId) {
+    if (!current || !nodeId) return false;
+    if (current.id === nodeId) return true;
+    return (current.children || []).some(child => containsNode(child, nodeId));
+  }
+
   function getNodePath(nodeId) {
     const path = [];
 
@@ -49,8 +55,12 @@ window.FolderTree = (() => {
     return path;
   }
 
-  function getVisibleName(name) {
-    return String(name || "").replace(/^\d{2}_/, "");
+  function getVisibleName(name, node = null) {
+    if (node && node.fixed && node.branch) {
+      return String(name || "").replace(/^\d{2}_/, "");
+    }
+
+    return String(name || "");
   }
 
   function getFolderPath(nodeId) {
@@ -108,7 +118,7 @@ window.FolderTree = (() => {
     const fixedType = document.getElementById("fixedThinkingType");
     const input = document.getElementById("folderNameInput");
 
-    if (context) context.textContent = `Add a folder under ${getVisibleName(parent.name)}.`;
+    if (context) context.textContent = `Add a folder under ${getVisibleName(parent.name, parent)}.`;
     if (input) input.value = "";
 
     const allowedTypes = getAllowedThinkingTypes(parent);
@@ -181,10 +191,26 @@ window.FolderTree = (() => {
     const parent = findParentNode(nodeId);
     if (!parent) return;
 
+    if (containsNode(node, state.selectedArchiveFolderId)) {
+      state.selectedArchiveFolderId = null;
+    }
+
     parent.children = parent.children.filter(child => child.id !== nodeId);
     if (parent.children.length === 0) parent.childLayerType = null;
 
     window.FolderTreeRender.renderAll();
+  }
+
+  function selectArchiveFolder(nodeId) {
+    const node = findNodeById(nodeId);
+    if (!node || node.id === "documents") return;
+
+    state.selectedArchiveFolderId = nodeId;
+    window.AppUtils.setText(
+      "#archiveResultBox",
+      `${window.AppMessages.archiveDestinationSelected} ${getFolderPath(nodeId)}`
+    );
+    window.FolderTreeRender.renderArchivePreview();
   }
 
   function createNode(name, branch, thinkingType = null, childLayerType = null, children = []) {
@@ -201,6 +227,7 @@ window.FolderTree = (() => {
 
   function loadExampleTree() {
     resetNodeCounter();
+    state.selectedArchiveFolderId = null;
 
     const chronological = "001_CHRONOLOGICAL";
     const thematic = "002_THEMATIC";
@@ -251,6 +278,7 @@ window.FolderTree = (() => {
   return {
     findNodeById,
     findParentNode,
+    containsNode,
     getNodePath,
     getVisibleName,
     getFolderPath,
@@ -258,6 +286,7 @@ window.FolderTree = (() => {
     openAddFolderModal,
     confirmAddFolder,
     deleteFolder,
+    selectArchiveFolder,
     updateThinkingPrompt,
     loadExampleTree
   };
