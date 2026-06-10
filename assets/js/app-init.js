@@ -26,7 +26,7 @@ window.AppInit = (() => {
     qs("#createFoldersButton")?.addEventListener("click", window.FolderCreation.createFoldersOnComputer);
     qs("#importTreeButton")?.addEventListener("click", () => qs("#folderTreeImportInput")?.click());
     qs("#folderTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
-    qs("#chooseExistingFolderTreeButton")?.addEventListener("click", window.FolderTreeExisting.chooseExistingFolderTree);
+    qs("#chooseExistingFolderTreeButton")?.addEventListener("click", () => window.FolderTreeExisting.chooseExistingFolderTree());
 
     qsa(".template-download-button").forEach(button => {
       button.addEventListener("click", () => window.FolderTreeTemplates.downloadTemplate(button.dataset.templateDownloadId));
@@ -46,13 +46,7 @@ window.AppInit = (() => {
       if (panel) panel.hidden = !panel.hidden;
     });
 
-    qs("#useCurrentArchiveTreeButton")?.addEventListener("click", () => {
-      window.FolderTreeRender.renderArchivePreview();
-      window.AppUtils.setText("#archiveResultBox", "Current folder tree is ready for archive destination selection.");
-      const panel = qs("#archiveTreeChoicePanel");
-      if (panel) panel.hidden = true;
-    });
-
+    qs("#useArchiveFolderTreeOnPcButton")?.addEventListener("click", window.FolderTreeExisting.chooseExistingFolderTreeForArchive);
     qs("#importArchiveTreeButton")?.addEventListener("click", () => qs("#archiveTreeImportInput")?.click());
     qs("#archiveTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
     qs("#importFileButton")?.addEventListener("click", window.FileImport.openFileInput);
