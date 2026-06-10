@@ -40,6 +40,11 @@ window.AppInit = (() => {
     window.FolderTreeRender.bindTreeEvents();
   }
 
+  function applyTemporaryMainChoiceLabels() {
+    const buildNewTreeTitle = qs("#openFolderTreeModeButton strong");
+    if (buildNewTreeTitle) buildNewTreeTitle.textContent = "Build New Folder Tree on this PC";
+  }
+
   function temporarilyDisableFolderTreeUtilityButtons() {
     const buttonSelectors = [
       "#copyTreeButton",
@@ -91,6 +96,7 @@ window.AppInit = (() => {
     bindFeedbackActions();
     bindPrivacyActions();
 
+    applyTemporaryMainChoiceLabels();
     temporarilyDisableFolderTreeUtilityButtons();
 
     window.AppModals.bindModalEvents();
