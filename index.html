@@ -180,6 +180,12 @@
           <div id="fileStatusBox" class="file-status-box">No file loaded yet.</div>
         </section>
 
+        <section class="advisor-suggestion-card" aria-labelledby="advisorSuggestionTitle">
+          <h3 id="advisorSuggestionTitle">Offline Folder Advisor</h3>
+          <div id="advisorSuggestionBox" class="advisor-suggestion-box">No file loaded yet.</div>
+          <p class="small-note">Uses only filename, extension, basic browser metadata, and the current folder tree. It does not read file content.</p>
+        </section>
+
         <section class="folder-tree-preview-card" aria-labelledby="archiveTreePreviewTitle">
           <h3 id="archiveTreePreviewTitle">Select Archive Destination</h3>
           <div id="archiveTreePreview" class="folder-tree-preview">No folder tree loaded yet.</div>
@@ -327,6 +333,7 @@
   <script src="assets/js/folder-tree-templates.js" defer></script>
   <script src="assets/js/folder-creation.js" defer></script>
 
+  <script src="assets/js/file-advisor.js" defer></script>
   <script src="assets/js/file-import.js" defer></script>
   <script src="assets/js/file-archive.js" defer></script>
 
