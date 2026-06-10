@@ -75,14 +75,22 @@ window.FolderTreeRender = (() => {
   function buildOutputLines() {
     const lines = ["DOCUMENTS"];
 
-    function walk(node, depth, indexPath) {
-      const indent = "  ".repeat(depth);
+    function walk(node, indexPath, prefix, isLast) {
+      const connector = isLast ? "└── " : "├── ";
+      const childPrefix = prefix + (isLast ? "    " : "│   ");
       const code = window.FolderTreeCodes.getDisplayCodeFromIndexPath(indexPath, node);
-      lines.push(`${indent}${code} ${node.name}`);
-      (node.children || []).forEach((child, index) => walk(child, depth + 1, [...indexPath, index]));
+
+      lines.push(`${prefix}${connector}${code} ${node.name}`);
+
+      (node.children || []).forEach((child, index, siblings) => {
+        walk(child, [...indexPath, index], childPrefix, index === siblings.length - 1);
+      });
     }
 
-    state.tree.children.forEach((child, index) => walk(child, 1, [index]));
+    state.tree.children.forEach((child, index, siblings) => {
+      walk(child, [index], "", index === siblings.length - 1);
+    });
+
     return lines;
   }
 
