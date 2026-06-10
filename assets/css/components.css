@@ -82,6 +82,15 @@ button:hover {
 .choice-card:hover {
   background: var(--app-surface-muted);
   border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.choice-card:hover strong {
+  color: var(--app-text);
+}
+
+.choice-card:hover span {
+  color: var(--app-muted);
 }
 
 .choice-card strong {
