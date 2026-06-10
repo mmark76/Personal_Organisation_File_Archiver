@@ -72,15 +72,21 @@ window.FolderTreeRender = (() => {
     });
   }
 
+  function getTextTreeLabel(node, indexPath) {
+    if (node.fixed) return node.name;
+
+    const code = window.FolderTreeCodes.getDisplayCodeFromIndexPath(indexPath, node);
+    return `${code} ${node.name}`;
+  }
+
   function buildOutputLines() {
-    const lines = ["DOCUMENTS"];
+    const lines = ["Organize Your PC"];
 
     function walk(node, indexPath, prefix, isLast) {
       const connector = isLast ? "└── " : "├── ";
       const childPrefix = prefix + (isLast ? "    " : "│   ");
-      const code = window.FolderTreeCodes.getDisplayCodeFromIndexPath(indexPath, node);
 
-      lines.push(`${prefix}${connector}${code} ${node.name}`);
+      lines.push(`${prefix}${connector}${getTextTreeLabel(node, indexPath)}`);
 
       (node.children || []).forEach((child, index, siblings) => {
         walk(child, [...indexPath, index], childPrefix, index === siblings.length - 1);
