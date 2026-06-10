@@ -42,7 +42,6 @@ window.AppInit = (() => {
 
   function temporarilyDisableFolderTreeUtilityButtons() {
     const buttonSelectors = [
-      "#loadExampleTreeButton",
       "#copyTreeButton",
       "#importTreeButton",
       "#exportTreeButton",
