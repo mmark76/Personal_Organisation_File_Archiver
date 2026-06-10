@@ -13,7 +13,7 @@
 
 @media (max-width: 720px) {
   body {
-    padding-bottom: 0;
+    --app-footer-space: 70px;
   }
 
   .app-header {
@@ -182,15 +182,18 @@
   .privacy-notice {
     left: 10px;
     right: 10px;
-    bottom: 10px;
+    bottom: var(--app-footer-space);
     width: auto;
     grid-template-columns: 1fr;
   }
 
   .app-footer {
-    position: static;
-    margin-top: 20px;
-    padding: 8px 10px 10px;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-top: 0;
+    padding: 6px 10px 8px;
     line-height: 1.25;
     font-size: 11px;
   }
