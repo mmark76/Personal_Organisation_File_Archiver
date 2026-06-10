@@ -1,6 +1,6 @@
 # Privacy Notice
 
-The **Personal Memory-Based File Archiver** is designed as a local, browser-based folder tree builder and user-controlled copy-archiving tool.
+The **Personal Memory-Based File Archiver** is designed as a local, browser-based folder tree builder and user-controlled archiving tool.
 
 ## Local Use
 
@@ -11,7 +11,7 @@ It does not delete, move, rename, or modify files.
 It does not scan the user's file system automatically.
 It uses a file only when the user manually imports it through the browser file input.
 
-In Archive File mode, the app can copy the currently imported file to a user-selected destination folder only after the user chooses that folder and gives browser permission. The original file is not deleted or moved.
+In Archive File mode, the app can archive the currently imported file to a user-selected destination folder only after the user chooses that folder and gives browser permission. The original file is not deleted or moved.
 
 ## File Information
 
