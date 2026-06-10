@@ -66,10 +66,20 @@ function injectSimpleFileLoaderStyles() {
       padding-right: 18px !important;
     }
 
-    .simple-file-loader-archive-button.hidden {
+    .simple-folder-tree-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .simple-file-loader-archive-button.hidden,
+    .simple-folder-tree-view.hidden,
+    .simple-folder-tree-import-input {
       display: none !important;
     }
 
+    .simple-folder-tree-view,
     .simple-file-loader-status {
       white-space: pre-wrap;
       color: var(--ui-muted, #6b7280);
@@ -77,12 +87,24 @@ function injectSimpleFileLoaderStyles() {
       line-height: 1.45;
     }
 
-    body.theme-dark .simple-file-loader-card {
+    .simple-folder-tree-view {
+      background: var(--ui-surface-soft, #f9fafb);
+      border: 1px solid var(--ui-border-soft, #e5e7eb);
+      border-radius: var(--ui-radius-sm, 6px);
+      padding: 10px;
+      max-height: 260px;
+      overflow: auto;
+      font-family: "Segoe UI Mono", Consolas, monospace;
+    }
+
+    body.theme-dark .simple-file-loader-card,
+    body.theme-dark .simple-folder-tree-view {
       background: #0a0a0a;
       border-color: #262626;
     }
 
-    body.theme-dark .simple-file-loader-status {
+    body.theme-dark .simple-file-loader-status,
+    body.theme-dark .simple-folder-tree-view {
       color: #d4d4d4;
     }
   `;
@@ -303,6 +325,44 @@ function updateSimpleArchiveButtonVisibility(archiveButton) {
   archiveButton.classList.toggle("hidden", !hasImportedFile);
 }
 
+function getSimpleFolderTreePreviewText() {
+  if (typeof renderTree === "function") renderTree();
+
+  const output = document.getElementById("treeOutput");
+  const outputText = output && output.textContent ? output.textContent.trim() : "";
+  if (outputText) return outputText;
+
+  return "No folder tree is available yet. Use Import / Load Folder Tree or build one first.";
+}
+
+function showSimpleFolderTreeView(viewBox) {
+  if (!viewBox) return;
+  viewBox.textContent = getSimpleFolderTreePreviewText();
+  viewBox.classList.remove("hidden");
+}
+
+async function handleSimpleFolderTreeImport(event, viewBox) {
+  const input = event.target;
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+
+    if (typeof importFolderTreeTemplate !== "function") {
+      throw new Error("Folder tree import is not available.");
+    }
+
+    importFolderTreeTemplate(data);
+    showSimpleFolderTreeView(viewBox);
+  } catch (error) {
+    alert("Import failed. Please choose a valid folder_tree_template.json file exported from this app.");
+  } finally {
+    input.value = "";
+  }
+}
+
 async function handleSimpleImportedFile(file, statusBox, archiveButton) {
   if (!file) {
     importedFileData = null;
@@ -462,6 +522,25 @@ function setupSimpleFileLoaderPanel() {
   card.id = "simpleFileLoaderPanel";
   card.className = "simple-file-loader-card";
 
+  const folderTreeActions = document.createElement("div");
+  folderTreeActions.className = "simple-folder-tree-actions";
+
+  const viewFolderTreeButton = document.createElement("button");
+  viewFolderTreeButton.type = "button";
+  viewFolderTreeButton.textContent = "View Folder Tree";
+
+  const importFolderTreeButton = document.createElement("button");
+  importFolderTreeButton.type = "button";
+  importFolderTreeButton.textContent = "Import / Load Folder Tree";
+
+  const folderTreeImportInput = document.createElement("input");
+  folderTreeImportInput.type = "file";
+  folderTreeImportInput.accept = "application/json,.json";
+  folderTreeImportInput.className = "simple-folder-tree-import-input";
+
+  const folderTreeView = document.createElement("pre");
+  folderTreeView.className = "simple-folder-tree-view hidden";
+
   const input = document.createElement("input");
   input.type = "file";
   input.id = "simpleImportedFileInput";
@@ -480,6 +559,10 @@ function setupSimpleFileLoaderPanel() {
   status.className = "simple-file-loader-status";
   status.textContent = "No file selected.";
 
+  viewFolderTreeButton.addEventListener("click", () => showSimpleFolderTreeView(folderTreeView));
+  importFolderTreeButton.addEventListener("click", () => folderTreeImportInput.click());
+  folderTreeImportInput.addEventListener("change", event => handleSimpleFolderTreeImport(event, folderTreeView));
+
   button.addEventListener("click", () => openSimpleFilePicker(input, status, archiveButton));
   archiveButton.addEventListener("click", () => archiveSimpleImportedFile(status));
 
@@ -488,6 +571,12 @@ function setupSimpleFileLoaderPanel() {
     handleSimpleImportedFile(file, status, archiveButton);
   });
 
+  folderTreeActions.appendChild(viewFolderTreeButton);
+  folderTreeActions.appendChild(importFolderTreeButton);
+
+  card.appendChild(folderTreeActions);
+  card.appendChild(folderTreeImportInput);
+  card.appendChild(folderTreeView);
   card.appendChild(button);
   card.appendChild(archiveButton);
   card.appendChild(input);
