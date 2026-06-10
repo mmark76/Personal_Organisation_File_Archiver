@@ -122,13 +122,16 @@ button:hover {
 
 .guidance-card {
   display: grid;
+  justify-items: center;
   gap: 4px;
   padding: 12px;
   margin-bottom: 14px;
+  text-align: center;
 }
 
 .guidance-card strong {
   font-size: 13px;
+  text-align: center;
 }
 
 .guidance-card span,
@@ -138,6 +141,7 @@ button:hover {
   color: var(--app-muted);
   font-size: 12.5px;
   line-height: 1.45;
+  text-align: center;
 }
 
 .tree-container {
@@ -249,12 +253,14 @@ button:hover {
   font-size: 12px;
   line-height: 1.55;
   white-space: pre-wrap;
+  text-align: center;
 }
 
 .file-status-box,
 .archive-result-box {
   min-height: 48px;
   padding: 12px;
+  text-align: center;
 }
 
 label {
@@ -263,6 +269,7 @@ label {
   color: var(--app-text);
   font-size: 12.5px;
   font-weight: 700;
+  text-align: center;
 }
 
 input,
@@ -276,6 +283,7 @@ textarea {
   border-radius: var(--app-radius-xs);
   font-size: 13px;
   line-height: 1.35;
+  text-align: center;
 }
 
 textarea {
@@ -286,6 +294,7 @@ textarea {
 input::placeholder,
 textarea::placeholder {
   color: #a3a3a3;
+  text-align: center;
 }
 
 .examples-box {
@@ -293,6 +302,7 @@ textarea::placeholder {
   padding: 10px;
   color: var(--app-muted);
   font-size: 12.5px;
+  text-align: center;
 }
 
 .fixed-type {
@@ -300,4 +310,5 @@ textarea::placeholder {
   padding: 10px;
   color: var(--app-muted);
   font-size: 12.5px;
+  text-align: center;
 }
