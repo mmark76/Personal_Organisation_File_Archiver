@@ -90,16 +90,21 @@
     <section id="mainChoiceScreen" class="screen screen-active" aria-labelledby="mainChoiceTitle">
       <div class="screen-card">
         <h2 id="mainChoiceTitle">Choose what you want to do</h2>
-        <p>Start by building your folder tree, or archive a file using a folder tree as your memory guide.</p>
+        <p>Start with a new tree, build from an existing folder tree on this PC, or archive a file.</p>
 
         <div class="choice-grid">
           <button type="button" id="openFolderTreeModeButton" class="choice-card">
-            <strong>Build Folder Tree</strong>
+            <strong>Build New Folder Tree</strong>
             <span>Create, import, export, and manage your memory-based folder structure.</span>
           </button>
 
+          <button type="button" id="openExistingFolderTreeModeButton" class="choice-card">
+            <strong>Build Existing Folder Tree on this PC</strong>
+            <span>Choose a local folder and read only its first-level subfolder names as a starting tree.</span>
+          </button>
+
           <button type="button" id="openArchiveModeButton" class="choice-card">
-            <strong>Archive File</strong>
+            <strong>Archive a File</strong>
             <span>Load one file and archive it manually to a destination you choose.</span>
           </button>
         </div>
@@ -114,7 +119,7 @@
       <section class="work-panel folder-tree-panel">
         <div class="panel-header">
           <div>
-            <h2 id="folderTreeTitle">Folder Tree</h2>
+            <h2 id="folderTreeTitle">Build New Folder Tree</h2>
             <p>Build a memory-based folder structure. The first level is fixed; all deeper layers are user-defined.</p>
           </div>
 
@@ -152,6 +157,37 @@
       </section>
     </section>
 
+    <section id="existingFolderTreeScreen" class="screen" aria-labelledby="existingFolderTreeTitle" hidden aria-hidden="true">
+      <div class="screen-toolbar">
+        <button type="button" class="button button-secondary back-to-main-button">Back to main choices</button>
+      </div>
+
+      <section class="work-panel existing-folder-tree-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="existingFolderTreeTitle">Build Existing Folder Tree on this PC</h2>
+            <p>Choose one local folder. The app reads only the names of its first-level subfolders.</p>
+          </div>
+
+          <button type="button" id="chooseExistingFolderTreeButton" class="button button-secondary">Choose Root Folder</button>
+        </div>
+
+        <div class="guidance-card">
+          <strong>This mode reads folder names only.</strong>
+          <span>It does not open files, scan file content, or go deeper than the first folder level.</span>
+        </div>
+
+        <section class="structure-section" aria-labelledby="existingTreePreviewTitle">
+          <h3 id="existingTreePreviewTitle">Detected Existing Folder Tree</h3>
+          <pre id="existingTreePreview" class="structure-output" aria-label="Detected existing folder tree">No existing folder tree loaded yet.</pre>
+
+          <div id="existingTreeStatusBox" class="archive-result-box">No folder selected yet.</div>
+
+          <p class="small-note">This feature requires a browser that supports direct folder access, such as Chrome or Edge.</p>
+        </section>
+      </section>
+    </section>
+
     <section id="archiveFileScreen" class="screen" aria-labelledby="archiveFileTitle" hidden aria-hidden="true">
       <div class="screen-toolbar">
         <button type="button" class="button button-secondary back-to-main-button">Back to main choices</button>
@@ -160,7 +196,7 @@
       <section class="work-panel archive-panel">
         <div class="panel-header">
           <div>
-            <h2 id="archiveFileTitle">Archive File</h2>
+            <h2 id="archiveFileTitle">Archive a File</h2>
             <p>Load one file, select its folder from the tree, and archive it to that destination.</p>
           </div>
         </div>
@@ -258,10 +294,11 @@
       </div>
 
       <div class="modal-content">
-        <p>The app has two main modes.</p>
+        <p>The app has three main choices.</p>
         <ol>
-          <li><strong>Build Folder Tree:</strong> create, import, export, and manage your memory-based folder structure.</li>
-          <li><strong>Archive File:</strong> load one file, select a destination from the folder tree, and archive it there with your permission.</li>
+          <li><strong>Build New Folder Tree:</strong> create, import, export, and manage your memory-based folder structure.</li>
+          <li><strong>Build Existing Folder Tree on this PC:</strong> choose a local folder and read only its first-level subfolder names as a starting tree.</li>
+          <li><strong>Archive a File:</strong> load one file, select a destination from the folder tree, and archive it there with your permission.</li>
         </ol>
         <p>Only one mode is active at a time.</p>
       </div>
@@ -331,6 +368,7 @@
   <script src="assets/js/folder-tree-import.js" defer></script>
   <script src="assets/js/folder-tree-export.js" defer></script>
   <script src="assets/js/folder-tree-templates.js" defer></script>
+  <script src="assets/js/folder-tree-existing.js" defer></script>
   <script src="assets/js/folder-creation.js" defer></script>
 
   <script src="assets/js/file-advisor.js" defer></script>
