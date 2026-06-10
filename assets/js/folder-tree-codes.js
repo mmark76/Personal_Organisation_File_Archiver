@@ -24,6 +24,17 @@ function getFolderDisplayCode(node) {
   return codeParts.join(".");
 }
 
+function getFolderVisibleName(node) {
+  return String(node.name || "").replace(/^\d{2}_/, "");
+}
+
+function getNodeDisplayFolderPath(nodeId) {
+  return getNodePath(nodeId)
+    .filter(node => node.id !== "root")
+    .map(node => getFolderVisibleName(node))
+    .join("\\");
+}
+
 function appendFolderCode(content, node) {
   const code = getFolderDisplayCode(node);
   if (!code) return;
@@ -35,14 +46,36 @@ function appendFolderCode(content, node) {
 
 function getFolderOutputDisplayName(node) {
   const code = getFolderDisplayCode(node);
-  return code ? `${code}  ${node.name}` : node.name;
+  const name = getFolderVisibleName(node);
+  return code ? `${code}  ${name}` : name;
 }
 
 const originalAppendNodeMetadata = appendNodeMetadata;
 
 appendNodeMetadata = function appendNodeMetadataWithFolderCode(content, node) {
   appendFolderCode(content, node);
-  originalAppendNodeMetadata(content, node);
+
+  if (node.thinkingType) {
+    content.appendChild(createTextElement("div", "node-thinking-type", "Type: " + thinkingTypes[node.thinkingType].label));
+  }
+
+  content.appendChild(createTextElement("div", "node-name", getFolderVisibleName(node)));
+
+  if (node.childLayerType) {
+    content.appendChild(createTextElement("div", "node-next-layer", "Next layer: " + thinkingTypes[node.childLayerType].label));
+  }
+};
+
+const originalCreateDestinationChoiceButtonForFolderCodes = createDestinationChoiceButton;
+createDestinationChoiceButton = function createDestinationChoiceButtonWithCleanFolderName(child) {
+  const button = createButton("", () => selectDestinationNode(child.id), "choice-button");
+  button.appendChild(createTextElement("strong", "", getFolderVisibleName(child)));
+
+  if (child.thinkingType) {
+    button.appendChild(createTextElement("span", "", thinkingTypes[child.thinkingType].label));
+  }
+
+  return button;
 };
 
 buildOutputLines = function buildOutputLinesWithFolderCodes(node, depth = 0, lines = []) {
@@ -75,9 +108,9 @@ function injectFolderTreeCodeStyles() {
     }
 
     body.theme-dark .folder-display-code {
-      background: #1e3a8a;
-      color: #eff6ff;
-      border-color: #60a5fa;
+      background: #404040;
+      color: #f5f5f5;
+      border-color: #737373;
     }
   `;
   document.head.appendChild(style);
