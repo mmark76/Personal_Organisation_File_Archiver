@@ -7,7 +7,7 @@ The app follows a memory-based approach: files are organised according to how th
 The current app has two main working modes:
 
 - **Build Folder Tree** — create, review, copy, export, import, and optionally create a memory-based folder tree on the local computer.
-- **Archive File** — load one file, review its basic browser metadata, select a destination from the current folder tree, and archive the file to the corresponding local folder after the user grants browser permission.
+- **Archive File** — load one file, review its basic browser metadata, receive a simple offline folder suggestion, select a destination from the current folder tree, and archive the file to the corresponding local folder after the user grants browser permission.
 
 The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action leaves the original file untouched.
 
@@ -43,6 +43,7 @@ assets/js/folder-tree-export.js
 assets/js/folder-tree-templates.js
 assets/js/folder-creation.js
 
+assets/js/file-advisor.js
 assets/js/file-import.js
 assets/js/file-archive.js
 
@@ -68,7 +69,7 @@ For direct local folder creation and archiving operations, use a browser that su
 The app provides two main working areas:
 
 1. **Folder Tree** — the user can build, review, copy, export, import, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
-2. **Archive File** — the user can load one file, review basic browser metadata, select a destination folder from the current folder tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
+2. **Archive File** — the user can load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the current folder tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
 
 The first level is fixed:
 
@@ -115,9 +116,10 @@ Archive File Mode lets the user:
 
 - import or load a folder tree JSON file;
 - view the current folder tree as a selectable archive destination tree;
-- select the folder where the loaded file should be archived;
 - import one file through the browser file input;
 - review the loaded file's basic browser metadata;
+- receive a simple offline suggestion based on filename, extension, metadata, and folder-tree matching;
+- select the folder where the loaded file should be archived;
 - archive the loaded file to the selected folder-tree destination.
 
 The archive action uses the browser directory picker. The user selects a folder from the app's folder tree first, then chooses the `Organize Your PC Root Folder` or its parent folder when the browser asks for folder access. The app creates or reuses the corresponding subfolder path and archives the loaded file into that destination.
@@ -130,6 +132,20 @@ filename_copy_2.ext
 ```
 
 The existing file is not overwritten.
+
+## Simple Offline Folder Advisor
+
+The app includes a small rule-based advisor. It runs locally in the browser and does not use Ollama, cloud AI, OCR, or external services.
+
+The advisor uses these signals in this order:
+
+1. filename keywords;
+2. matching against the current folder-tree names;
+3. file extension and browser file type;
+4. basic metadata such as size and last modified date;
+5. a simple confidence label: `High`, `Medium`, `Low`, or `Unsure`.
+
+The advisor only suggests a destination. It does not select a folder unless the user clicks **Use suggested destination**, and it never archives a file automatically.
 
 ## Folder Selection Codes
 
@@ -163,7 +179,7 @@ When the user imports a file, the current version displays browser-available met
 
 The current version does not deeply parse PDF, DOCX, XLSX, PPTX, scanned documents, images, or other rich document formats.
 
-The current version also does not yet perform automatic folder suggestion, keyword scoring, semantic classification, or AI-based file classification. Those are possible future improvements.
+The current version performs simple rule-based folder suggestions only. It does not perform semantic classification, OCR, content extraction, or AI-based file classification.
 
 ## Local Folder Creation
 
@@ -217,7 +233,8 @@ The badge links only to the local `LICENSE.md` file. It does not load images, sc
 ## Known Limitations
 
 - The app is a user-controlled folder tree builder and archiver, not a background automatic file manager.
-- The current version does not include an automatic destination suggestion engine.
+- The advisor is rule-based and depends mostly on filename quality and folder-tree names.
+- The advisor does not read file content, perform OCR, or use AI.
 - The current version does not deeply parse PDF, DOCX, XLSX, PPTX, scanned documents, images, or other rich document formats.
 - The current version displays basic browser file metadata only.
 - Folder selection codes are visual aids generated from the current tree order. They are not permanent IDs stored inside the actual folder names.
