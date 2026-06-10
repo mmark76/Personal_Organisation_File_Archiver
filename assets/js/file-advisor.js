@@ -9,19 +9,19 @@ window.FileAdvisor = (() => {
   const archiveExtensions = ["zip", "rar", "7z", "tar", "gz"];
 
   const keywordGroups = [
-    { terms: ["cv", "resume", "bio", "profile"], targets: ["CVS", "PROFILE"], reason: "filename suggests a CV or profile document" },
-    { terms: ["degree", "diploma", "certificate", "certification"], targets: ["DEGREES", "CERTIFICATES", "PROFILE"], reason: "filename suggests a degree or certificate" },
-    { terms: ["reference", "recommendation"], targets: ["REFERENCES", "PROFILE"], reason: "filename suggests a reference document" },
-    { terms: ["invoice", "receipt", "bill", "payment", "tax", "vat", "bank", "statement", "financial"], targets: ["FINANCIAL", "RECEIPTS", "INVOICES", "TAX"], reason: "filename suggests a financial document" },
-    { terms: ["contract", "agreement", "lease", "policy", "insurance"], targets: ["CONTRACTS", "LEGAL", "FINANCIAL", "PROFESSIONAL"], reason: "filename suggests a contract or formal agreement" },
-    { terms: ["health", "medical", "doctor", "hospital", "clinic", "blood", "xray", "scan"], targets: ["HEALTH", "MEDICAL", "PERSONAL"], reason: "filename suggests a health document" },
-    { terms: ["family", "birth", "marriage", "child", "children", "school"], targets: ["FAMILY", "PERSONAL"], reason: "filename suggests a family document" },
-    { terms: ["chess", "pgn", "tournament", "game"], targets: ["CHESS", "INTERESTS", "PERSONAL"], reason: "filename suggests a chess or interest-related file" },
-    { terms: ["swim", "swimming"], targets: ["SWIMMING", "INTERESTS", "PERSONAL"], reason: "filename suggests an interest-related file" },
-    { terms: ["blog", "article", "post", "writing"], targets: ["BLOG_WRITING", "INTERESTS", "PERSONAL"], reason: "filename suggests blog or writing material" },
-    { terms: ["project", "report", "meeting", "minutes", "work", "office", "ministry", "marina", "professional"], targets: ["PROFESSIONAL", "PROJECTS", "WORK"], reason: "filename suggests a professional or work file" },
-    { terms: ["photo", "image", "picture", "pic"], targets: ["PHOTOS", "IMAGES", "FAMILY", "PERSONAL"], reason: "filename suggests an image or photo" },
-    { terms: ["video", "movie", "clip"], targets: ["VIDEOS", "FAMILY", "PERSONAL"], reason: "filename suggests a video" }
+    { terms: ["cv", "resume", "bio", "profile", "βιογραφικο"], targets: ["CVS", "PROFILE"], reason: "filename suggests a CV or profile document" },
+    { terms: ["degree", "diploma", "certificate", "certification", "πτυχιο", "διπλωμα", "πιστοποιητικο"], targets: ["DEGREES", "CERTIFICATES", "PROFILE"], reason: "filename suggests a degree or certificate" },
+    { terms: ["reference", "recommendation", "συσταση"], targets: ["REFERENCES", "PROFILE"], reason: "filename suggests a reference document" },
+    { terms: ["invoice", "receipt", "bill", "payment", "tax", "vat", "bank", "statement", "financial", "αποδειξη", "τιμολογιο", "πληρωμη", "φορος", "τραπεζα"], targets: ["FINANCIAL", "RECEIPTS", "INVOICES", "TAX"], reason: "filename suggests a financial document" },
+    { terms: ["contract", "agreement", "lease", "policy", "insurance", "συμβαση", "συμβολαιο", "ασφαλεια"], targets: ["CONTRACTS", "LEGAL", "FINANCIAL", "PROFESSIONAL"], reason: "filename suggests a contract or formal agreement" },
+    { terms: ["health", "medical", "doctor", "hospital", "clinic", "blood", "xray", "scan", "υγεια", "ιατρικο", "γιατρος", "νοσοκομειο", "κλινικη", "αιμα"], targets: ["HEALTH", "MEDICAL", "PERSONAL"], reason: "filename suggests a health document" },
+    { terms: ["family", "birth", "marriage", "child", "children", "school", "οικογενεια", "γεννηση", "γαμος", "παιδι", "παιδια", "σχολειο"], targets: ["FAMILY", "PERSONAL"], reason: "filename suggests a family document" },
+    { terms: ["chess", "pgn", "tournament", "game", "σκακι", "τουρνουα", "παρτιδα"], targets: ["CHESS", "INTERESTS", "PERSONAL"], reason: "filename suggests a chess or interest-related file" },
+    { terms: ["swim", "swimming", "κολυμπι", "κολυμβηση"], targets: ["SWIMMING", "INTERESTS", "PERSONAL"], reason: "filename suggests an interest-related file" },
+    { terms: ["blog", "article", "post", "writing", "αρθρο", "κειμενο", "γραφη"], targets: ["BLOG_WRITING", "INTERESTS", "PERSONAL"], reason: "filename suggests blog or writing material" },
+    { terms: ["project", "report", "meeting", "minutes", "work", "office", "ministry", "marina", "professional", "εργο", "αναφορα", "συναντηση", "πρακτικα", "εργασια", "γραφειο", "υπουργειο", "μαρινα"], targets: ["PROFESSIONAL", "PROJECTS", "WORK"], reason: "filename suggests a professional or work file" },
+    { terms: ["photo", "image", "picture", "pic", "φωτο", "φωτογραφια", "εικονα"], targets: ["PHOTOS", "IMAGES", "FAMILY", "PERSONAL"], reason: "filename suggests an image or photo" },
+    { terms: ["video", "movie", "clip", "βιντεο", "ταινια"], targets: ["VIDEOS", "FAMILY", "PERSONAL"], reason: "filename suggests a video" }
   ];
 
   function getExtension(filename) {
@@ -42,7 +42,7 @@ window.FileAdvisor = (() => {
 
   function tokenize(value) {
     return normalizeText(value)
-      .split(/[^A-Z0-9]+/)
+      .split(/[^\p{L}0-9]+/u)
       .filter(token => token.length >= 2);
   }
 
