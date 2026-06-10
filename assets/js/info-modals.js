@@ -264,6 +264,22 @@ function injectStandardButtonColorStyles() {
   document.head.appendChild(style);
 }
 
+function moveInfoButtonsToHeader() {
+  const headerActions = document.querySelector(".header-actions");
+  const infoModalActions = document.querySelector(".info-modal-actions");
+  const appExplanation = document.querySelector(".app-explanation");
+
+  if (!headerActions || !infoModalActions) return;
+
+  Array.from(infoModalActions.querySelectorAll("button")).forEach(button => {
+    headerActions.appendChild(button);
+  });
+
+  if (appExplanation) {
+    appExplanation.remove();
+  }
+}
+
 async function handleSimpleImportedFile(file, statusBox) {
   if (!file) return;
 
@@ -448,6 +464,7 @@ document.addEventListener("keydown", event => {
 
 document.addEventListener("DOMContentLoaded", () => {
   setupSimpleFileLoaderPanel();
+  moveInfoButtonsToHeader();
   setupAppEntryScreen();
   injectStandardButtonColorStyles();
 });
