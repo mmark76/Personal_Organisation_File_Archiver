@@ -283,3 +283,10 @@ button:hover,
   border-color: rgba(251, 191, 36, 0.78);
   box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.16), 0 0 22px rgba(251, 191, 36, 0.14), 0 24px 70px rgba(0, 0, 0, 0.42);
 }
+
+.structure-output,
+.folder-tree-preview {
+  width: min(760px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
