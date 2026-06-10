@@ -195,6 +195,75 @@ function injectAppEntryStyles() {
   document.head.appendChild(style);
 }
 
+function injectStandardButtonColorStyles() {
+  if (document.getElementById("standardButtonColorStyles")) return;
+
+  const style = document.createElement("style");
+  style.id = "standardButtonColorStyles";
+  style.textContent = `
+    button:not(.app-entry-card),
+    button.secondary:not(.app-entry-card),
+    button.success:not(.app-entry-card),
+    button.danger:not(.app-entry-card),
+    .choice-button:not(.app-entry-card),
+    .final-choice-button:not(.app-entry-card),
+    .workflow-action-button:not(.app-entry-card),
+    .workflow-import-button:not(.app-entry-card),
+    .feedback-open-button:not(.app-entry-card),
+    .example-file-button:not(.app-entry-card) {
+      background: #6b7280 !important;
+      color: #ffffff !important;
+      border-color: #6b7280 !important;
+    }
+
+    button:not(.app-entry-card):hover,
+    button.secondary:not(.app-entry-card):hover,
+    button.success:not(.app-entry-card):hover,
+    button.danger:not(.app-entry-card):hover,
+    .choice-button:not(.app-entry-card):hover,
+    .final-choice-button:not(.app-entry-card):hover,
+    .workflow-action-button:not(.app-entry-card):hover,
+    .workflow-import-button:not(.app-entry-card):hover,
+    .feedback-open-button:not(.app-entry-card):hover,
+    .example-file-button:not(.app-entry-card):hover {
+      background: #4b5563 !important;
+      color: #ffffff !important;
+      border-color: #4b5563 !important;
+    }
+
+    body.theme-dark button:not(.app-entry-card),
+    body.theme-dark button.secondary:not(.app-entry-card),
+    body.theme-dark button.success:not(.app-entry-card),
+    body.theme-dark button.danger:not(.app-entry-card),
+    body.theme-dark .choice-button:not(.app-entry-card),
+    body.theme-dark .final-choice-button:not(.app-entry-card),
+    body.theme-dark .workflow-action-button:not(.app-entry-card),
+    body.theme-dark .workflow-import-button:not(.app-entry-card),
+    body.theme-dark .feedback-open-button:not(.app-entry-card),
+    body.theme-dark .example-file-button:not(.app-entry-card) {
+      background: #6b7280 !important;
+      color: #ffffff !important;
+      border-color: #6b7280 !important;
+    }
+
+    body.theme-dark button:not(.app-entry-card):hover,
+    body.theme-dark button.secondary:not(.app-entry-card):hover,
+    body.theme-dark button.success:not(.app-entry-card):hover,
+    body.theme-dark button.danger:not(.app-entry-card):hover,
+    body.theme-dark .choice-button:not(.app-entry-card):hover,
+    body.theme-dark .final-choice-button:not(.app-entry-card):hover,
+    body.theme-dark .workflow-action-button:not(.app-entry-card):hover,
+    body.theme-dark .workflow-import-button:not(.app-entry-card):hover,
+    body.theme-dark .feedback-open-button:not(.app-entry-card):hover,
+    body.theme-dark .example-file-button:not(.app-entry-card):hover {
+      background: #4b5563 !important;
+      color: #ffffff !important;
+      border-color: #4b5563 !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 async function handleSimpleImportedFile(file, statusBox) {
   if (!file) return;
 
@@ -380,4 +449,5 @@ document.addEventListener("keydown", event => {
 document.addEventListener("DOMContentLoaded", () => {
   setupSimpleFileLoaderPanel();
   setupAppEntryScreen();
+  injectStandardButtonColorStyles();
 });
