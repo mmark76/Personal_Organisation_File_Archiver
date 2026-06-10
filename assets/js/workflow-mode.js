@@ -16,11 +16,15 @@ function hasWorkflowFileLoaded() {
 }
 
 function isAtMainCategoryStep() {
-  return Boolean(workflowMode && hasWorkflowFileLoaded() && !destinationCurrentNodeId);
+  return Boolean(hasWorkflowFileLoaded() && !destinationCurrentNodeId);
 }
 
 function isChoosingDestinationPath() {
-  return Boolean(workflowMode && hasWorkflowFileLoaded() && !confirmedDestinationNodeId);
+  return Boolean(hasWorkflowFileLoaded() && !confirmedDestinationNodeId);
+}
+
+function isFinalDestinationConfirmed() {
+  return Boolean(hasWorkflowFileLoaded() && confirmedDestinationNodeId);
 }
 
 function openImportedFilePicker() {
@@ -36,6 +40,7 @@ function hideAutomaticSuggestionDuringGuidedChoice() {
 }
 
 function showMainCategoryChoicesAfterFileLoad() {
+  workflowMode = "";
   destinationCurrentNodeId = null;
   confirmedDestinationNodeId = null;
   updateDestinationGuide();
@@ -55,40 +60,12 @@ function injectWorkflowModeControls() {
   const card = createTextElement("div", "workflow-mode-card");
   card.id = "workflowModeCard";
 
-  const label = createTextElement("label", "workflow-mode-label", "Workflow mode");
-  label.setAttribute("for", "workflowModeSelect");
-
-  const select = document.createElement("select");
-  select.id = "workflowModeSelect";
-  select.setAttribute("aria-label", "Choose workflow mode");
-  select.onchange = () => setWorkflowMode(select.value);
-
-  const placeholderOption = document.createElement("option");
-  placeholderOption.value = "";
-  placeholderOption.textContent = "Choose Advisor Mode or Archiver Mode";
-  placeholderOption.disabled = true;
-  placeholderOption.selected = true;
-
-  const advisorOption = document.createElement("option");
-  advisorOption.value = "advisor";
-  advisorOption.textContent = "Advisor Mode - suggest only";
-
-  const archiverOption = document.createElement("option");
-  archiverOption.value = "archiver";
-  archiverOption.textContent = "Archiver Mode - copy after confirmation";
-
-  select.appendChild(placeholderOption);
-  select.appendChild(advisorOption);
-  select.appendChild(archiverOption);
-
-  const description = createTextElement("div", "workflow-mode-description hidden");
+  const description = createTextElement("div", "workflow-mode-description");
   description.id = "workflowModeDescription";
 
-  const actionBox = createTextElement("div", "workflow-action-box hidden");
+  const actionBox = createTextElement("div", "workflow-action-box");
   actionBox.id = "workflowActionBox";
 
-  card.appendChild(label);
-  card.appendChild(select);
   card.appendChild(description);
   card.appendChild(actionBox);
 
@@ -104,12 +81,19 @@ function setWorkflowMode(mode) {
 function shouldHideDestinationPanelChild(child, showWorkflowContent) {
   if (child.id === "workflowModeCard") return false;
   if (!showWorkflowContent) return true;
+
   if (child.classList && child.classList.contains("example-file-card")) return true;
   if (child.id === "importedFileInput") return true;
   if (child.tagName === "LABEL" && child.getAttribute("for") === "importedFileInput") return true;
 
   if (isChoosingDestinationPath()) {
     return !(child.classList && child.classList.contains("destination-wizard"));
+  }
+
+  if (isFinalDestinationConfirmed()) {
+    if (child.tagName === "LABEL" && child.getAttribute("for") === "destinationReason") return false;
+    if (child.id === "destinationReason") return false;
+    return true;
   }
 
   return false;
@@ -120,7 +104,7 @@ function updateDestinationPanelVisibility() {
   const card = byId("workflowModeCard");
   if (!destinationPanel || !card) return;
 
-  const showWorkflowContent = Boolean(workflowMode && hasWorkflowFileLoaded());
+  const showWorkflowContent = hasWorkflowFileLoaded();
   Array.from(destinationPanel.children).forEach(child => {
     child.classList.toggle("hidden", shouldHideDestinationPanelChild(child, showWorkflowContent));
   });
@@ -133,68 +117,80 @@ function appendImportFileButton(actionBox) {
   actionBox.appendChild(createButton(buttonText, openImportedFilePicker, "success workflow-import-button"));
 }
 
+function appendFinalActionButtons(actionBox) {
+  const actions = createTextElement("div", "workflow-final-actions");
+  actions.appendChild(createButton("Advise", showFinalAdvice, "success workflow-action-button"));
+
+  const archiveButton = createButton("Archive", archiveFinalFile, "success workflow-action-button");
+  archiveButton.disabled = !getImportedFileObject();
+  actions.appendChild(archiveButton);
+
+  actionBox.appendChild(actions);
+
+  if (!getImportedFileObject()) {
+    actionBox.appendChild(createTextElement("div", "workflow-note", "Archive requires a real imported file from your computer. The built-in example can be used for advice only."));
+  }
+}
+
+function showFinalAdvice() {
+  workflowMode = "advisor";
+  previewFileDestination();
+
+  const actionBox = byId("workflowActionBox");
+  if (!actionBox) return;
+
+  let resultBox = byId("workflowAdviceResult");
+  if (!resultBox) {
+    resultBox = createTextElement("pre", "workflow-archive-result");
+    resultBox.id = "workflowAdviceResult";
+    actionBox.appendChild(resultBox);
+  }
+
+  resultBox.textContent = byId("fileDestinationOutput").textContent;
+
+  if (!byId("workflowCopyAdviceButton")) {
+    const copyButton = createButton("Copy Advice", copyFileAdvice, "secondary workflow-copy-advice-button");
+    copyButton.id = "workflowCopyAdviceButton";
+    actionBox.appendChild(copyButton);
+  }
+}
+
+function archiveFinalFile() {
+  workflowMode = "archiver";
+  archiveImportedFileToConfirmedFolder();
+}
+
 function updateWorkflowModePanel() {
-  const select = byId("workflowModeSelect");
   const description = byId("workflowModeDescription");
   const actionBox = byId("workflowActionBox");
-  if (!select || !description || !actionBox) return;
+  if (!description || !actionBox) return;
 
-  select.value = workflowMode;
   actionBox.innerHTML = "";
   updateDestinationPanelVisibility();
 
-  if (!workflowMode) {
-    description.classList.add("hidden");
-    actionBox.classList.add("hidden");
+  if (!hasWorkflowFileLoaded()) {
+    description.textContent = "Start by loading a file from your computer.";
+    appendImportFileButton(actionBox);
     return;
-  }
-
-  description.classList.remove("hidden");
-  actionBox.classList.remove("hidden");
-
-  if (workflowMode === "advisor") {
-    description.textContent = "Advisor Mode gives folder suggestions and filing advice only. It does not copy, move, delete, upload, rename, or modify files.";
-  } else {
-    description.textContent = "Archiver Mode can copy the currently imported file into the confirmed destination folder after you choose a root folder and give browser permission. It does not delete or move the original file.";
   }
 
   appendImportFileButton(actionBox);
 
-  if (!hasWorkflowFileLoaded()) {
-    return;
-  }
-
   if (isAtMainCategoryStep()) {
-    actionBox.appendChild(createTextElement("div", "workflow-status", "File loaded. Choose one main category below."));
+    description.textContent = "File loaded. Choose one main category below.";
+    actionBox.appendChild(createTextElement("div", "workflow-status", "Next step: Profile, Personal, or Professional."));
     return;
   }
 
   if (isChoosingDestinationPath()) {
-    actionBox.appendChild(createTextElement("div", "workflow-status", "Choose the relevant subcategory below."));
+    description.textContent = "Choose the relevant subcategory until you reach the final folder.";
+    actionBox.appendChild(createTextElement("div", "workflow-status", "Current path:\n" + getNodeFolderPath(destinationCurrentNodeId)));
     return;
   }
 
-  if (workflowMode === "advisor") {
-    actionBox.appendChild(createTextElement("div", "workflow-status", "Current action: decide and copy advice."));
-    return;
-  }
-
-  const statusLines = [];
-  const importedFile = getImportedFileObject();
-  const destinationPath = getConfirmedDestinationPath();
-
-  statusLines.push(importedFile ? "Imported file: " + importedFile.name : "Imported file: loaded without direct copy object");
-  statusLines.push(destinationPath ? "Confirmed destination: " + destinationPath : "Confirmed destination: none selected yet");
-
-  const status = createTextElement("div", "workflow-status", statusLines.join("\n"));
-  actionBox.appendChild(status);
-
-  const archiveButton = createButton("Copy imported file to confirmed folder", archiveImportedFileToConfirmedFolder, "success workflow-archive-button");
-  archiveButton.disabled = !importedFile || !destinationPath;
-  actionBox.appendChild(archiveButton);
-
-  const note = createTextElement("div", "workflow-note", "The app will ask you to choose the root folder where the folder tree exists or should be created. Existing files are not overwritten; a safe copy name is created if needed.");
-  actionBox.appendChild(note);
+  description.textContent = "Final folder selected. Choose the final action.";
+  actionBox.appendChild(createTextElement("div", "workflow-status", "Final destination:\n" + getConfirmedDestinationPath()));
+  appendFinalActionButtons(actionBox);
 }
 
 async function archiveImportedFileToConfirmedFolder() {
@@ -202,7 +198,7 @@ async function archiveImportedFileToConfirmedFolder() {
   const destinationPath = getConfirmedDestinationPath();
 
   if (!importedFile) {
-    alert("Please import a file first.");
+    alert("Please import a real file from your computer first.");
     return;
   }
 
@@ -311,20 +307,10 @@ function injectWorkflowModeStyles() {
       background: #eff6ff;
     }
 
-    .workflow-mode-label {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
     .workflow-mode-card select,
-    .workflow-import-button {
+    .workflow-import-button,
+    .workflow-action-button,
+    .workflow-copy-advice-button {
       width: 100%;
     }
 
@@ -335,7 +321,8 @@ function injectWorkflowModeStyles() {
       line-height: 1.45;
     }
 
-    .workflow-action-box {
+    .workflow-action-box,
+    .workflow-final-actions {
       display: grid;
       gap: 10px;
     }
@@ -350,7 +337,7 @@ function injectWorkflowModeStyles() {
       color: #1e3a8a;
     }
 
-    .workflow-archive-button:disabled {
+    .workflow-action-button:disabled {
       opacity: 0.55;
       cursor: not-allowed;
     }
@@ -384,6 +371,7 @@ selectDestinationNode = function selectDestinationNodeWithWorkflow(nodeId) {
 
 const originalResetDestinationGuideForWorkflow = resetDestinationGuide;
 resetDestinationGuide = function resetDestinationGuideWithWorkflow() {
+  workflowMode = "";
   confirmedDestinationNodeId = null;
   originalResetDestinationGuideForWorkflow();
   updateWorkflowModePanel();
@@ -393,6 +381,7 @@ const originalChooseCurrentAsFinalForWorkflow = chooseCurrentAsFinal;
 chooseCurrentAsFinal = function chooseCurrentAsFinalWithWorkflow() {
   originalChooseCurrentAsFinalForWorkflow();
   confirmedDestinationNodeId = destinationCurrentNodeId;
+  workflowMode = "";
   updateWorkflowModePanel();
 };
 
@@ -421,6 +410,8 @@ if (typeof importExampleCvFile === "function") {
 
 window.setWorkflowMode = setWorkflowMode;
 window.openImportedFilePicker = openImportedFilePicker;
+window.showFinalAdvice = showFinalAdvice;
+window.archiveFinalFile = archiveFinalFile;
 window.archiveImportedFileToConfirmedFolder = archiveImportedFileToConfirmedFolder;
 
 document.addEventListener("DOMContentLoaded", () => {
