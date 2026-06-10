@@ -30,6 +30,7 @@ window.FolderTreeImport = (() => {
     if (/[<>:"/\\|?*]/.test(trimmed)) return false;
     if (/[\x00-\x1F]/.test(trimmed)) return false;
     if (trimmed === "." || trimmed === "..") return false;
+    if (window.AppUtils.isWindowsReservedFolderName(trimmed)) return false;
     return true;
   }
 
