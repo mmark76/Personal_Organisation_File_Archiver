@@ -10,6 +10,32 @@ window.FolderCreation = (() => {
     for (const part of parts) {
       currentHandle = await currentHandle.getDirectoryHandle(part, { create: true });
     }
+
+    return currentHandle;
+  }
+
+  async function resolveAppRootHandle(selectedHandle) {
+    if (selectedHandle.name === appRootFolderName) {
+      window.AppState.setAppRootHandle(selectedHandle);
+      return selectedHandle;
+    }
+
+    const appRootHandle = await selectedHandle.getDirectoryHandle(appRootFolderName, { create: true });
+    window.AppState.setAppRootHandle(appRootHandle);
+    return appRootHandle;
+  }
+
+  async function chooseAppRootHandle() {
+    const selectedHandle = await window.showDirectoryPicker();
+    return resolveAppRootHandle(selectedHandle);
+  }
+
+  async function getOrChooseAppRootHandle() {
+    if (window.AppState.state.appRootHandle) {
+      return window.AppState.state.appRootHandle;
+    }
+
+    return chooseAppRootHandle();
   }
 
   async function createFoldersOnComputer() {
@@ -19,8 +45,7 @@ window.FolderCreation = (() => {
     }
 
     try {
-      const selectedRootHandle = await window.showDirectoryPicker();
-      const appRootHandle = await selectedRootHandle.getDirectoryHandle(appRootFolderName, { create: true });
+      const appRootHandle = await chooseAppRootHandle();
       const folderPaths = window.FolderTree.getAllFolderPaths();
 
       for (const folderPath of folderPaths) {
@@ -39,6 +64,9 @@ window.FolderCreation = (() => {
   }
 
   return {
+    appRootFolderName,
+    createDirectoryPath,
+    getOrChooseAppRootHandle,
     createFoldersOnComputer
   };
 })();
