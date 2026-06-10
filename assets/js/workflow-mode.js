@@ -1,4 +1,4 @@
-let workflowMode = "advisor";
+let workflowMode = "";
 let confirmedDestinationNodeId = null;
 
 function getImportedFileObject() {
@@ -12,18 +12,24 @@ function getConfirmedDestinationPath() {
 
 function injectWorkflowModeControls() {
   const destinationPanel = document.querySelector(".destination-panel");
-  const referenceElement = document.querySelector(".example-file-card");
-  if (!destinationPanel || !referenceElement || document.getElementById("workflowModeCard")) return;
+  if (!destinationPanel || document.getElementById("workflowModeCard")) return;
 
   const card = createTextElement("div", "workflow-mode-card");
   card.id = "workflowModeCard";
 
-  const label = createTextElement("label", "", "Workflow mode");
+  const label = createTextElement("label", "workflow-mode-label", "Workflow mode");
   label.setAttribute("for", "workflowModeSelect");
 
   const select = document.createElement("select");
   select.id = "workflowModeSelect";
+  select.setAttribute("aria-label", "Choose workflow mode");
   select.onchange = () => setWorkflowMode(select.value);
+
+  const placeholderOption = document.createElement("option");
+  placeholderOption.value = "";
+  placeholderOption.textContent = "Choose Advisor Mode or Archiver Mode";
+  placeholderOption.disabled = true;
+  placeholderOption.selected = true;
 
   const advisorOption = document.createElement("option");
   advisorOption.value = "advisor";
@@ -33,13 +39,14 @@ function injectWorkflowModeControls() {
   archiverOption.value = "archiver";
   archiverOption.textContent = "Archiver Mode - copy after confirmation";
 
+  select.appendChild(placeholderOption);
   select.appendChild(advisorOption);
   select.appendChild(archiverOption);
 
-  const description = createTextElement("div", "workflow-mode-description");
+  const description = createTextElement("div", "workflow-mode-description hidden");
   description.id = "workflowModeDescription";
 
-  const actionBox = createTextElement("div", "workflow-action-box");
+  const actionBox = createTextElement("div", "workflow-action-box hidden");
   actionBox.id = "workflowActionBox";
 
   card.appendChild(label);
@@ -47,13 +54,25 @@ function injectWorkflowModeControls() {
   card.appendChild(description);
   card.appendChild(actionBox);
 
-  destinationPanel.insertBefore(card, referenceElement);
+  destinationPanel.insertBefore(card, destinationPanel.firstElementChild);
   updateWorkflowModePanel();
 }
 
 function setWorkflowMode(mode) {
-  workflowMode = mode === "archiver" ? "archiver" : "advisor";
+  workflowMode = mode === "advisor" || mode === "archiver" ? mode : "";
   updateWorkflowModePanel();
+}
+
+function updateDestinationPanelVisibility() {
+  const destinationPanel = document.querySelector(".destination-panel");
+  const card = byId("workflowModeCard");
+  if (!destinationPanel || !card) return;
+
+  const hideWorkflowContent = !workflowMode;
+  Array.from(destinationPanel.children).forEach(child => {
+    if (child.id === "workflowModeCard") return;
+    child.classList.toggle("hidden", hideWorkflowContent);
+  });
 }
 
 function updateWorkflowModePanel() {
@@ -64,6 +83,16 @@ function updateWorkflowModePanel() {
 
   select.value = workflowMode;
   actionBox.innerHTML = "";
+  updateDestinationPanelVisibility();
+
+  if (!workflowMode) {
+    description.classList.add("hidden");
+    actionBox.classList.add("hidden");
+    return;
+  }
+
+  description.classList.remove("hidden");
+  actionBox.classList.remove("hidden");
 
   if (workflowMode === "advisor") {
     description.textContent = "Advisor Mode gives folder suggestions and filing advice only. It does not copy, move, delete, upload, rename, or modify files.";
@@ -199,10 +228,22 @@ function injectWorkflowModeStyles() {
       display: grid;
       gap: 10px;
       padding: 14px;
-      margin: 16px 0;
+      margin: 0 0 16px;
       border-radius: 14px;
       border: 1px solid #bfdbfe;
       background: #eff6ff;
+    }
+
+    .workflow-mode-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .workflow-mode-card select {
