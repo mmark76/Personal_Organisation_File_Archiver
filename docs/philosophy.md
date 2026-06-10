@@ -1,8 +1,8 @@
 # Personal File Organisation Philosophy
 
-Version: Master philosophy file aligned with the current browser app  
+Version: Master philosophy file aligned with **Personal Memory-Based File Archiver**  
 Status: Active working document  
-Purpose: To document the personal, memory-based logic behind the current application structure.
+Purpose: To document the personal, memory-based logic behind the current application structure and workflow.
 
 ## 1. Purpose
 
@@ -66,7 +66,26 @@ instead of:
 File Type → Date → File
 ```
 
-## 3. Active Folder Organisation Structure
+## 3. Current Application Identity
+
+The current app name is:
+
+```text
+Personal Memory-Based File Archiver
+```
+
+The word **Archiver** is important.
+
+The current app is not an automatic classifier, background file manager, or AI document sorter. It is a user-controlled local browser app that helps me build a memory-based folder tree and copy files manually into folders I choose.
+
+The current app has two main modes:
+
+1. **Build Folder Tree** — create, import, export, copy, and optionally create the folder tree locally on the computer.
+2. **Archive File** — load one file, review basic file information, view the folder tree as guidance, and manually choose a destination folder for copying.
+
+The app does not replace my judgement. It supports it.
+
+## 4. Active Folder Organisation Structure
 
 The active app structure has three fixed first-level branches.
 
@@ -89,7 +108,8 @@ DOCUMENTS
 │   │   ├── SWIMMING
 │   │   ├── MNEMONIC_TECHNIQUES
 │   │   ├── BLOG_WRITING
-│   │   └── WEB_APPS
+│   │   ├── WEB_APPS
+│   │   └── LEARNING
 │   └── LEARNING
 │
 └── 03_PROFESSIONAL
@@ -112,9 +132,9 @@ The first level is fixed. Each layer below the fixed first level may be organise
 
 The thinking type guides the naming of the next layer. It is not itself a folder name.
 
-The app may also display visual folder selection codes beside folders, such as `01`, `01.001`, or `02.004.001`. These codes help the user identify folders quickly in the interface. They are visual aids generated from the current tree order and are not part of the real folder names.
+The app also displays visual folder selection codes beside folders, such as `01`, `01.001`, or `02.004.001`. These codes help me identify folders quickly in the interface. They are visual aids generated from the current tree order and are not part of the real folder names.
 
-## 4. Logic Behind 01_PROFILE
+## 5. Logic Behind 01_PROFILE
 
 The `01_PROFILE` branch contains documents that define, prove, support, or present my personal and professional identity.
 
@@ -136,7 +156,7 @@ Profile Function → Document → File
 
 This branch is useful for applications, professional presentations, official procedures, career development, and any situation where I need to prove who I am, what I studied, what I have done, or what evidence supports my profile.
 
-## 5. Logic Behind 02_PERSONAL
+## 6. Logic Behind 02_PERSONAL
 
 The `02_PERSONAL` branch contains personal files that are not primarily remembered through work periods.
 
@@ -158,7 +178,7 @@ Life Theme → Subject → File
 
 This branch should remain personal, practical, and easy to remember.
 
-## 6. Logic Behind INTERESTS
+## 7. Logic Behind INTERESTS
 
 Interests represent long-term personal areas of engagement. These areas are remembered independently and naturally form their own categories.
 
@@ -169,6 +189,7 @@ Examples in the current app:
 - Mnemonic techniques
 - Blog writing
 - Web apps
+- Learning
 
 Therefore, the logic is:
 
@@ -178,7 +199,7 @@ Interest → Subject → File
 
 The `INTERESTS` branch should not become a random storage area. If an interest grows large enough, it may later need deeper subfolders based on subject, project, function, or chronology.
 
-## 7. Logic Behind 03_PROFESSIONAL
+## 8. Logic Behind 03_PROFESSIONAL
 
 The `03_PROFESSIONAL` branch contains work-related documents.
 
@@ -202,11 +223,11 @@ Therefore, the logic is:
 Professional Period → Responsibility / Project / Role → Subject → File
 ```
 
-## 8. Thinking Types Used Below the Fixed First Level
+## 9. Thinking Types Used Below the Fixed First Level
 
 The application allows each layer below the fixed first level to follow one thinking type.
 
-### 8.1 Chronological
+### 9.1 Chronological
 
 Used when the next level is best remembered by period, year, phase, or time range.
 
@@ -219,7 +240,7 @@ Examples:
 2026-NOW_HEALTH_AND_SAFETY_OFFICER
 ```
 
-### 8.2 Thematic
+### 9.2 Thematic
 
 Used when the next level is best remembered by life area, subject, or theme.
 
@@ -233,7 +254,7 @@ INTERESTS
 LEARNING
 ```
 
-### 8.3 Functional
+### 9.3 Functional
 
 Used when the next level is best remembered by the function of the document.
 
@@ -247,7 +268,7 @@ REFERENCES
 SUPPORTING_EVIDENCE
 ```
 
-### 8.4 Role-Based
+### 9.4 Role-Based
 
 Used mainly inside professional branches when files are best remembered by role or responsibility.
 
@@ -260,28 +281,41 @@ COORDINATOR
 HEALTH_AND_SAFETY_OFFICER
 ```
 
-## 9. File Destination Philosophy
+## 10. Current Folder Tree Workflow
 
-The app is primarily an advisor.
+The current app lets me build the folder structure manually.
 
-It helps the user decide where a file should belong, but it does not replace the user's final judgement.
+The workflow is:
 
-The app may consider:
+1. Start from the fixed first level: `01_PROFILE`, `02_PERSONAL`, `03_PROFESSIONAL`.
+2. Choose a thinking type for the next layer.
+3. Add folders that match that thinking type.
+4. Keep that layer internally consistent.
+5. Review the visible structure.
+6. Copy, export, import, or create the folder tree locally.
 
-- File name
-- Browser metadata
-- Readable text content, where the browser can read it directly
-- Folder names
-- Keyword mappings
-- English, Greek, and Greeklish keywords where mappings exist
+This preserves the memory logic of the system.
 
-The app may show up to three ranked destination suggestions. These suggestions are possible destinations, not automatic filing decisions.
+The folder tree is not only a storage structure. It is a retrieval map.
 
-The user chooses one final folder.
+## 11. Current File Archiving Workflow
 
-The result is guidance first. If the user chooses Archiver Mode, confirms one destination, chooses a root folder, and gives browser permission, the app may copy the imported file to that confirmed destination.
+The current app supports manual copy archiving.
 
-The user should always ask:
+The workflow is:
+
+1. Load or import the folder tree.
+2. Load one file through the browser file input.
+3. Review the file's basic browser metadata: name, type, size, and last modified date.
+4. View the folder tree as a memory guide.
+5. Click **Archive the File**.
+6. Choose the final destination folder manually through the browser folder picker.
+7. Give browser permission.
+8. Let the app write a copy of the file into that selected folder.
+
+The app does not currently choose the folder automatically.
+
+The decisive question remains:
 
 ```text
 Where will I naturally look for this file in the future?
@@ -293,19 +327,26 @@ not only:
 What type of file is this?
 ```
 
-## 10. Advisor Mode and Archiver Mode
+## 12. Current Scope and Non-Implemented Features
 
-The current app has two workflow modes.
+The current version does **not** yet include:
 
-**Advisor Mode** is the default decision mode. It analyses the imported file or typed file name, shows suggestions, lets the user choose one final destination, and prepares advice. It does not copy, move, delete, upload, rename, or modify files.
+- automatic folder suggestions;
+- ranked destination scoring;
+- keyword mapping for destination recommendation;
+- deep parsing of PDF, DOCX, XLSX, PPTX, scanned documents, or images;
+- semantic search;
+- AI classification;
+- background file monitoring;
+- automatic file movement;
+- cloud sync;
+- user accounts.
 
-**Archiver Mode** is an optional user-controlled copy workflow. It can copy the currently imported file into the confirmed destination folder only after the user chooses a root folder and gives browser permission.
+These may be future improvements, but they are not part of the current implemented app.
 
-Archiver Mode copies the file. It does not move or delete the original file.
+This distinction matters because the present philosophy must describe the actual working app, not a future imagined version.
 
-If a file with the same name already exists in the destination, the app creates a safe copy name instead of overwriting the existing file.
-
-## 11. One File, One Canonical Destination
+## 13. One File, One Canonical Destination
 
 The system follows this rule:
 
@@ -313,13 +354,13 @@ The system follows this rule:
 One file → one canonical destination
 ```
 
-A file may be relevant to more than one theme, function, period, or role. The app may therefore show several useful suggestions.
+A file may be relevant to more than one theme, function, period, or role.
 
 However, the file should be assigned to one final folder only. This avoids duplicate copies, conflicting versions, and confusion about which file is the final or authoritative version.
 
 If a file is related to other areas, that relationship can be remembered through notes, tags, references, or future metadata, but not by placing duplicate copies in multiple folders.
 
-## 12. Privacy and Safety Principle
+## 14. Privacy and Safety Principle
 
 The app is local and browser-based.
 
@@ -334,13 +375,13 @@ It does not:
 - Monitor folders in the background
 - Replace the user's final decision
 
-A file is analysed only when the user imports it through the file input.
+A file is used only when the user imports it through the file input.
 
-Archiver Mode can copy the currently imported file to the confirmed destination only after the user explicitly chooses that mode, confirms one destination, chooses a root folder, and grants browser permission.
+Copy archiving can copy the currently imported file only after the user explicitly clicks the archive action, chooses a destination folder, and grants browser permission.
 
 Folder creation is optional and controlled by the user. If direct folder creation is used, the user must choose a destination folder and give browser permission.
 
-## 13. Inbox Handling
+## 15. Inbox Handling
 
 The current app does not use `00_INBOX_FROM_NOW` as a fixed first-level folder.
 
@@ -358,7 +399,7 @@ Possible options:
 
 - Keep a temporary inbox outside the app-generated structure
 - Add an `INBOX` folder manually under one of the fixed branches
-- Use the file destination guide before copying or moving files into their final place
+- Use the folder tree before copying or moving files into their final place
 
 The principle remains:
 
@@ -367,7 +408,7 @@ The principle remains:
 3. They should later be assigned to the most natural memory-based destination.
 4. The inbox should reduce decision fatigue, not become a dumping ground.
 
-## 14. Reference Handling
+## 16. Reference Handling
 
 Reference material should be stored where it is most naturally remembered.
 
@@ -384,26 +425,38 @@ Examples of reference material:
 
 If a document clearly belongs to a specific profile function, personal theme, professional period, responsibility, project, or interest, it should be stored there instead.
 
-## 15. Future Development
+## 17. Future Development
 
 Future improvements may include:
 
 - Local saving of the folder tree
-- Safer import and export of personal folder structures
+- Safer and stricter import validation of personal folder structures
 - Richer file parsing for PDF, DOCX, XLSX, PPTX, scanned documents, and images
-- Improved keyword mappings in English, Greek, and Greeklish
-- Better scoring for automatic folder suggestions
-- Clearer explanation of why a folder was suggested
+- Optional keyword mappings in English, Greek, and Greeklish
+- Optional automatic destination suggestions
+- Optional scoring for destination recommendations
+- Clear explanations of why a folder is suggested
 - Optional local indexing
 - Optional tagging system
-- Optional semantic search or AI classification in a future version
-- Optional user-approved file move workflow in a future version
+- Optional semantic search or AI classification
+- Optional user-approved file move workflow
 
-The current app already includes JSON export and import of the folder tree, visual folder selection codes, up to three ranked destination suggestions, Advisor Mode, and Archiver Mode for user-confirmed file copying.
+The current app already includes:
+
+- fixed first-level memory structure;
+- user-created deeper folder levels;
+- thinking types for each layer;
+- visual folder selection codes;
+- JSON export and import of the folder tree;
+- copyable text output of the folder tree;
+- optional local folder creation;
+- one-file manual copy archiving;
+- duplicate-safe copy naming;
+- privacy notice preference stored locally.
 
 The objective is not only to store files efficiently, but also to retrieve information quickly and naturally.
 
-## 16. Final Principle
+## 18. Final Principle
 
 The system is built around a simple observation:
 
@@ -419,11 +472,11 @@ is the foundation of the current file organisation system.
 
 The file organisation system should follow memory first and storage structure second.
 
-## 17. Consolidation Notes
+## 19. Consolidation Notes
 
-This file replaces the older philosophy structure that used `00_INBOX_FROM_NOW`, `01_OFFICE`, and `02_PERSONAL` as the master first-level layout.
+This file replaces older philosophy structures that used `00_INBOX_FROM_NOW`, `01_OFFICE`, and `02_PERSONAL` as the master first-level layout.
 
-The current active master layout is now the same as the browser app and README:
+The current active master layout is now:
 
 ```text
 DOCUMENTS
@@ -439,4 +492,4 @@ Older ideas are not discarded. They are absorbed as principles where useful:
 - The old `REFERENCE` logic remains a caution against dumping unrelated files into general reference folders.
 - The memory-based principle remains unchanged.
 
-This document is now the active philosophy document for the current app.
+This document is now the active philosophy document for **Personal Memory-Based File Archiver**.
