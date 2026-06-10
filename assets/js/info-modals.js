@@ -57,6 +57,119 @@ function injectSimpleFileLoaderStyles() {
   document.head.appendChild(style);
 }
 
+function injectAppEntryStyles() {
+  if (document.getElementById("appEntryStyles")) return;
+
+  const style = document.createElement("style");
+  style.id = "appEntryStyles";
+  style.textContent = `
+    .app-entry-screen {
+      width: min(980px, calc(100% - 40px));
+      margin: 28px auto 34px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .app-entry-heading {
+      display: grid;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .app-entry-heading h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 650;
+      color: var(--ui-text, #111827);
+    }
+
+    .app-entry-heading p {
+      margin: 0;
+      color: var(--ui-muted, #6b7280);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .app-entry-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .app-entry-card {
+      display: grid;
+      gap: 10px;
+      text-align: left;
+      background: #ffffff !important;
+      color: var(--ui-text, #111827) !important;
+      border: 1px solid var(--ui-border-soft, #e5e7eb) !important;
+      border-radius: 14px !important;
+      padding: 22px !important;
+      box-shadow: 0 14px 38px rgba(15, 23, 42, 0.07) !important;
+      min-height: 150px;
+    }
+
+    .app-entry-card:hover {
+      background: #f9fafb !important;
+      border-color: var(--ui-border, #d9dee7) !important;
+    }
+
+    .app-entry-card strong {
+      font-size: 17px;
+      line-height: 1.25;
+      font-weight: 700;
+    }
+
+    .app-entry-card span {
+      color: var(--ui-muted, #6b7280);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 400;
+    }
+
+    .app-mode-back-bar {
+      width: min(1500px, calc(100% - 40px));
+      margin: 18px auto 0;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    body.theme-dark .app-entry-heading h2,
+    body.theme-dark .app-entry-card strong {
+      color: #ffffff !important;
+    }
+
+    body.theme-dark .app-entry-heading p,
+    body.theme-dark .app-entry-card span {
+      color: #d4d4d4 !important;
+    }
+
+    body.theme-dark .app-entry-card {
+      background: #0a0a0a !important;
+      border-color: #262626 !important;
+      box-shadow: none !important;
+    }
+
+    body.theme-dark .app-entry-card:hover {
+      background: #111111 !important;
+      border-color: #404040 !important;
+    }
+
+    @media (max-width: 720px) {
+      .app-entry-screen,
+      .app-mode-back-bar {
+        width: min(100% - 24px, 980px);
+      }
+
+      .app-entry-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 async function handleSimpleImportedFile(file, statusBox) {
   if (!file) return;
 
@@ -155,6 +268,83 @@ function setupSimpleFileLoaderPanel() {
   destinationPanel.appendChild(card);
 }
 
+function setAppMode(mode) {
+  const entryScreen = document.getElementById("appEntryScreen");
+  const appShell = document.querySelector(".app-shell");
+  const treePanel = document.querySelector(".tree-panel");
+  const destinationPanel = document.querySelector(".destination-panel");
+  const backBar = document.getElementById("appModeBackBar");
+  const brandHero = document.querySelector(".brand-hero");
+  const appExplanation = document.querySelector(".app-explanation");
+
+  if (!appShell || !treePanel || !destinationPanel) return;
+
+  const showEntry = !mode;
+  if (entryScreen) entryScreen.classList.toggle("hidden", !showEntry);
+  appShell.classList.toggle("hidden", showEntry);
+  if (backBar) backBar.classList.toggle("hidden", showEntry);
+  if (brandHero) brandHero.classList.toggle("hidden", !showEntry);
+  if (appExplanation) appExplanation.classList.toggle("hidden", !showEntry);
+
+  if (showEntry) {
+    treePanel.classList.remove("hidden");
+    destinationPanel.classList.remove("hidden");
+    return;
+  }
+
+  treePanel.classList.toggle("hidden", mode !== "tree");
+  destinationPanel.classList.toggle("hidden", mode !== "archive");
+}
+
+function setupAppEntryScreen() {
+  const appShell = document.querySelector(".app-shell");
+  if (!appShell || document.getElementById("appEntryScreen")) return;
+
+  injectAppEntryStyles();
+
+  const entryScreen = document.createElement("section");
+  entryScreen.id = "appEntryScreen";
+  entryScreen.className = "app-entry-screen";
+  entryScreen.setAttribute("aria-label", "Main app choices");
+
+  entryScreen.innerHTML = `
+    <div class="app-entry-heading">
+      <h2>Choose what you want to do</h2>
+      <p>Start with the folder structure, or load a file for archiving.</p>
+    </div>
+    <div class="app-entry-options">
+      <button type="button" class="app-entry-card" id="buildTreeOption">
+        <strong>Build Folder Tree</strong>
+        <span>Create, export, import, or generate your folder structure on this PC.</span>
+      </button>
+      <button type="button" class="app-entry-card" id="archiveFileOption">
+        <strong>Archive File</strong>
+        <span>Load a file through the native Windows file picker.</span>
+      </button>
+    </div>
+  `;
+
+  const backBar = document.createElement("div");
+  backBar.id = "appModeBackBar";
+  backBar.className = "app-mode-back-bar hidden";
+
+  const backButton = document.createElement("button");
+  backButton.type = "button";
+  backButton.className = "secondary";
+  backButton.textContent = "Back to main choices";
+  backButton.addEventListener("click", () => setAppMode(""));
+
+  backBar.appendChild(backButton);
+
+  appShell.parentNode.insertBefore(entryScreen, appShell);
+  appShell.parentNode.insertBefore(backBar, appShell);
+
+  document.getElementById("buildTreeOption").addEventListener("click", () => setAppMode("tree"));
+  document.getElementById("archiveFileOption").addEventListener("click", () => setAppMode("archive"));
+
+  setAppMode("");
+}
+
 document.addEventListener("keydown", event => {
   if (event.key !== "Escape") return;
   document.querySelectorAll(".modal:not(.hidden)").forEach(modal => {
@@ -164,4 +354,7 @@ document.addEventListener("keydown", event => {
   });
 });
 
-document.addEventListener("DOMContentLoaded", setupSimpleFileLoaderPanel);
+document.addEventListener("DOMContentLoaded", () => {
+  setupSimpleFileLoaderPanel();
+  setupAppEntryScreen();
+});
