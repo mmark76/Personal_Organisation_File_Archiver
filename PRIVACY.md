@@ -1,6 +1,6 @@
 # Privacy Notice
 
-The **Personal Memory-Based File Advisor** is designed as a local, browser-based advisory and optional copy-archiving tool.
+The **Personal Memory-Based File Archiver** is designed as a local, browser-based folder tree builder and user-controlled copy-archiving tool.
 
 ## Local Use
 
@@ -9,29 +9,26 @@ The app runs in the user's browser.
 It does not upload imported files to a server.
 It does not delete, move, rename, or modify files.
 It does not scan the user's file system automatically.
-It analyses a file only when the user manually imports it through the browser file input.
+It uses a file only when the user manually imports it through the browser file input.
 
-In Archiver Mode, the app can copy the currently imported file to one confirmed destination folder only after the user chooses a root folder and gives browser permission. The original file is not deleted or moved.
+In Archive File mode, the app can copy the currently imported file to a user-selected destination folder only after the user chooses that folder and gives browser permission. The original file is not deleted or moved.
 
-## File Analysis
+## File Information
 
-When a file is imported, the app may use browser-available information such as:
+When a file is imported, the current version displays browser-available information such as:
 
 - file name;
 - file type;
 - file size;
-- last modified date;
-- readable text content, where the browser can read it directly.
+- last modified date.
 
-Some formats, such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, may provide only filename and basic metadata unless additional parsing features are added later.
+Some formats, such as PDF, DOCX, XLSX, PPTX, scanned documents, or images, are not deeply parsed by the current version.
 
-## Folder Suggestions
+## Folder Tree
 
-The app may show up to three suggested destination folders for an imported file or typed file name.
+The app lets the user build, import, export, copy, and optionally create a folder tree on the local computer.
 
-These suggestions are generated locally in the browser from the available file information, folder names, keyword mappings, and the current folder tree.
-
-The user chooses one final destination. In Advisor Mode, the app only prepares advice. In Archiver Mode, the app can copy the imported file to the confirmed destination after explicit browser permission.
+Folder tree JSON files are handled locally in the browser. The user chooses when to import or export them.
 
 ## Folder Selection Codes
 
@@ -41,10 +38,7 @@ These codes are generated locally from the visible folder tree order. They are v
 
 ## Local Browser Storage
 
-The app may use local browser storage for simple user preferences, such as:
-
-- remembering whether the privacy notice has been accepted;
-- remembering the selected visual theme.
+The app may use local browser storage for simple preferences, such as remembering whether the privacy notice has been accepted.
 
 This information stays in the user's browser unless the user clears browser data.
 
@@ -56,11 +50,11 @@ The message is sent only if the user chooses to send it through their email clie
 
 ## Third-Party Copyright Badge
 
-The page currently loads a helper script from Copyrighted.com to display the copyright registration badge in the footer.
+The footer currently displays a Copyrighted.com badge image/link.
 
-This script is separate from the file advisor and archiver logic. The app does not use it to analyse files, upload files, move files, copy files, create folders, or classify documents.
+This badge is separate from the file archiver logic. The app does not use it to analyse files, upload files, move files, copy files, create folders, or classify documents.
 
-If a fully self-contained offline build is required, the external badge helper can be removed or replaced with a static local badge/link.
+If a fully self-contained offline build is required, the external badge can be removed or replaced with a static local badge/link.
 
 ## No Analytics or Advertising Tracking
 
