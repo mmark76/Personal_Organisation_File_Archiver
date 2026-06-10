@@ -34,7 +34,7 @@ window.FolderCreation = (() => {
         return;
       }
 
-      alert(window.AppMessages.archiveFailed);
+      alert(window.AppMessages.folderCreationFailed);
     }
   }
 
