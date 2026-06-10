@@ -40,6 +40,7 @@ assets/js/folder-tree-codes.js
 assets/js/folder-tree-render.js
 assets/js/folder-tree-import.js
 assets/js/folder-tree-export.js
+assets/js/folder-tree-templates.js
 assets/js/folder-creation.js
 
 assets/js/file-import.js
@@ -169,7 +170,7 @@ Folder creation works only when all of the following are true:
 3. The user chooses a root folder.
 4. The user grants browser permission.
 
-The app creates an application root folder and then creates the visible folder tree below it. It does not inspect, delete, move, rename, or modify existing files.
+The app creates an application root folder named `Organize Your PC Root Folder` and then creates the visible folder tree below it. It does not inspect, delete, move, rename, or modify existing files.
 
 ## Copy Archiving
 
@@ -218,34 +219,3 @@ If a fully self-contained offline build is required, the external badge can be r
 - The current version displays basic browser file metadata only.
 - Folder selection codes are visual aids generated from the current tree order. They are not permanent IDs stored inside the actual folder names.
 - Folder creation and copy archiving depend on browser support for direct local folder access.
-- Direct folder access may require a supported browser and a secure context, depending on browser rules.
-- The app does not currently include user accounts, cloud sync, background monitoring, automatic indexing, automatic classification, or automatic file moving.
-- Persistent custom tree storage is a future improvement.
-
-## Related Documentation
-
-The personal philosophy behind this system is documented separately in:
-
-```text
-docs/philosophy.md
-```
-
-That document explains the memory-based file organisation principles in more depth.
-
-## Project Status
-
-This project is currently a standalone browser-based memory-based file archiver with:
-
-- English-only app UI;
-- editable personal folder tree;
-- default memory-based example tree;
-- visual folder selection codes;
-- JSON export and import of the folder tree;
-- strict JSON import validation against the app schema and fixed first-level structure;
-- copyable text version of the folder tree;
-- optional local folder creation;
-- one-file manual archive workflow;
-- duplicate-safe copy naming;
-- local privacy notice preference;
-- mailto-based feedback form;
-- no server-side upload or account system.
