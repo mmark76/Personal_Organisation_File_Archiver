@@ -1,14 +1,15 @@
-/* Simple privacy notice, ready for future analytics consent expansion. */
+/* Simple local privacy notice preference. */
 
 window.AppPrivacyNotice = (() => {
-  const storageKey = "organizeYourPcPrivacyNoticeAccepted";
+  const storageKey = "personalMemoryBasedFileArchiverPrivacyNoticeAccepted";
+  const legacyStorageKey = "organizeYourPcPrivacyNoticeAccepted";
 
   function getNotice() {
     return document.getElementById("privacyNotice");
   }
 
   function hasAccepted() {
-    return localStorage.getItem(storageKey) === "true";
+    return localStorage.getItem(storageKey) === "true" || localStorage.getItem(legacyStorageKey) === "true";
   }
 
   function showNoticeIfNeeded() {
@@ -19,6 +20,7 @@ window.AppPrivacyNotice = (() => {
 
   function acceptNotice() {
     localStorage.setItem(storageKey, "true");
+    localStorage.removeItem(legacyStorageKey);
     hideNotice();
   }
 
