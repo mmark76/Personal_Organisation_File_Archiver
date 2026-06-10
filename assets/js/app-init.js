@@ -88,6 +88,25 @@ window.AppInit = (() => {
     qs("#hidePrivacyNoticeButton")?.addEventListener("click", window.AppPrivacyNotice.hideNotice);
   }
 
+  function renderInitialModeState() {
+    window.AppState.withMode("buildTree", () => {
+      window.FolderTreeRender.renderTree();
+      window.FolderTreeRender.renderOutput();
+    });
+
+    window.AppState.withMode("existingTree", () => {
+      window.FolderTreeExisting?.renderExistingTreePreview();
+    });
+
+    window.AppState.withMode("archive", () => {
+      window.FolderTreeRender.renderArchivePreview();
+      window.FileImport.renderFileStatus();
+      window.FileAdvisor?.renderSuggestion();
+    });
+
+    window.AppState.setActiveMode("buildTree");
+  }
+
   function initialize() {
     bindHeaderActions();
     bindNavigationActions();
@@ -101,10 +120,7 @@ window.AppInit = (() => {
 
     window.AppModals.bindModalEvents();
     window.AppAccessibility.bindKeyboardHandlers();
-    window.FolderTreeRender.renderAll();
-    window.FolderTreeExisting?.renderExistingTreePreview();
-    window.FileImport.renderFileStatus();
-    window.FileAdvisor?.renderSuggestion();
+    renderInitialModeState();
     window.AppPrivacyNotice.showNoticeIfNeeded();
   }
 
