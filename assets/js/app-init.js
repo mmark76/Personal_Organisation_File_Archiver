@@ -41,7 +41,18 @@ window.AppInit = (() => {
   }
 
   function bindArchiveActions() {
-    qs("#viewFolderTreeButton")?.addEventListener("click", window.FolderTreeRender.renderArchivePreview);
+    qs("#chooseArchiveTreeButton")?.addEventListener("click", () => {
+      const panel = qs("#archiveTreeChoicePanel");
+      if (panel) panel.hidden = !panel.hidden;
+    });
+
+    qs("#useCurrentArchiveTreeButton")?.addEventListener("click", () => {
+      window.FolderTreeRender.renderArchivePreview();
+      window.AppUtils.setText("#archiveResultBox", "Current folder tree is ready for archive destination selection.");
+      const panel = qs("#archiveTreeChoicePanel");
+      if (panel) panel.hidden = true;
+    });
+
     qs("#importArchiveTreeButton")?.addEventListener("click", () => qs("#archiveTreeImportInput")?.click());
     qs("#archiveTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
     qs("#importFileButton")?.addEventListener("click", window.FileImport.openFileInput);
