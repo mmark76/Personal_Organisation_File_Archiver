@@ -24,7 +24,7 @@ window.FolderTreeImport = (() => {
     return true;
   }
 
-  function validateNode(node, depth = 0) {
+  function validateNode(node, depth = 0, expectedBranch = null) {
     if (!node || typeof node !== "object") {
       throw new Error("Invalid folder node.");
     }
@@ -54,9 +54,16 @@ window.FolderTreeImport = (() => {
       if (!expected || node.fixed !== true || node.branch !== expected.branch) {
         throw new Error("Invalid fixed first-level folder.");
       }
+
+      node.children.forEach(child => validateNode(child, depth + 1, expected.branch));
+      return;
     }
 
-    node.children.forEach(child => validateNode(child, depth + 1));
+    if (node.fixed !== false || node.branch !== expectedBranch) {
+      throw new Error("Invalid user-created folder branch.");
+    }
+
+    node.children.forEach(child => validateNode(child, depth + 1, expectedBranch));
   }
 
   function validateFixedFirstLevel(children) {
