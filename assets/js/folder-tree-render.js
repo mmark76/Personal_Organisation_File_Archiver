@@ -186,6 +186,7 @@ window.FolderTreeRender = (() => {
     renderTree();
     renderOutput();
     renderArchivePreview();
+    window.FileAdvisor?.renderSuggestion();
   }
 
   function bindTreeEvents() {
