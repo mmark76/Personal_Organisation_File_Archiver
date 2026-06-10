@@ -87,6 +87,8 @@ Each layer below the fixed first level uses one thinking type:
 
 The thinking type guides the naming of the next layer. It does not become a folder name by itself.
 
+In the current app, role-based thinking is available under the professional branch and restricted outside it.
+
 ## Folder Tree Mode
 
 Folder Tree Mode lets the user:
@@ -98,7 +100,7 @@ Folder Tree Mode lets the user:
 - delete user-created folders;
 - copy the visible folder tree as text;
 - export the tree as JSON;
-- import a previously exported JSON tree;
+- import a previously exported JSON tree that matches the app schema and fixed first-level structure;
 - create the folder tree on the local computer, after choosing a root folder and granting browser permission.
 
 The default example tree is created locally in the browser. It includes `01_PROFILE`, `02_PERSONAL`, and `03_PROFESSIONAL`, with example subfolders aligned with the memory-based philosophy.
@@ -239,6 +241,7 @@ This project is currently a standalone browser-based memory-based file archiver 
 - default memory-based example tree;
 - visual folder selection codes;
 - JSON export and import of the folder tree;
+- strict JSON import validation against the app schema and fixed first-level structure;
 - copyable text version of the folder tree;
 - optional local folder creation;
 - one-file manual archive workflow;
