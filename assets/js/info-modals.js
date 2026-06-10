@@ -28,6 +28,10 @@ function injectSimpleFileLoaderStyles() {
       gap: 12px;
     }
 
+    .simple-file-loader-panel.hidden {
+      display: none !important;
+    }
+
     .simple-file-loader-card {
       display: grid;
       gap: 10px;
@@ -69,6 +73,10 @@ function injectAppEntryStyles() {
       display: grid;
       gap: 16px;
       justify-items: center;
+    }
+
+    .app-entry-screen.hidden {
+      display: none !important;
     }
 
     .app-entry-heading {
