@@ -16,8 +16,8 @@ window.FolderTreeExisting = (() => {
     };
   }
 
-  function getSelectedDepth() {
-    const select = document.getElementById("existingTreeDepthSelect");
+  function getSelectedDepth(selectId = "existingTreeDepthSelect") {
+    const select = document.getElementById(selectId);
     const depth = Number(select?.value || 2);
     return [1, 2, 3].includes(depth) ? depth : 2;
   }
@@ -73,14 +73,21 @@ window.FolderTreeExisting = (() => {
     preview.textContent = window.FolderTreeRender.buildOutputLines().join("\n");
   }
 
-  async function chooseExistingFolderTree() {
+  async function chooseExistingFolderTree(options = {}) {
+    const {
+      depthSelectId = "existingTreeDepthSelect",
+      statusSelector = "#existingTreeStatusBox",
+      afterLoad = renderExistingTreePreview,
+      hideSelector = null
+    } = options;
+
     if (!window.BrowserSupport.supportsDirectoryPicker()) {
-      setText("#existingTreeStatusBox", window.AppMessages.folderCreationUnsupported);
+      setText(statusSelector, window.AppMessages.folderCreationUnsupported);
       return;
     }
 
     try {
-      const maxDepth = getSelectedDepth();
+      const maxDepth = getSelectedDepth(depthSelectId);
       const rootHandle = await window.showDirectoryPicker({ mode: "read" });
       const counter = { count: 0 };
       const childNodes = await readFolderChildren(rootHandle, 1, maxDepth, counter);
@@ -88,24 +95,37 @@ window.FolderTreeExisting = (() => {
 
       setTree(tree);
       window.FolderTreeRender.renderAll();
-      renderExistingTreePreview();
+      afterLoad?.();
 
       setText(
-        "#existingTreeStatusBox",
+        statusSelector,
         `Existing folder tree loaded from: ${rootHandle.name}. Read ${counter.count} folder(s), up to ${maxDepth} level(s) deep.`
       );
+
+      const panel = hideSelector ? document.querySelector(hideSelector) : null;
+      if (panel) panel.hidden = true;
     } catch (error) {
       if (error && error.name === "AbortError") {
-        setText("#existingTreeStatusBox", "Existing folder tree selection was cancelled.");
+        setText(statusSelector, "Existing folder tree selection was cancelled.");
         return;
       }
 
-      setText("#existingTreeStatusBox", "Existing folder tree could not be loaded. Please try again.");
+      setText(statusSelector, "Existing folder tree could not be loaded. Please try again.");
     }
+  }
+
+  function chooseExistingFolderTreeForArchive() {
+    return chooseExistingFolderTree({
+      depthSelectId: "archiveTreeDepthSelect",
+      statusSelector: "#archiveResultBox",
+      afterLoad: window.FolderTreeRender.renderArchivePreview,
+      hideSelector: "#archiveTreeChoicePanel"
+    });
   }
 
   return {
     chooseExistingFolderTree,
+    chooseExistingFolderTreeForArchive,
     renderExistingTreePreview
   };
 })();
