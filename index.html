@@ -212,10 +212,14 @@
         </div>
 
         <div class="archive-actions">
-          <button type="button" id="viewFolderTreeButton" class="button button-secondary">View current folder tree</button>
-          <button type="button" id="importArchiveTreeButton" class="button button-secondary">Import / load new folder tree</button>
+          <button type="button" id="chooseArchiveTreeButton" class="button button-secondary">Choose Folder Tree</button>
           <button type="button" id="importFileButton" class="button">Import / Load File</button>
           <button type="button" id="archiveFileButton" class="button button-success">Archive the File</button>
+        </div>
+
+        <div id="archiveTreeChoicePanel" class="action-row" hidden>
+          <button type="button" id="useCurrentArchiveTreeButton" class="button button-secondary">Use current folder tree</button>
+          <button type="button" id="importArchiveTreeButton" class="button button-secondary">Import folder tree JSON</button>
         </div>
 
         <input type="file" id="archiveTreeImportInput" accept="application/json,.json" hidden />
