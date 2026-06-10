@@ -24,19 +24,31 @@ window.AppNavigation = (() => {
   }
 
   function showFolderTreeMode() {
+    window.AppState.setActiveMode("buildTree");
     showScreen("folderTreeScreen");
+
+    if (window.FolderTreeRender) {
+      window.FolderTreeRender.renderTree();
+      window.FolderTreeRender.renderOutput();
+    }
   }
 
   function showExistingFolderTreeMode() {
+    window.AppState.setActiveMode("existingTree");
     showScreen("existingFolderTreeScreen");
     window.FolderTreeExisting?.renderExistingTreePreview();
   }
 
   function showArchiveMode() {
+    window.AppState.setActiveMode("archive");
     showScreen("archiveFileScreen");
+
     if (window.FolderTreeRender) {
       window.FolderTreeRender.renderArchivePreview();
     }
+
+    window.FileImport?.renderFileStatus();
+    window.FileAdvisor?.renderSuggestion();
   }
 
   return {
