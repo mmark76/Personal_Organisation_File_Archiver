@@ -252,3 +252,32 @@
     padding: 16px;
   }
 }
+
+.button,
+button,
+.button-secondary,
+.button-success,
+.button-danger,
+.header-actions .button,
+.node-actions button,
+.icon-button,
+.privacy-notice .button-secondary {
+  border-color: rgba(251, 191, 36, 0.42);
+}
+
+.button:hover,
+button:hover,
+.button-secondary:hover,
+.button-success:hover,
+.button-danger:hover,
+.header-actions .button:hover,
+.node-actions button:hover,
+.icon-button:hover,
+.privacy-notice .button-secondary:hover {
+  border-color: rgba(251, 191, 36, 0.72);
+}
+
+.modal-card {
+  border-color: rgba(251, 191, 36, 0.38);
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.06), 0 24px 70px rgba(0, 0, 0, 0.42);
+}
