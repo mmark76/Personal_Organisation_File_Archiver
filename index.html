@@ -100,7 +100,7 @@
 
           <button type="button" id="openExistingFolderTreeModeButton" class="choice-card">
             <strong>Build Existing Folder Tree on this PC</strong>
-            <span>Choose a local folder and read only its first-level subfolder names as a starting tree.</span>
+            <span>Choose a local folder and read only folder names up to the depth you select.</span>
           </button>
 
           <button type="button" id="openArchiveModeButton" class="choice-card">
@@ -166,19 +166,29 @@
         <div class="panel-header">
           <div>
             <h2 id="existingFolderTreeTitle">Build Existing Folder Tree on this PC</h2>
-            <p>Choose one local folder. The app reads only the names of its first-level subfolders.</p>
+            <p>Choose one local folder. The app reads only folder names up to the depth you select.</p>
           </div>
-
-          <button type="button" id="chooseExistingFolderTreeButton" class="button button-secondary">Choose Root Folder</button>
         </div>
 
         <div class="guidance-card">
           <strong>This mode reads folder names only.</strong>
-          <span>It does not open files, scan file content, or go deeper than the first folder level.</span>
+          <span>It does not open files, scan file content, or read beyond the selected depth.</span>
         </div>
 
         <section class="structure-section" aria-labelledby="existingTreePreviewTitle">
           <h3 id="existingTreePreviewTitle">Detected Existing Folder Tree</h3>
+
+          <label for="existingTreeDepthSelect">Folder depth to read</label>
+          <select id="existingTreeDepthSelect">
+            <option value="1">1 level</option>
+            <option value="2" selected>2 levels</option>
+            <option value="3">3 levels</option>
+          </select>
+
+          <div class="action-row">
+            <button type="button" id="chooseExistingFolderTreeButton" class="button button-secondary">Choose Root Folder</button>
+          </div>
+
           <pre id="existingTreePreview" class="structure-output" aria-label="Detected existing folder tree">No existing folder tree loaded yet.</pre>
 
           <div id="existingTreeStatusBox" class="archive-result-box">No folder selected yet.</div>
@@ -297,7 +307,7 @@
         <p>The app has three main choices.</p>
         <ol>
           <li><strong>Build New Folder Tree:</strong> create, import, export, and manage your memory-based folder structure.</li>
-          <li><strong>Build Existing Folder Tree on this PC:</strong> choose a local folder and read only its first-level subfolder names as a starting tree.</li>
+          <li><strong>Build Existing Folder Tree on this PC:</strong> choose a local folder and read only folder names up to the depth you select.</li>
           <li><strong>Archive a File:</strong> load one file, select a destination from the folder tree, and archive it there with your permission.</li>
         </ol>
         <p>Only one mode is active at a time.</p>
