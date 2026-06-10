@@ -24,7 +24,7 @@ window.AppFeedback = (() => {
       return;
     }
 
-    const subject = "Organize Your PC feedback";
+    const subject = "Personal Memory-Based File Archiver feedback";
     const body = [
       message,
       "",
