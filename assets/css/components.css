@@ -18,6 +18,7 @@ button {
   font-size: 13px;
   font-weight: 700;
   line-height: 1.2;
+  text-align: center;
   text-decoration: none;
 }
 
@@ -66,10 +67,12 @@ button:hover {
 
 .choice-card {
   display: grid;
-  gap: 8px;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
   min-height: 132px;
   padding: 18px;
-  text-align: left;
+  text-align: center;
   background: var(--app-surface-soft);
   color: var(--app-text);
   border: 1px solid var(--app-border-soft);
@@ -83,13 +86,16 @@ button:hover {
 
 .choice-card strong {
   font-size: 17px;
+  text-align: center;
 }
 
 .choice-card span {
+  max-width: 320px;
   color: var(--app-muted);
   font-size: 13px;
   font-weight: 500;
   line-height: 1.45;
+  text-align: center;
 }
 
 .guidance-card,
