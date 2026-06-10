@@ -7,7 +7,7 @@ The app follows a memory-based approach: files are organised according to how th
 The current app has two main working modes:
 
 - **Build Folder Tree** — create, review, copy, export, import, and optionally create a memory-based folder tree on the local computer.
-- **Archive File** — load one file, review its basic browser metadata, view the current folder tree as guidance, and copy the file manually to a destination folder chosen by the user.
+- **Archive File** — load one file, review its basic browser metadata, select a destination from the current folder tree, and copy the file to the corresponding local folder after the user grants browser permission.
 
 The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action copies the imported file and leaves the original file untouched.
 
@@ -67,7 +67,7 @@ For direct local folder creation and copy-archiving operations, use a browser th
 The app provides two main working areas:
 
 1. **Folder Tree** — the user can build, review, copy, export, import, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
-2. **Archive File** — the user can load one file, review basic browser metadata, view the current folder tree as a memory guide, and copy the file manually to a destination folder chosen through the browser folder picker.
+2. **Archive File** — the user can load one file, review basic browser metadata, select a destination folder from the current folder tree preview, and copy the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
 
 The first level is fixed:
 
@@ -90,6 +90,8 @@ The thinking type guides the naming of the next layer. It does not become a fold
 
 In the current app, role-based thinking is available under the professional branch and restricted outside it.
 
+Windows reserved device names are not allowed as folder names. This includes names such as `CON`, `PRN`, `AUX`, `NUL`, `COM1`, and `LPT1`, including the same reserved stem followed by an extension.
+
 ## Folder Tree Mode
 
 Folder Tree Mode lets the user:
@@ -111,12 +113,13 @@ The default example tree is created locally in the browser. It includes `01_PROF
 Archive File Mode lets the user:
 
 - import or load a folder tree JSON file;
-- view the current folder tree as an archive guide;
+- view the current folder tree as a selectable archive destination tree;
+- select the folder where the loaded file should be archived;
 - import one file through the browser file input;
 - review the loaded file's basic browser metadata;
-- copy the loaded file to a manually selected destination folder.
+- copy the loaded file to the selected folder-tree destination.
 
-The current archive action uses the browser directory picker. The user chooses the destination folder directly. The app then writes a copy of the loaded file into that folder.
+The archive action uses the browser directory picker. The user selects a folder from the app's folder tree first, then chooses the `Organize Your PC Root Folder` or its parent folder when the browser asks for folder access. The app creates or reuses the corresponding subfolder path and writes a copy of the loaded file into that destination.
 
 If a file with the same name already exists in the selected destination folder, the app creates a safe copy name such as:
 
@@ -177,11 +180,12 @@ The app creates an application root folder named `Organize Your PC Root Folder` 
 Copy archiving works only when all of the following are true:
 
 1. A file has been imported through the browser file input.
-2. The browser supports direct folder access.
-3. The user clicks **Archive the File**.
-4. The user chooses a destination folder and grants browser permission.
+2. A destination folder has been selected from the archive folder tree preview.
+3. The browser supports direct folder access.
+4. The user clicks **Archive the File**.
+5. The user chooses the app root folder or its parent folder and grants browser permission.
 
-The archive action copies the file. It does not delete, move, rename, upload, or modify the original file.
+The archive action copies the file to the selected folder-tree destination. It does not delete, move, rename, upload, or modify the original file.
 
 ## One File, One Canonical Destination
 
@@ -191,7 +195,7 @@ The app follows this principle:
 One file → one canonical destination
 ```
 
-The current app leaves the final destination decision to the user. The folder tree acts as a memory guide so the user can choose the folder where the file will be most naturally found later.
+The current app leaves the final destination decision to the user. The folder tree acts as a memory guide and selectable destination map so the user can choose the folder where the file will be most naturally found later.
 
 ## Privacy and Safety
 
