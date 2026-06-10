@@ -146,6 +146,7 @@ button:hover {
 
 .tree-container {
   padding: 4px 0 0;
+  text-align: left;
 }
 
 .tree-children {
@@ -253,7 +254,7 @@ button:hover {
   font-size: 12px;
   line-height: 1.55;
   white-space: pre-wrap;
-  text-align: center;
+  text-align: left;
 }
 
 .file-status-box,
