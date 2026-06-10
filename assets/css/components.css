@@ -65,6 +65,23 @@ button:hover {
   color: #ffffff;
 }
 
+.header-actions .button {
+  min-height: 34px;
+  padding: 7px 14px;
+  background: transparent;
+  color: var(--app-muted-strong);
+  border-color: var(--app-border);
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.header-actions .button:hover {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+  border-color: var(--app-muted);
+}
+
 .choice-card {
   display: grid;
   align-content: center;
@@ -73,34 +90,36 @@ button:hover {
   min-height: 132px;
   padding: 18px;
   text-align: center;
-  background: var(--app-surface-soft);
+  background: linear-gradient(180deg, #181818 0%, #0f0f0f 100%);
   color: var(--app-text);
-  border: 1px solid var(--app-border-soft);
+  border: 2px solid rgba(251, 191, 36, 0.34);
   border-radius: var(--app-radius);
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.08), 0 18px 44px rgba(0, 0, 0, 0.35);
 }
 
 .choice-card:hover {
-  background: var(--app-surface-muted);
-  border-color: var(--app-border);
+  background: linear-gradient(180deg, #202020 0%, #121212 100%);
+  border-color: rgba(251, 191, 36, 0.72);
   color: var(--app-text);
 }
 
 .choice-card:hover strong {
-  color: var(--app-text);
+  color: #fbbf24;
 }
 
 .choice-card:hover span {
-  color: var(--app-muted);
+  color: var(--app-muted-strong);
 }
 
 .choice-card strong {
+  color: #fbbf24;
   font-size: 17px;
   text-align: center;
 }
 
 .choice-card span {
   max-width: 320px;
-  color: var(--app-muted);
+  color: var(--app-muted-strong);
   font-size: 13px;
   font-weight: 500;
   line-height: 1.45;
