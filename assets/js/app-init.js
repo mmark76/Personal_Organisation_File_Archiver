@@ -40,6 +40,24 @@ window.AppInit = (() => {
     window.FolderTreeRender.bindTreeEvents();
   }
 
+  function temporarilyDisableFolderTreeUtilityButtons() {
+    const buttonSelectors = [
+      "#loadExampleTreeButton",
+      "#copyTreeButton",
+      "#importTreeButton",
+      "#exportTreeButton",
+      ".template-download-button"
+    ];
+
+    buttonSelectors.forEach(selector => {
+      qsa(selector).forEach(button => {
+        button.disabled = true;
+        button.hidden = true;
+        button.setAttribute("aria-hidden", "true");
+      });
+    });
+  }
+
   function bindArchiveActions() {
     qs("#chooseArchiveTreeButton")?.addEventListener("click", () => {
       const panel = qs("#archiveTreeChoicePanel");
@@ -73,6 +91,8 @@ window.AppInit = (() => {
     bindArchiveActions();
     bindFeedbackActions();
     bindPrivacyActions();
+
+    temporarilyDisableFolderTreeUtilityButtons();
 
     window.AppModals.bindModalEvents();
     window.AppAccessibility.bindKeyboardHandlers();
