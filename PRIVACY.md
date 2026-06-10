@@ -36,7 +36,7 @@ The advisor only suggests a destination. It does not archive anything automatica
 
 The app can read an existing folder tree only after the user chooses one local root folder through the browser directory picker.
 
-It reads only the names of first-level subfolders inside the selected root folder. It does not read files, inspect file content, perform OCR, or scan deeper folder levels.
+It reads only folder names inside the selected root folder, up to the user-selected depth of 1, 2, or 3 levels. It does not read files, inspect file content, perform OCR, or scan beyond the selected depth.
 
 ## Folder Tree
 
