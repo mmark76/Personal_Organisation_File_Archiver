@@ -1,15 +1,15 @@
 # Personal Memory-Based File Archiver
 
-**Personal Memory-Based File Archiver** is a standalone browser-based tool that helps the user build a personal memory-based folder tree and copy files manually into user-selected archive folders.
+**Personal Memory-Based File Archiver** is a standalone browser-based tool that helps the user build a personal memory-based folder tree and archive files manually into user-selected archive folders.
 
 The app follows a memory-based approach: files are organised according to how the user naturally remembers them, such as by life area, work period, responsibility, project, subject, interest, or document function.
 
 The current app has two main working modes:
 
 - **Build Folder Tree** — create, review, copy, export, import, and optionally create a memory-based folder tree on the local computer.
-- **Archive File** — load one file, review its basic browser metadata, select a destination from the current folder tree, and copy the file to the corresponding local folder after the user grants browser permission.
+- **Archive File** — load one file, review its basic browser metadata, select a destination from the current folder tree, and archive the file to the corresponding local folder after the user grants browser permission.
 
-The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action copies the imported file and leaves the original file untouched.
+The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action leaves the original file untouched.
 
 ## Current App Structure
 
@@ -61,14 +61,14 @@ The visible app interface is English-only.
 
 Open `index.html` in a modern browser.
 
-For direct local folder creation and copy-archiving operations, use a browser that supports the File System Access API, such as Chrome or Edge. Browser support may also depend on secure-context rules.
+For direct local folder creation and archiving operations, use a browser that supports the File System Access API, such as Chrome or Edge. Browser support may also depend on secure-context rules.
 
 ## What the App Does
 
 The app provides two main working areas:
 
 1. **Folder Tree** — the user can build, review, copy, export, import, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
-2. **Archive File** — the user can load one file, review basic browser metadata, select a destination folder from the current folder tree preview, and copy the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
+2. **Archive File** — the user can load one file, review basic browser metadata, select a destination folder from the current folder tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
 
 The first level is fixed:
 
@@ -118,11 +118,11 @@ Archive File Mode lets the user:
 - select the folder where the loaded file should be archived;
 - import one file through the browser file input;
 - review the loaded file's basic browser metadata;
-- copy the loaded file to the selected folder-tree destination.
+- archive the loaded file to the selected folder-tree destination.
 
-The archive action uses the browser directory picker. The user selects a folder from the app's folder tree first, then chooses the `Organize Your PC Root Folder` or its parent folder when the browser asks for folder access. The app creates or reuses the corresponding subfolder path and writes a copy of the loaded file into that destination.
+The archive action uses the browser directory picker. The user selects a folder from the app's folder tree first, then chooses the `Organize Your PC Root Folder` or its parent folder when the browser asks for folder access. The app creates or reuses the corresponding subfolder path and archives the loaded file into that destination.
 
-If a file with the same name already exists in the selected destination folder, the app creates a safe copy name such as:
+If a file with the same name already exists in the selected destination folder, the app creates a safe archive name such as:
 
 ```text
 filename_copy_1.ext
@@ -176,9 +176,9 @@ Folder creation works only when all of the following are true:
 
 The app creates an application root folder named `Organize Your PC Root Folder` and then creates the visible folder tree below it. It does not inspect, delete, move, rename, or modify existing files.
 
-## Copy Archiving
+## Archiving
 
-Copy archiving works only when all of the following are true:
+Archiving works only when all of the following are true:
 
 1. A file has been imported through the browser file input.
 2. A destination folder has been selected from the archive folder tree preview.
@@ -186,7 +186,7 @@ Copy archiving works only when all of the following are true:
 4. The user clicks **Archive the File**.
 5. The user chooses the app root folder or its parent folder and grants browser permission.
 
-The archive action copies the file to the selected folder-tree destination. It does not delete, move, rename, upload, or modify the original file.
+The archive action sends the file to the selected folder-tree destination. It does not delete, move, rename, upload, or modify the original file.
 
 ## One File, One Canonical Destination
 
@@ -206,7 +206,7 @@ It does not upload imported files or send imported file data to a server. It doe
 
 The app may use local browser storage only for simple preferences, such as whether the privacy notice has been accepted.
 
-When folder creation or copy archiving is used, the user must manually choose a folder and give permission through the browser.
+When folder creation or archiving is used, the user must manually choose a folder and give permission through the browser.
 
 ## Local Copyright Badge
 
@@ -216,9 +216,9 @@ The badge links only to the local `LICENSE.md` file. It does not load images, sc
 
 ## Known Limitations
 
-- The app is a user-controlled folder tree builder and copy archiver, not a background automatic file manager.
+- The app is a user-controlled folder tree builder and archiver, not a background automatic file manager.
 - The current version does not include an automatic destination suggestion engine.
 - The current version does not deeply parse PDF, DOCX, XLSX, PPTX, scanned documents, images, or other rich document formats.
 - The current version displays basic browser file metadata only.
 - Folder selection codes are visual aids generated from the current tree order. They are not permanent IDs stored inside the actual folder names.
-- Folder creation and copy archiving depend on browser support for direct local folder access.
+- Folder creation and archiving depend on browser support for direct local folder access.
