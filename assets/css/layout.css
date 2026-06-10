@@ -93,6 +93,7 @@
   width: min(760px, 100%);
   margin: 18px auto 24px;
   padding: 22px;
+  text-align: center;
 }
 
 .screen-card h2,
@@ -103,7 +104,14 @@
   letter-spacing: -0.02em;
 }
 
-.screen-card p,
+.screen-card p {
+  max-width: 620px;
+  margin: 0 auto;
+  color: var(--app-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
 .work-panel p {
   color: var(--app-muted);
   font-size: 14px;
