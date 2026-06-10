@@ -68,9 +68,13 @@ function injectSimpleFileLoaderStyles() {
 
     .simple-folder-tree-actions {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 10px;
       align-items: center;
+    }
+
+    .simple-folder-tree-actions button {
+      white-space: nowrap;
     }
 
     .simple-file-loader-archive-button.hidden,
