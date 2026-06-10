@@ -26,6 +26,10 @@ window.AppInit = (() => {
     qs("#importTreeButton")?.addEventListener("click", () => qs("#folderTreeImportInput")?.click());
     qs("#folderTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
 
+    qsa(".template-download-button").forEach(button => {
+      button.addEventListener("click", () => window.FolderTreeTemplates.downloadTemplate(button.dataset.templateDownloadId));
+    });
+
     qs("#thinkingTypeSelect")?.addEventListener("change", window.FolderTree.updateThinkingPrompt);
     qs("#confirmAddFolderButton")?.addEventListener("click", window.FolderTree.confirmAddFolder);
     qs("#cancelAddFolderButton")?.addEventListener("click", () => window.AppModals.closeModal("folderModal"));
