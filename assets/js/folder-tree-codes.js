@@ -5,15 +5,14 @@ window.FolderTreeCodes = (() => {
     return String(value).padStart(width, "0");
   }
 
-  function getMainFolderCode(node, fallbackIndex) {
-    const match = String(node.name || "").match(/^(\d{2})/);
-    return match ? match[1] : padPart(fallbackIndex + 1, 2);
+  function getMainFolderCode(indexPath) {
+    return padPart(indexPath[0] + 1, 2);
   }
 
-  function getDisplayCodeFromIndexPath(indexPath, node) {
+  function getDisplayCodeFromIndexPath(indexPath) {
     if (!indexPath.length) return "";
 
-    const codeParts = [getMainFolderCode(node, indexPath[0])];
+    const codeParts = [getMainFolderCode(indexPath)];
 
     for (let index = 1; index < indexPath.length; index += 1) {
       codeParts.push(padPart(indexPath[index] + 1));
