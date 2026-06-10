@@ -114,13 +114,13 @@ function importFolderTreeTemplate(data) {
 
   tree.name = "DOCUMENTS";
   tree.fixed = true;
-  tree.children = data.folderTree.children.map(importFolderNode);
+  tree.children = data.folderTree.children.map(node => importFolderNode(node, 0));
 
   renderTree();
   analyzeCurrentFileData();
 }
 
-function importFolderNode(node) {
+function importFolderNode(node, depth = 0) {
   if (!node || typeof node.name !== "string") {
     throw new Error("Invalid folder node.");
   }
@@ -128,20 +128,20 @@ function importFolderNode(node) {
   const branch = typeof node.branch === "string" ? node.branch : null;
 
   return {
-    id: getImportedNodeId(node.name, branch),
+    id: getImportedNodeId(node.name, depth),
     name: node.name,
     fixed: Boolean(node.fixed),
     branch,
     thinkingType: isValidThinkingType(node.thinkingType) ? node.thinkingType : null,
     childLayerType: isValidThinkingType(node.childLayerType) ? node.childLayerType : null,
-    children: Array.isArray(node.children) ? node.children.map(importFolderNode) : []
+    children: Array.isArray(node.children) ? node.children.map(child => importFolderNode(child, depth + 1)) : []
   };
 }
 
-function getImportedNodeId(name, branch) {
-  if (name === "01_PROFILE" || branch === "profile") return "profile";
-  if (name === "02_PERSONAL" || branch === "personal") return "personal";
-  if (name === "03_PROFESSIONAL" || branch === "professional") return "professional";
+function getImportedNodeId(name, depth = 0) {
+  if (depth === 0 && name === "01_PROFILE") return "profile";
+  if (depth === 0 && name === "02_PERSONAL") return "personal";
+  if (depth === 0 && name === "03_PROFESSIONAL") return "professional";
   return "node_" + nextNodeId++;
 }
 
