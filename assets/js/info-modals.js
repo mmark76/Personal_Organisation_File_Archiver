@@ -89,6 +89,24 @@ async function handleSimpleImportedFile(file, statusBox) {
   }
 }
 
+async function openSimpleFilePicker(input, statusBox) {
+  if (window.showOpenFilePicker && window.organizeYourPcRootDirectoryHandle) {
+    try {
+      const [fileHandle] = await window.showOpenFilePicker({
+        startIn: window.organizeYourPcRootDirectoryHandle,
+        multiple: false
+      });
+      const file = await fileHandle.getFile();
+      await handleSimpleImportedFile(file, statusBox);
+      return;
+    } catch (error) {
+      if (error && error.name === "AbortError") return;
+    }
+  }
+
+  input.click();
+}
+
 function setupSimpleFileLoaderPanel() {
   const destinationPanel = document.querySelector(".destination-panel");
   if (!destinationPanel || document.getElementById("simpleFileLoaderPanel")) return;
@@ -116,11 +134,12 @@ function setupSimpleFileLoaderPanel() {
   const button = document.createElement("button");
   button.type = "button";
   button.textContent = "Import / Load File";
-  button.addEventListener("click", () => input.click());
 
   const status = document.createElement("div");
   status.className = "simple-file-loader-status";
   status.textContent = "No file selected.";
+
+  button.addEventListener("click", () => openSimpleFilePicker(input, status));
 
   input.addEventListener("change", event => {
     const file = event.target.files && event.target.files[0] ? event.target.files[0] : null;
