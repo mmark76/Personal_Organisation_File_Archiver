@@ -66,6 +66,18 @@ function injectSimpleFileLoaderStyles() {
       padding-right: 18px !important;
     }
 
+    .simple-file-loader-card button.simple-file-loader-import-button {
+      background: #0f5f8c !important;
+      border-color: #0f5f8c !important;
+      color: #ffffff !important;
+    }
+
+    .simple-file-loader-card button.simple-file-loader-import-button:hover {
+      background: #0b4f76 !important;
+      border-color: #0b4f76 !important;
+      color: #ffffff !important;
+    }
+
     .simple-folder-tree-actions {
       display: flex;
       flex-wrap: nowrap;
@@ -302,6 +314,20 @@ function injectStandardButtonColorStyles() {
       background: #4b5563 !important;
       color: #ffffff !important;
       border-color: #4b5563 !important;
+    }
+
+    .simple-file-loader-card button.simple-file-loader-import-button,
+    body.theme-dark .simple-file-loader-card button.simple-file-loader-import-button {
+      background: #0f5f8c !important;
+      border-color: #0f5f8c !important;
+      color: #ffffff !important;
+    }
+
+    .simple-file-loader-card button.simple-file-loader-import-button:hover,
+    body.theme-dark .simple-file-loader-card button.simple-file-loader-import-button:hover {
+      background: #0b4f76 !important;
+      border-color: #0b4f76 !important;
+      color: #ffffff !important;
     }
   `;
   document.head.appendChild(style);
@@ -552,6 +578,7 @@ function setupSimpleFileLoaderPanel() {
 
   const button = document.createElement("button");
   button.type = "button";
+  button.className = "simple-file-loader-import-button";
   button.textContent = "Import / Load File";
 
   const archiveButton = document.createElement("button");
@@ -577,11 +604,11 @@ function setupSimpleFileLoaderPanel() {
 
   folderTreeActions.appendChild(viewFolderTreeButton);
   folderTreeActions.appendChild(importFolderTreeButton);
+  folderTreeActions.appendChild(button);
 
   card.appendChild(folderTreeActions);
   card.appendChild(folderTreeImportInput);
   card.appendChild(folderTreeView);
-  card.appendChild(button);
   card.appendChild(archiveButton);
   card.appendChild(input);
   card.appendChild(status);
