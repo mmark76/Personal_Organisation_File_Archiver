@@ -8,7 +8,7 @@ The current app has three main choices:
 
 - **Build New Folder Tree** — create, review, copy, export, import, and optionally create a memory-based folder tree on the local computer.
 - **Build Existing Folder Tree on this PC** — choose a local folder and read only folder names up to the selected depth as a starting tree.
-- **Archive a File** — load one file, review its basic browser metadata, receive a simple offline folder suggestion, select a destination from the current folder tree, and archive the file to the corresponding local folder after the user grants browser permission.
+- **Archive a File** — choose an archive folder tree from this PC or from a JSON file, load one file, review its basic browser metadata, receive a simple offline folder suggestion, select a destination, and archive the file after the user grants browser permission.
 
 The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action leaves the original file untouched.
 
@@ -72,7 +72,7 @@ The app provides three main working areas:
 
 1. **Build New Folder Tree** — the user can build, review, copy, export, import, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
 2. **Build Existing Folder Tree on this PC** — the user can choose one local root folder and select a reading depth of 1, 2, or 3 levels. The app reads only folder names up to that depth and turns them into a starting folder tree for review.
-3. **Archive a File** — the user can load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the current folder tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
+3. **Archive a File** — the user can choose an archive folder tree from this PC or import a folder tree JSON file, load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the archive tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
 
 In **Build New Folder Tree**, the first level is fixed:
 
@@ -129,8 +129,9 @@ This mode does not read files, inspect file content, or perform OCR. It reads fo
 
 Archive File Mode lets the user:
 
-- import or load a folder tree JSON file;
-- view the current folder tree as a selectable archive destination tree;
+- choose an archive folder tree;
+- use a folder tree on this PC by choosing a local root folder and reading folder names up to the selected depth;
+- import a folder tree JSON file if the user has a saved or shared tree template;
 - import one file through the browser file input;
 - review the loaded file's basic browser metadata;
 - receive a simple offline suggestion based on filename, extension, metadata, and folder-tree matching;
@@ -212,9 +213,9 @@ The app creates an application root folder named `Organize Your PC Root Folder` 
 Existing folder tree reading works only when all of the following are true:
 
 1. The browser supports direct folder access.
-2. The user clicks **Build Existing Folder Tree on this PC**.
+2. The user chooses a folder-tree mode that reads an existing folder tree from this PC.
 3. The user chooses a folder depth: 1, 2, or 3 levels.
-4. The user clicks **Choose Root Folder**.
+4. The user clicks the folder selection button.
 5. The user chooses one local folder and grants browser permission.
 
 The app reads only folder names inside the chosen root folder up to the selected depth. It does not read files or file content.
@@ -223,11 +224,12 @@ The app reads only folder names inside the chosen root folder up to the selected
 
 Archiving works only when all of the following are true:
 
-1. A file has been imported through the browser file input.
-2. A destination folder has been selected from the archive folder tree preview.
-3. The browser supports direct folder access.
-4. The user clicks **Archive the File**.
-5. The user chooses the app root folder or its parent folder and grants browser permission.
+1. A folder tree has been loaded from this PC or imported as JSON.
+2. A file has been imported through the browser file input.
+3. A destination folder has been selected from the archive folder tree preview.
+4. The browser supports direct folder access.
+5. The user clicks **Archive the File**.
+6. The user chooses the app root folder or its parent folder and grants browser permission.
 
 The archive action sends the file to the selected folder-tree destination. It does not delete, move, rename, upload, or modify the original file.
 
