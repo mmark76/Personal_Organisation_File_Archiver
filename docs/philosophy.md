@@ -78,10 +78,11 @@ The word **Archiver** is important.
 
 The current app is not an automatic classifier, background file manager, or AI document sorter. It is a user-controlled local browser app that helps me build a memory-based folder tree and copy files manually into folders I choose.
 
-The current app has two main modes:
+The current visible app has three main choices:
 
-1. **Build Folder Tree** — create, import, export, copy, and optionally create the folder tree locally on the computer.
-2. **Archive File** — load one file, review basic file information, view the folder tree as guidance, and manually choose a destination folder for copying.
+1. **Build New Folder Tree** — build and review the fixed memory-based folder structure and optionally create it locally on the computer. The copy, export, import, and official template download buttons for this mode exist in the codebase but are temporarily disabled and hidden in the visible app interface.
+2. **Build Existing Folder Tree on this PC** — choose a local folder and read folder names up to the selected depth as a working folder tree.
+3. **Archive File** — load or import a folder tree, load one file, review basic file information, receive a simple offline folder suggestion, and manually choose a destination folder for copying.
 
 The app does not replace my judgement. It supports it.
 
@@ -293,7 +294,9 @@ The workflow is:
 3. Add folders that match that thinking type.
 4. Keep that layer internally consistent.
 5. Review the visible structure.
-6. Copy, export, import, or create the folder tree locally.
+6. Optionally create the folder tree locally after choosing a root folder and granting browser permission.
+
+The codebase also contains copy, export, import, and official template download utilities for the folder tree. In the current visible app interface, those Build New Folder Tree utility buttons are temporarily disabled and hidden.
 
 This preserves the memory logic of the system.
 
@@ -309,12 +312,15 @@ The workflow is:
 2. Load one file through the browser file input.
 3. Review the file's basic browser metadata: name, type, size, and last modified date.
 4. View the folder tree as a memory guide.
-5. Click **Archive the File**.
-6. Choose the final destination folder manually through the browser folder picker.
-7. Give browser permission.
-8. Let the app write a copy of the file into that selected folder.
+5. Review the simple offline folder suggestion, if one is produced.
+6. Optionally click **Use suggested destination** to select the suggested folder.
+7. Confirm or manually choose the final destination folder from the folder tree.
+8. Click **Archive the File**.
+9. Choose the app root folder or its parent folder through the browser folder picker.
+10. Give browser permission.
+11. Let the app write a copy of the file into that selected folder.
 
-The app does not currently choose the folder automatically.
+The app can suggest a destination, but it does not archive anything automatically. The final decision remains mine.
 
 The decisive question remains:
 
@@ -330,20 +336,31 @@ What type of file is this?
 
 ## 12. Current Scope and Non-Implemented Features
 
+The current version includes a simple offline folder advisor.
+
+The advisor uses:
+
+- filename keywords;
+- matching against the current folder-tree names;
+- file extension and browser file type;
+- basic metadata such as file size and last modified date;
+- simple scoring;
+- a confidence label: `High`, `Medium`, `Low`, or `Unsure`;
+- a short reason explaining the suggestion.
+
+The advisor is intentionally limited. It suggests a destination only. It does not replace my judgement and it does not archive anything automatically.
+
 The current version does **not** yet include:
 
-- automatic folder suggestions;
-- ranked destination scoring;
-- keyword mapping for destination recommendation;
 - deep parsing of PDF, DOCX, XLSX, PPTX, scanned documents, or images;
+- OCR;
+- content extraction;
 - semantic search;
 - AI classification;
 - background file monitoring;
 - automatic file movement;
 - cloud sync;
 - user accounts.
-
-These may be future improvements, but they are not part of the current implemented app.
 
 This distinction matters because the present philosophy must describe the actual working app, not a future imagined version.
 
@@ -381,6 +398,8 @@ A file is used only when the user imports it through the file input.
 Copy archiving can copy the currently imported file only after the user explicitly clicks the archive action, chooses a destination folder, and grants browser permission.
 
 Folder creation is optional and controlled by the user. If direct folder creation is used, the user must choose a destination folder and give browser permission.
+
+The simple offline advisor runs locally in the browser. It uses only basic browser-available file information and the current folder tree. It does not read file content, use OCR, call cloud AI, or send file data to a server.
 
 ## 15. Inbox Handling
 
@@ -433,14 +452,13 @@ Future improvements may include:
 - Local saving of the folder tree
 - Further refinements to import validation and recovery messages
 - Richer file parsing for PDF, DOCX, XLSX, PPTX, scanned documents, and images
-- Optional keyword mappings in English, Greek, and Greeklish
-- Optional automatic destination suggestions
-- Optional scoring for destination recommendations
-- Clear explanations of why a folder is suggested
+- User-editable keyword mappings in English, Greek, and Greeklish
+- Stronger scoring and ranking for destination recommendations
 - Optional local indexing
 - Optional tagging system
 - Optional semantic search or AI classification
 - Optional user-approved file move workflow
+- Re-enabling the Build New Folder Tree copy, export, import, and official template download buttons when appropriate
 
 The current app already includes:
 
@@ -448,10 +466,16 @@ The current app already includes:
 - user-created deeper folder levels;
 - thinking types for each layer;
 - visual folder selection codes;
-- JSON export and import of the folder tree;
+- JSON export and import support in the codebase;
+- official JSON template support in the codebase;
+- copyable text output support in the codebase;
+- temporarily hidden and disabled Build New Folder Tree utility buttons for copy, import, export, and official template downloads;
 - strict JSON import validation against the fixed first-level structure;
-- copyable text output of the folder tree;
 - optional local folder creation;
+- existing folder tree reading up to a selected depth;
+- simple offline folder advisor;
+- built-in keyword and folder-tree matching;
+- simple confidence labels and reasons for suggestions;
 - one-file manual copy archiving;
 - duplicate-safe copy naming;
 - privacy notice preference stored locally.
