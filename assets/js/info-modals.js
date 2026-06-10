@@ -128,13 +128,6 @@ function injectAppEntryStyles() {
       font-weight: 400;
     }
 
-    .app-mode-back-bar {
-      width: min(1500px, calc(100% - 40px));
-      margin: 18px auto 0;
-      display: flex;
-      justify-content: flex-start;
-    }
-
     body.theme-dark .app-entry-heading h2,
     body.theme-dark .app-entry-card strong {
       color: #ffffff !important;
@@ -157,8 +150,7 @@ function injectAppEntryStyles() {
     }
 
     @media (max-width: 720px) {
-      .app-entry-screen,
-      .app-mode-back-bar {
+      .app-entry-screen {
         width: min(100% - 24px, 980px);
       }
 
@@ -273,7 +265,7 @@ function setAppMode(mode) {
   const appShell = document.querySelector(".app-shell");
   const treePanel = document.querySelector(".tree-panel");
   const destinationPanel = document.querySelector(".destination-panel");
-  const backBar = document.getElementById("appModeBackBar");
+  const backButton = document.getElementById("appModeBackButton");
   const brandHero = document.querySelector(".brand-hero");
   const appExplanation = document.querySelector(".app-explanation");
 
@@ -282,7 +274,7 @@ function setAppMode(mode) {
   const showEntry = !mode;
   if (entryScreen) entryScreen.classList.toggle("hidden", !showEntry);
   appShell.classList.toggle("hidden", showEntry);
-  if (backBar) backBar.classList.toggle("hidden", showEntry);
+  if (backButton) backButton.classList.toggle("hidden", showEntry);
   if (brandHero) brandHero.classList.toggle("hidden", !showEntry);
   if (appExplanation) appExplanation.classList.toggle("hidden", !showEntry);
 
@@ -324,20 +316,18 @@ function setupAppEntryScreen() {
     </div>
   `;
 
-  const backBar = document.createElement("div");
-  backBar.id = "appModeBackBar";
-  backBar.className = "app-mode-back-bar hidden";
-
-  const backButton = document.createElement("button");
-  backButton.type = "button";
-  backButton.className = "secondary";
-  backButton.textContent = "Back to main choices";
-  backButton.addEventListener("click", () => setAppMode(""));
-
-  backBar.appendChild(backButton);
+  const headerActions = document.querySelector(".header-actions");
+  if (headerActions && !document.getElementById("appModeBackButton")) {
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.id = "appModeBackButton";
+    backButton.className = "secondary hidden";
+    backButton.textContent = "Back to main choices";
+    backButton.addEventListener("click", () => setAppMode(""));
+    headerActions.insertBefore(backButton, headerActions.firstChild);
+  }
 
   appShell.parentNode.insertBefore(entryScreen, appShell);
-  appShell.parentNode.insertBefore(backBar, appShell);
 
   document.getElementById("buildTreeOption").addEventListener("click", () => setAppMode("tree"));
   document.getElementById("archiveFileOption").addEventListener("click", () => setAppMode("archive"));
