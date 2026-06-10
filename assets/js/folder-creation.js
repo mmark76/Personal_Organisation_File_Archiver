@@ -9,6 +9,7 @@ window.createFoldersOnComputer = async function createFoldersOnComputer() {
   try {
     const selectedRootHandle = await window.showDirectoryPicker();
     const appRootHandle = await selectedRootHandle.getDirectoryHandle(appRootFolderName, { create: true });
+    window.organizeYourPcRootDirectoryHandle = appRootHandle;
 
     for (const folderPath of latestFolderPaths) {
       const parts = folderPath.split("\\").filter(Boolean);
