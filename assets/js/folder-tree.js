@@ -187,14 +187,14 @@ window.FolderTree = (() => {
     window.FolderTreeRender.renderAll();
   }
 
-  function createNode(name, branch, children = []) {
+  function createNode(name, branch, thinkingType = null, childLayerType = null, children = []) {
     return {
       id: getNextNodeId(),
       name,
       fixed: false,
       branch,
-      thinkingType: null,
-      childLayerType: null,
+      thinkingType,
+      childLayerType,
       children
     };
   }
@@ -202,40 +202,47 @@ window.FolderTree = (() => {
   function loadExampleTree() {
     resetNodeCounter();
 
+    const chronological = "001_CHRONOLOGICAL";
+    const thematic = "002_THEMATIC";
+    const functional = "003_FUNCTIONAL";
+
     state.tree = window.AppState.createFixedTree();
     const profile = findNodeById("profile");
     const personal = findNodeById("personal");
     const professional = findNodeById("professional");
 
+    profile.childLayerType = functional;
     profile.children = [
-      createNode("CVS", "profile"),
-      createNode("DEGREES", "profile"),
-      createNode("CERTIFICATES", "profile"),
-      createNode("REFERENCES", "profile"),
-      createNode("SUPPORTING_EVIDENCE", "profile")
+      createNode("CVS", "profile", functional),
+      createNode("DEGREES", "profile", functional),
+      createNode("CERTIFICATES", "profile", functional),
+      createNode("REFERENCES", "profile", functional),
+      createNode("SUPPORTING_EVIDENCE", "profile", functional)
     ];
 
-    const interests = createNode("INTERESTS", "personal", [
-      createNode("CHESS", "personal"),
-      createNode("SWIMMING", "personal"),
-      createNode("MNEMONIC_TECHNIQUES", "personal"),
-      createNode("BLOG_WRITING", "personal"),
-      createNode("WEB_APPS", "personal"),
-      createNode("LEARNING", "personal")
+    const interests = createNode("INTERESTS", "personal", thematic, thematic, [
+      createNode("CHESS", "personal", thematic),
+      createNode("SWIMMING", "personal", thematic),
+      createNode("MNEMONIC_TECHNIQUES", "personal", thematic),
+      createNode("BLOG_WRITING", "personal", thematic),
+      createNode("WEB_APPS", "personal", thematic),
+      createNode("LEARNING", "personal", thematic)
     ]);
 
+    personal.childLayerType = thematic;
     personal.children = [
-      createNode("FAMILY", "personal"),
-      createNode("HEALTH", "personal"),
-      createNode("FINANCIAL", "personal"),
+      createNode("FAMILY", "personal", thematic),
+      createNode("HEALTH", "personal", thematic),
+      createNode("FINANCIAL", "personal", thematic),
       interests
     ];
 
+    professional.childLayerType = chronological;
     professional.children = [
-      createNode("2002-2010_PRIVATE_SECTOR", "professional"),
-      createNode("2010-2019_MARINAS_PPP_DBFOT", "professional"),
-      createNode("2019-2026_STATE_FAIR_SITE_MANAGEMENT", "professional"),
-      createNode("2026-NOW_HEALTH_AND_SAFETY_OFFICER", "professional")
+      createNode("2002-2010_PRIVATE_SECTOR", "professional", chronological),
+      createNode("2010-2019_MARINAS_PPP_DBFOT", "professional", chronological),
+      createNode("2019-2026_STATE_FAIR_SITE_MANAGEMENT", "professional", chronological),
+      createNode("2026-NOW_HEALTH_AND_SAFETY_OFFICER", "professional", chronological)
     ];
 
     window.FolderTreeRender.renderAll();
