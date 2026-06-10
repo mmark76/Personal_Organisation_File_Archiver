@@ -112,6 +112,35 @@ button {
   padding: 6px 8px;
 }
 
+.node-actions button {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0 4px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #374151 !important;
+  box-shadow: none !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+.node-actions button:hover {
+  background: transparent !important;
+  color: #111827 !important;
+  transform: scale(1.12);
+}
+
+.node-actions button.danger {
+  color: #991b1b !important;
+}
+
+.node-actions button.danger:hover {
+  color: #7f1d1d !important;
+}
+
 .choice-button,
 .final-choice-button {
   border-color: var(--refined-border-soft);
@@ -176,4 +205,21 @@ body.theme-dark .breadcrumb,
 body.theme-dark .final-destination-box {
   border-color: rgba(148, 163, 184, 0.24);
   box-shadow: none;
+}
+
+body.theme-dark .node-actions button {
+  background: transparent !important;
+  color: #e5e5e5 !important;
+}
+
+body.theme-dark .node-actions button:hover {
+  color: #ffffff !important;
+}
+
+body.theme-dark .node-actions button.danger {
+  color: #fca5a5 !important;
+}
+
+body.theme-dark .node-actions button.danger:hover {
+  color: #fecaca !important;
 }
