@@ -54,6 +54,10 @@
 }
 
 .tree-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
   border-color: transparent;
   border-radius: 8px;
   padding: 8px 10px;
@@ -79,15 +83,22 @@
 }
 
 .node-content {
-  gap: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .node-name {
   letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .node-thinking-type,
-.node-next-layer,
+.node-next-layer {
+  display: none;
+}
+
 .choice-button span,
 .suggestion-reason,
 .folder-suggestion-meta,
@@ -99,6 +110,7 @@
 }
 
 .folder-display-code {
+  flex-shrink: 0;
   padding: 2px 7px;
   border-width: 1px;
   font-size: 11px;
@@ -114,6 +126,13 @@ button {
 
 .small-button {
   padding: 6px 8px;
+}
+
+.node-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
 }
 
 .node-actions button {
@@ -179,7 +198,6 @@ label {
 }
 
 .actions,
-.node-actions,
 .choice-list,
 .destination-wizard,
 .workflow-action-box {
