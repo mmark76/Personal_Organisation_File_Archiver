@@ -1,7 +1,7 @@
 {
-  "name": "Organize Your PC",
-  "short_name": "Organize PC",
-  "description": "A private browser-based file organisation app for building memory-based folder trees and archiving files manually with full user control.",
+  "name": "Personal Memory-Based File Archiver",
+  "short_name": "File Archiver",
+  "description": "A private browser-based file archiving app for building memory-based folder trees and copying files manually with full user control.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
