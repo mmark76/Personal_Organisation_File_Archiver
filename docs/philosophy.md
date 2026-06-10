@@ -271,6 +271,8 @@ SUPPORTING_EVIDENCE
 
 Used mainly inside professional branches when files are best remembered by role or responsibility.
 
+In the current app, role-based thinking is intentionally available under the professional branch and restricted outside it.
+
 Examples:
 
 ```text
@@ -429,7 +431,7 @@ If a document clearly belongs to a specific profile function, personal theme, pr
 Future improvements may include:
 
 - Local saving of the folder tree
-- Safer and stricter import validation of personal folder structures
+- Further refinements to import validation and recovery messages
 - Richer file parsing for PDF, DOCX, XLSX, PPTX, scanned documents, and images
 - Optional keyword mappings in English, Greek, and Greeklish
 - Optional automatic destination suggestions
@@ -447,6 +449,7 @@ The current app already includes:
 - thinking types for each layer;
 - visual folder selection codes;
 - JSON export and import of the folder tree;
+- strict JSON import validation against the fixed first-level structure;
 - copyable text output of the folder tree;
 - optional local folder creation;
 - one-file manual copy archiving;
