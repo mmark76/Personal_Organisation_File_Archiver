@@ -25,14 +25,33 @@ function downloadStructureJson() {
   );
 }
 
+function setupStructureActionLabels() {
+  const structureActions = document.querySelector(".structure-section .actions");
+  if (!structureActions) return;
+
+  const copyButton = structureActions.querySelector('button[onclick="copyTreeOutput()"]');
+  if (copyButton) copyButton.textContent = "Copy Folder Tree";
+
+  const textDownloadButton = structureActions.querySelector('button[onclick="downloadStructureText()"]');
+  if (textDownloadButton) textDownloadButton.remove();
+
+  const exportButton = structureActions.querySelector('button[onclick="downloadStructureJson()"]');
+  if (exportButton) exportButton.textContent = "Export Folder Tree";
+
+  const createButton = structureActions.querySelector('button[onclick="createFoldersOnComputer()"]');
+  if (createButton) createButton.textContent = "Create Folder Tree on PC";
+}
+
 function setupStructureJsonImportControls() {
   const structureActions = document.querySelector(".structure-section .actions");
   if (!structureActions || document.getElementById("jsonImportInput")) return;
 
+  setupStructureActionLabels();
+
   const importButton = document.createElement("button");
   importButton.type = "button";
   importButton.className = "secondary";
-  importButton.textContent = "Import JSON";
+  importButton.textContent = "Import Folder Tree";
   importButton.addEventListener("click", openStructureJsonImport);
 
   const input = document.createElement("input");
@@ -42,11 +61,16 @@ function setupStructureJsonImportControls() {
   input.accept = "application/json,.json";
   input.addEventListener("change", handleStructureJsonImport);
 
-  const createFoldersButton = structureActions.querySelector(".success");
-  if (createFoldersButton) {
-    structureActions.insertBefore(importButton, createFoldersButton);
+  const exportButton = structureActions.querySelector('button[onclick="downloadStructureJson()"]');
+  if (exportButton) {
+    structureActions.insertBefore(importButton, exportButton);
   } else {
-    structureActions.appendChild(importButton);
+    const createFoldersButton = structureActions.querySelector(".success");
+    if (createFoldersButton) {
+      structureActions.insertBefore(importButton, createFoldersButton);
+    } else {
+      structureActions.appendChild(importButton);
+    }
   }
 
   structureActions.insertAdjacentElement("afterend", input);
