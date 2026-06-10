@@ -2,6 +2,7 @@
 
 window.AppMessages = {
   invalidFolderName: "Please enter a valid folder name.",
+  duplicateFolderName: "A folder with this name already exists at this level.",
   invalidFolderTree: "Import failed. Please choose a valid folder tree JSON file exported from this app.",
   folderTreeImported: "Folder tree JSON imported successfully.",
   folderTreeCopied: "Folder tree copied to clipboard.",
