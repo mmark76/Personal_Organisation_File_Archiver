@@ -17,7 +17,7 @@ window.FolderTreeExport = (() => {
 
   function buildExportData() {
     return {
-      app: "Organize Your PC",
+      app: "Personal Memory-Based File Archiver",
       type: "personal-memory-based-folder-tree",
       schemaVersion: 1,
       exportedAt: new Date().toISOString(),
