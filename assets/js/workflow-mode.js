@@ -19,14 +19,18 @@ function isAtMainCategoryStep() {
   return Boolean(workflowMode && hasWorkflowFileLoaded() && !destinationCurrentNodeId);
 }
 
+function isChoosingDestinationPath() {
+  return Boolean(workflowMode && hasWorkflowFileLoaded() && !confirmedDestinationNodeId);
+}
+
 function openImportedFilePicker() {
   const input = byId("importedFileInput");
   if (input) input.click();
 }
 
-function hideAutomaticSuggestionAtMainCategoryStep() {
+function hideAutomaticSuggestionDuringGuidedChoice() {
   const suggestionBox = byId("autoSuggestionBox");
-  if (!suggestionBox || !isAtMainCategoryStep()) return;
+  if (!suggestionBox || !isChoosingDestinationPath()) return;
   suggestionBox.classList.add("hidden");
   suggestionBox.textContent = "";
 }
@@ -41,7 +45,7 @@ function showMainCategoryChoicesAfterFileLoad() {
   if (breadcrumb) breadcrumb.textContent = "File loaded.";
   if (question) question.textContent = "Choose one main category for this file: Profile, Personal, or Professional.";
 
-  hideAutomaticSuggestionAtMainCategoryStep();
+  hideAutomaticSuggestionDuringGuidedChoice();
 }
 
 function injectWorkflowModeControls() {
@@ -104,7 +108,7 @@ function shouldHideDestinationPanelChild(child, showWorkflowContent) {
   if (child.id === "importedFileInput") return true;
   if (child.tagName === "LABEL" && child.getAttribute("for") === "importedFileInput") return true;
 
-  if (isAtMainCategoryStep()) {
+  if (isChoosingDestinationPath()) {
     return !(child.classList && child.classList.contains("destination-wizard"));
   }
 
@@ -121,7 +125,7 @@ function updateDestinationPanelVisibility() {
     child.classList.toggle("hidden", shouldHideDestinationPanelChild(child, showWorkflowContent));
   });
 
-  hideAutomaticSuggestionAtMainCategoryStep();
+  hideAutomaticSuggestionDuringGuidedChoice();
 }
 
 function appendImportFileButton(actionBox) {
@@ -162,6 +166,11 @@ function updateWorkflowModePanel() {
 
   if (isAtMainCategoryStep()) {
     actionBox.appendChild(createTextElement("div", "workflow-status", "File loaded. Choose one main category below."));
+    return;
+  }
+
+  if (isChoosingDestinationPath()) {
+    actionBox.appendChild(createTextElement("div", "workflow-status", "Choose the relevant subcategory below."));
     return;
   }
 
