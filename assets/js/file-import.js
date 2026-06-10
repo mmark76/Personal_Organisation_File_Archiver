@@ -9,6 +9,7 @@ window.FileImport = (() => {
 
     if (!file) {
       setHtml("#fileStatusBox", window.AppMessages.noFileLoaded);
+      window.FileAdvisor?.renderSuggestion();
       return;
     }
 
@@ -22,6 +23,8 @@ window.FileImport = (() => {
       `Size: ${formatBytes(file.size)}<br>` +
       `Last modified: ${escapeHtml(modified)}`
     );
+
+    window.FileAdvisor?.renderSuggestion();
   }
 
   function openFileInput() {
