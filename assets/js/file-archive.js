@@ -15,7 +15,8 @@ window.FileArchive = (() => {
       await directoryHandle.getFileHandle(filename);
       return true;
     } catch (error) {
-      return false;
+      if (error && error.name === "NotFoundError") return false;
+      throw error;
     }
   }
 
