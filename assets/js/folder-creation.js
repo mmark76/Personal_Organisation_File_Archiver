@@ -1,7 +1,7 @@
 /* User-controlled folder tree creation on the local computer. */
 
 window.FolderCreation = (() => {
-  const appRootFolderName = "Personal Memory-Based File Archiver";
+  const appRootFolderName = "Organize Your PC Root Folder";
 
   async function createDirectoryPath(rootHandle, folderPath) {
     const parts = folderPath.split("/").filter(Boolean);
