@@ -7,7 +7,7 @@ The app follows a memory-based approach: files are organised according to how th
 The current app has three main choices:
 
 - **Build New Folder Tree** — create, review, copy, export, import, and optionally create a memory-based folder tree on the local computer.
-- **Build Existing Folder Tree on this PC** — choose a local folder and read only its first-level subfolder names as a starting tree.
+- **Build Existing Folder Tree on this PC** — choose a local folder and read only folder names up to the selected depth as a starting tree.
 - **Archive a File** — load one file, review its basic browser metadata, receive a simple offline folder suggestion, select a destination from the current folder tree, and archive the file to the corresponding local folder after the user grants browser permission.
 
 The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action leaves the original file untouched.
@@ -71,7 +71,7 @@ For direct local folder creation, existing folder tree reading, and archiving op
 The app provides three main working areas:
 
 1. **Build New Folder Tree** — the user can build, review, copy, export, import, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names.
-2. **Build Existing Folder Tree on this PC** — the user can choose one local root folder. The app reads only the names of first-level subfolders and turns them into a starting folder tree for review.
+2. **Build Existing Folder Tree on this PC** — the user can choose one local root folder and select a reading depth of 1, 2, or 3 levels. The app reads only folder names up to that depth and turns them into a starting folder tree for review.
 3. **Archive a File** — the user can load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the current folder tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
 
 In **Build New Folder Tree**, the first level is fixed:
@@ -118,11 +118,12 @@ The default example tree is created locally in the browser. It includes `01_PROF
 Build Existing Folder Tree on this PC Mode lets the user:
 
 - choose one local root folder through the browser directory picker;
-- read only the names of first-level subfolders inside that chosen root folder;
+- choose a folder reading depth of 1, 2, or 3 levels;
+- read only folder names inside that chosen root folder up to the selected depth;
 - display the detected structure as a simple folder tree;
 - use the detected tree as the current folder tree in the app.
 
-This mode does not read files, inspect file content, perform OCR, or scan deeper folders. It reads folder names only, and only from the root folder selected by the user.
+This mode does not read files, inspect file content, or perform OCR. It reads folder names only, only inside the root folder selected by the user, and only up to the selected depth.
 
 ## Archive File Mode
 
@@ -212,10 +213,11 @@ Existing folder tree reading works only when all of the following are true:
 
 1. The browser supports direct folder access.
 2. The user clicks **Build Existing Folder Tree on this PC**.
-3. The user clicks **Choose Root Folder**.
-4. The user chooses one local folder and grants browser permission.
+3. The user chooses a folder depth: 1, 2, or 3 levels.
+4. The user clicks **Choose Root Folder**.
+5. The user chooses one local folder and grants browser permission.
 
-The app reads only first-level subfolder names inside the chosen root folder. It does not read files and does not scan deeper folder levels.
+The app reads only folder names inside the chosen root folder up to the selected depth. It does not read files or file content.
 
 ## Archiving
 
@@ -245,7 +247,7 @@ The app is local and browser-based.
 
 It does not upload imported files or send imported file data to a server. It does not read or inspect the user's files automatically. A file is used only when the user imports it through the file input.
 
-When reading an existing folder tree, it reads only first-level folder names from the user-selected root folder.
+When reading an existing folder tree, it reads only folder names from the user-selected root folder up to the selected depth.
 
 The app may use local browser storage only for simple preferences, such as whether the privacy notice has been accepted.
 
@@ -260,7 +262,7 @@ The badge links only to the local `LICENSE.md` file. It does not load images, sc
 ## Known Limitations
 
 - The app is a user-controlled folder tree builder and archiver, not a background automatic file manager.
-- Existing folder tree reading is limited to first-level subfolder names only.
+- Existing folder tree reading is limited to 1, 2, or 3 folder levels, selected by the user.
 - The advisor is rule-based and depends mostly on filename quality and folder-tree names.
 - The advisor does not read file content, perform OCR, or use AI.
 - The current version does not deeply parse PDF, DOCX, XLSX, PPTX, scanned documents, images, or other rich document formats.
