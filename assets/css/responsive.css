@@ -13,7 +13,7 @@
 
 @media (max-width: 720px) {
   body {
-    padding-bottom: 132px;
+    padding-bottom: 0;
   }
 
   .app-header {
@@ -28,29 +28,50 @@
   .app-header-inner {
     padding: 16px;
     border-radius: 18px;
-    gap: 14px;
+    gap: 18px;
   }
 
   .app-brand {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
   }
 
   .app-logo {
-    width: 70px;
+    width: 76px;
+    justify-self: center;
+  }
+
+  .app-brand-text {
+    min-width: 0;
+    width: 100%;
+    align-items: center;
+    text-align: center;
   }
 
   .app-brand h1 {
-    font-size: clamp(32px, 12vw, 46px);
-    line-height: 0.98;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: clamp(30px, 8.8vw, 44px);
+    line-height: 1.04;
+    letter-spacing: -0.055em;
+    white-space: normal;
+    overflow-wrap: normal;
   }
 
   .app-subtitle {
-    font-size: 16px;
+    max-width: 100%;
+    font-size: clamp(18px, 4.8vw, 22px);
+    line-height: 1.25;
   }
 
   .app-intro {
-    font-size: 13px;
+    max-width: 100%;
+    font-size: 17px;
+    line-height: 1.55;
   }
 
   .header-actions,
@@ -74,8 +95,34 @@
 
   .screen-card,
   .work-panel {
-    padding: 15px;
-    border-radius: 14px;
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .screen-card h2,
+  .work-panel h2 {
+    font-size: clamp(26px, 7vw, 36px);
+    line-height: 1.15;
+  }
+
+  .screen-card p,
+  .work-panel p {
+    font-size: 18px;
+    line-height: 1.55;
+  }
+
+  .choice-card {
+    min-height: 190px;
+    padding: 22px;
+  }
+
+  .choice-card strong {
+    font-size: 24px;
+  }
+
+  .choice-card span {
+    font-size: 18px;
+    line-height: 1.45;
   }
 
   .panel-header {
@@ -135,13 +182,15 @@
   .privacy-notice {
     left: 10px;
     right: 10px;
-    bottom: 76px;
+    bottom: 10px;
     width: auto;
     grid-template-columns: 1fr;
   }
 
   .app-footer {
-    padding: 12px;
+    position: static;
+    margin-top: 28px;
+    padding: 18px 12px 24px;
     line-height: 1.6;
   }
 
@@ -157,16 +206,25 @@
 }
 
 @media (max-width: 420px) {
+  .app-brand {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 8px;
+  }
+
   .app-logo {
-    width: 58px;
+    width: 64px;
   }
 
   .app-brand h1 {
-    font-size: clamp(29px, 14vw, 38px);
+    font-size: clamp(28px, 8.6vw, 36px);
+  }
+
+  .app-subtitle {
+    font-size: clamp(17px, 4.7vw, 20px);
   }
 
   .screen-card,
   .work-panel {
-    padding: 12px;
+    padding: 16px;
   }
 }
