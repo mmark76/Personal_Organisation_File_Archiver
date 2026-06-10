@@ -3,14 +3,23 @@
 window.FolderTreeImport = (() => {
   const { state, thinkingTypes, resetNodeCounter } = window.AppState;
   const fixedRootName = "DOCUMENTS";
+  const roleBasedThinkingType = "004_ROLE_BASED";
   const fixedFirstLevelNodes = [
     { name: "01_PROFILE", id: "profile", branch: "profile" },
     { name: "02_PERSONAL", id: "personal", branch: "personal" },
     { name: "03_PROFESSIONAL", id: "professional", branch: "professional" }
   ];
 
-  function isValidThinkingType(value) {
-    return value === null || value === undefined || Boolean(thinkingTypes[value]);
+  function hasOwnProperty(object, propertyName) {
+    return Object.prototype.hasOwnProperty.call(object, propertyName);
+  }
+
+  function isExplicitThinkingType(value) {
+    return typeof value === "string" && Boolean(thinkingTypes[value]);
+  }
+
+  function isNullableThinkingType(value) {
+    return value === null || isExplicitThinkingType(value);
   }
 
   function isSafeFolderName(value) {
@@ -24,7 +33,56 @@ window.FolderTreeImport = (() => {
     return true;
   }
 
-  function validateNode(node, depth = 0, expectedBranch = null) {
+  function validateThinkingTypeFields(node) {
+    if (!hasOwnProperty(node, "thinkingType") || !hasOwnProperty(node, "childLayerType")) {
+      throw new Error("Missing thinking type fields.");
+    }
+
+    if (!isNullableThinkingType(node.thinkingType) || !isNullableThinkingType(node.childLayerType)) {
+      throw new Error("Invalid thinking type.");
+    }
+  }
+
+  function validateRoleBasedRestriction(branch, thinkingType, childLayerType) {
+    if (branch === "professional") return;
+
+    if (thinkingType === roleBasedThinkingType || childLayerType === roleBasedThinkingType) {
+      throw new Error("Role-based thinking is allowed only under the professional branch.");
+    }
+  }
+
+  function validateUniqueSiblingNames(children) {
+    const names = new Set();
+
+    children.forEach(child => {
+      const key = String(child.name || "").toUpperCase();
+      if (names.has(key)) {
+        throw new Error("Duplicate sibling folder name.");
+      }
+      names.add(key);
+    });
+  }
+
+  function validateChildrenLayer(node, branch) {
+    validateUniqueSiblingNames(node.children);
+
+    if (node.children.length === 0) {
+      if (node.childLayerType !== null) {
+        throw new Error("Leaf folders must not define a child layer type.");
+      }
+      return;
+    }
+
+    if (!isExplicitThinkingType(node.childLayerType)) {
+      throw new Error("Folders with children must define a child layer type.");
+    }
+
+    validateRoleBasedRestriction(branch, null, node.childLayerType);
+
+    node.children.forEach(child => validateNode(child, branch, node.childLayerType));
+  }
+
+  function validateNode(node, expectedBranch, expectedThinkingType = null) {
     if (!node || typeof node !== "object") {
       throw new Error("Invalid folder node.");
     }
@@ -41,29 +99,45 @@ window.FolderTreeImport = (() => {
       throw new Error("Invalid folder branch.");
     }
 
-    if (!isValidThinkingType(node.thinkingType) || !isValidThinkingType(node.childLayerType)) {
-      throw new Error("Invalid thinking type.");
-    }
+    validateThinkingTypeFields(node);
 
     if (!Array.isArray(node.children)) {
       throw new Error("Invalid folder children.");
     }
 
-    if (depth === 0) {
+    if (expectedThinkingType === null) {
       const expected = fixedFirstLevelNodes.find(item => item.name === node.name);
-      if (!expected || node.fixed !== true || node.branch !== expected.branch) {
+      if (!expected || node.fixed !== true || node.branch !== expected.branch || node.thinkingType !== null) {
         throw new Error("Invalid fixed first-level folder.");
       }
 
-      node.children.forEach(child => validateNode(child, depth + 1, expected.branch));
+      validateChildrenLayer(node, expected.branch);
       return;
     }
 
-    if (node.fixed !== false || node.branch !== expectedBranch) {
-      throw new Error("Invalid user-created folder branch.");
+    if (node.fixed !== false || node.branch !== expectedBranch || node.thinkingType !== expectedThinkingType) {
+      throw new Error("Invalid user-created folder logic.");
     }
 
-    node.children.forEach(child => validateNode(child, depth + 1, expectedBranch));
+    validateRoleBasedRestriction(expectedBranch, node.thinkingType, node.childLayerType);
+    validateChildrenLayer(node, expectedBranch);
+  }
+
+  function validateRoot(folderTree) {
+    if (!folderTree || typeof folderTree !== "object") {
+      throw new Error("Invalid folder tree template.");
+    }
+
+    if (
+      folderTree.name !== fixedRootName ||
+      folderTree.fixed !== true ||
+      folderTree.branch !== null ||
+      folderTree.thinkingType !== null ||
+      folderTree.childLayerType !== null ||
+      !Array.isArray(folderTree.children)
+    ) {
+      throw new Error("Invalid folder tree root.");
+    }
   }
 
   function validateFixedFirstLevel(children) {
@@ -90,8 +164,8 @@ window.FolderTreeImport = (() => {
       name: node.name,
       fixed: Boolean(node.fixed),
       branch: node.branch,
-      thinkingType: node.thinkingType || null,
-      childLayerType: node.childLayerType || null,
+      thinkingType: node.thinkingType,
+      childLayerType: node.childLayerType,
       children: node.children.map(child => importNode(child, depth + 1))
     };
   }
@@ -101,12 +175,9 @@ window.FolderTreeImport = (() => {
       throw new Error("Unsupported folder tree template.");
     }
 
-    if (!data.folderTree || data.folderTree.name !== fixedRootName || !Array.isArray(data.folderTree.children)) {
-      throw new Error("Invalid folder tree template.");
-    }
-
+    validateRoot(data.folderTree);
     validateFixedFirstLevel(data.folderTree.children);
-    data.folderTree.children.forEach(child => validateNode(child, 0));
+    data.folderTree.children.forEach(child => validateNode(child, child.branch));
 
     resetNodeCounter();
     state.tree = {
