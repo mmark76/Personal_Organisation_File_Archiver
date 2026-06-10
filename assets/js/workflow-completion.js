@@ -74,6 +74,43 @@ function injectWorkflowCompletionStyles() {
   const style = document.createElement("style");
   style.id = "workflowCompletionStyles";
   style.textContent = `
+    button {
+      width: auto;
+      max-width: 100%;
+    }
+
+    .actions,
+    .modal-actions,
+    .feedback-actions,
+    .workflow-final-actions {
+      justify-content: flex-start;
+      align-items: start;
+    }
+
+    .choice-list {
+      justify-items: start;
+    }
+
+    .choice-button,
+    .final-choice-button,
+    .workflow-import-button,
+    .workflow-action-button,
+    .workflow-copy-advice-button,
+    .panel-header button,
+    .wizard-header button,
+    .actions button,
+    .modal-actions button,
+    .feedback-actions button {
+      width: auto !important;
+      max-width: 100%;
+      justify-self: start;
+    }
+
+    .choice-button,
+    .final-choice-button {
+      display: inline-grid;
+    }
+
     .workflow-completion-message {
       white-space: pre-wrap;
       font-size: 13px;
