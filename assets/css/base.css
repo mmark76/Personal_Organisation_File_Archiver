@@ -1,4 +1,4 @@
-/* Base tokens, reset, and typography for Organize Your PC. */
+/* Base tokens, reset, and typography. */
 
 :root {
   --app-bg: #000000;
@@ -28,6 +28,7 @@
   --app-radius-xs: 8px;
 
   --app-width: 1180px;
+  --app-footer-space: 76px;
   --app-font: "Segoe UI", Roboto, Arial, sans-serif;
   --app-mono: "Segoe UI Mono", Consolas, monospace;
 }
@@ -44,7 +45,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  padding-bottom: 96px;
+  padding-bottom: var(--app-footer-space);
   background: var(--app-bg);
   color: var(--app-text);
   font-family: var(--app-font);
