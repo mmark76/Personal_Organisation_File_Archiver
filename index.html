@@ -117,46 +117,8 @@
     </section>
 
     <section class="panel destination-panel accent-destination">
-      <h2>File Destination Guide</h2>
-      <p>Import a file or type its name. The app reads basic browser-available file data, may suggest up to three relevant folders, and lets the user choose one final destination. Advisor Mode gives advice only. Archiver Mode can copy the imported file to the confirmed folder after user permission.</p>
-
-      <div class="example-file-card">
-        <div>
-          <strong>Complete example file</strong>
-          <span>Click the empty sample file <code>CV.pdf</code> to import it directly into the guide and see a complete archiving example.</span>
-        </div>
-        <button type="button" class="example-file-button" onclick="importExampleCvFile()">Import CV.pdf Example</button>
-      </div>
-
-      <label for="importedFileInput">Import file for analysis</label>
-      <input type="file" id="importedFileInput" onchange="handleImportedFile()" />
-      <div id="fileAnalysisBox" class="file-analysis-box">No file imported yet.</div>
-
-      <label for="destinationFileName">File name</label>
-      <input type="text" id="destinationFileName" placeholder="Example: CV_Markellos_2026.pdf" oninput="analyzeCurrentFileData()" />
-
-      <div class="destination-wizard">
-        <div class="wizard-header">
-          <strong>Step-by-step path</strong>
-          <button type="button" class="secondary" onclick="resetDestinationGuide()">Reset Path</button>
-        </div>
-
-        <div id="autoSuggestionBox" class="auto-suggestion-box hidden"></div>
-        <div id="destinationBreadcrumb" class="breadcrumb">No folder selected yet.</div>
-        <div id="destinationStepQuestion" class="step-question">Start by choosing one of the main categories.</div>
-        <div id="destinationChoices" class="choice-list"></div>
-        <div id="finalDestinationBox" class="final-destination-box hidden"></div>
-      </div>
-
-      <label for="destinationReason">Reason / memory clue</label>
-      <textarea id="destinationReason" placeholder="Example: This is the final CV version for future applications."></textarea>
-
-      <div class="actions">
-        <button type="button" onclick="previewFileDestination()">Preview Advice</button>
-        <button type="button" class="secondary" onclick="copyFileAdvice()">Copy Advice</button>
-      </div>
-
-      <pre id="fileDestinationOutput" class="advice-output">Archiving advice will appear here.</pre>
+      <h2>File Import</h2>
+      <p>Load a file through the native file picker and archive it manually after browser permission. The simple file import panel is the active right-panel mode.</p>
     </section>
   </main>
 
@@ -211,7 +173,7 @@
       <div class="info-modal-content">
         <p>Organize Your PC is a file organisation advisor and optional user-controlled copy archiver for your computer.</p>
         <p>It does <strong>not</strong> reorganize your existing files automatically. It does <strong>not</strong> delete, upload, rename, or modify files.</p>
-        <p>In Advisor Mode, the app only suggests destinations and prepares filing advice. In Archiver Mode, the app can copy the currently imported file to one user-confirmed destination folder after the user chooses a root folder and gives browser permission. It does not remove the original file.</p>
+        <p>The active file workflow uses a simple File Import panel. The app can copy a loaded file only after the user chooses a destination folder through the browser picker and gives permission. It does not remove the original file.</p>
         <p>The app can also optionally create a new folder tree inside a destination folder that you choose.</p>
       </div>
       <div class="modal-actions">
@@ -232,11 +194,11 @@
         <ol>
           <li><strong>It builds a folder tree</strong> based on the folder names and structure you define.</li>
           <li><strong>It shows visual folder codes</strong> beside the folder tree, such as <code>01</code>, <code>01.001</code>, or <code>02.004.001</code>. These are display aids and do not change the real folder names.</li>
-          <li><strong>It guides you on where to archive a file</strong>, using the file title and other available parameters. It may show up to three ranked folder suggestions, and the user selects one final destination.</li>
-          <li><strong>It can copy an imported file in Archiver Mode</strong> after the user confirms one destination folder, chooses a root folder, and grants browser permission. Existing files are not overwritten; a safe copy name is created if needed.</li>
+          <li><strong>It imports or loads one file</strong> through the browser or native file picker and shows basic browser-available file information.</li>
+          <li><strong>It can copy the loaded file</strong> after the user chooses a destination folder and grants browser permission. Existing files are not overwritten; a safe copy name is created if needed.</li>
         </ol>
-        <p>Before the app can suggest where a file should be placed, the folder tree must first exist. Once the tree is ready, the app can compare a file, such as the built-in example file <code>CV.pdf</code>, with the available folders and suggest useful destinations.</p>
-        <p>The app does not interfere with your existing file organisation unless the user explicitly chooses Archiver Mode, confirms one destination, chooses a root folder, and allows the browser copy action.</p>
+        <p>The active right-panel workflow is Simple File Import mode.</p>
+        <p>The app does not interfere with your existing file organisation unless the user explicitly loads a file, chooses to archive it, selects a destination folder, and allows the browser copy action.</p>
         <p>The purpose of Organize Your PC is not to automate your computer blindly. Its main purpose is to help organise the way you think about your files.</p>
         <p>The app does <strong>not</strong> delete, upload, rename, modify, or automatically move files.</p>
       </div>
@@ -274,12 +236,8 @@
   <script src="https://static.copyrighted.com/badges/helper.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/folder-tree-codes.js"></script>
-  <script src="assets/js/top-folder-suggestions.js"></script>
-  <script src="assets/js/workflow-mode.js"></script>
-  <script src="assets/js/workflow-completion.js"></script>
   <script src="assets/js/folder-creation.js"></script>
   <script src="assets/js/json-export.js"></script>
-  <script src="assets/js/example-import.js"></script>
   <script src="assets/js/info-modals.js"></script>
   <script src="assets/js/feedback.js"></script>
   <script src="assets/js/privacy-notice.js"></script>
