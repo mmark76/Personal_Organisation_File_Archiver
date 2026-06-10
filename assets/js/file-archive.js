@@ -43,13 +43,25 @@ window.FileArchive = (() => {
       return;
     }
 
+    const selectedNodeId = window.AppState.state.selectedArchiveFolderId;
+    const selectedNode = selectedNodeId ? window.FolderTree.findNodeById(selectedNodeId) : null;
+
+    if (!selectedNode) {
+      window.AppUtils.setText("#archiveResultBox", window.AppMessages.noArchiveDestination);
+      return;
+    }
+
     if (!window.BrowserSupport.supportsDirectoryPicker()) {
       window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveUnsupported);
       return;
     }
 
     try {
-      const destinationHandle = await window.showDirectoryPicker();
+      const destinationPath = window.FolderTree.getFolderPath(selectedNode.id);
+      window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveRootPrompt);
+
+      const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
+      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destinationPath);
       const safeName = await getAvailableFileName(destinationHandle, file.name);
       const fileHandle = await destinationHandle.getFileHandle(safeName, { create: true });
       const writable = await fileHandle.createWritable();
@@ -57,7 +69,10 @@ window.FileArchive = (() => {
       await writable.write(file);
       await writable.close();
 
-      window.AppUtils.setText("#archiveResultBox", `${window.AppMessages.archiveComplete} Saved as: ${safeName}`);
+      window.AppUtils.setText(
+        "#archiveResultBox",
+        `${window.AppMessages.archiveComplete} Saved to: ${destinationPath}/${safeName}`
+      );
     } catch (error) {
       if (error && error.name === "AbortError") {
         window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveCancelled);
