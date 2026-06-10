@@ -9,6 +9,7 @@ window.AppMessages = {
   folderCreationUnsupported: "Folder creation requires a browser that supports direct folder access, such as Chrome or Edge.",
   folderCreationCancelled: "Folder creation was cancelled.",
   folderCreationComplete: "Folder tree created successfully.",
+  folderCreationFailed: "Folder creation failed. Please try again.",
   noFileLoaded: "No file loaded yet.",
   fileLoaded: "File loaded successfully.",
   archiveUnsupported: "File archiving requires a browser that supports direct folder access, such as Chrome or Edge.",
