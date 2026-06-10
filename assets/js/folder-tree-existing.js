@@ -43,8 +43,6 @@ window.FolderTreeExisting = (() => {
   }
 
   function buildAppTree(rootFolderName, childNodes) {
-    resetNodeCounter();
-
     const rootNode = createImportedNode(
       rootFolderName || "SELECTED_FOLDER",
       childNodes
@@ -90,6 +88,8 @@ window.FolderTreeExisting = (() => {
       const maxDepth = getSelectedDepth(depthSelectId);
       const rootHandle = await window.showDirectoryPicker({ mode: "read" });
       const counter = { count: 0 };
+
+      resetNodeCounter();
       const childNodes = await readFolderChildren(rootHandle, 1, maxDepth, counter);
       const tree = buildAppTree(rootHandle.name, childNodes);
 
