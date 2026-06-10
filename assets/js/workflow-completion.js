@@ -2,6 +2,12 @@ function getWorkflowCompletionActionBox() {
   return document.getElementById("workflowActionBox");
 }
 
+function getWorkflowDisplayPath(nodeId) {
+  if (!nodeId) return "";
+  if (typeof getNodeDisplayFolderPath === "function") return getNodeDisplayFolderPath(nodeId);
+  return getNodeFolderPath(nodeId);
+}
+
 function getWorkflowCompletionStatusText() {
   const statusBoxes = document.querySelectorAll("#workflowActionBox .workflow-status");
   return statusBoxes.length ? statusBoxes[statusBoxes.length - 1].textContent : "";
@@ -28,10 +34,9 @@ function getWorkflowCompletionFolderCode() {
 }
 
 function getWorkflowCompletionDestination() {
-  if (typeof getConfirmedDestinationPath === "function") {
-    const destination = getConfirmedDestinationPath();
-    if (destination) return destination;
-  }
+  const nodeId = typeof confirmedDestinationNodeId !== "undefined" ? confirmedDestinationNodeId : null;
+  const displayPath = getWorkflowDisplayPath(nodeId);
+  if (displayPath) return displayPath;
 
   const archiveResult = document.getElementById("workflowArchiveResult");
   if (!archiveResult) return "";
@@ -133,6 +138,48 @@ function injectWorkflowCompletionStyles() {
 
 (function wrapWorkflowCompletionActions() {
   injectWorkflowCompletionStyles();
+
+  getWorkflowNumberedPath = function getWorkflowNumberedPathWithoutDuplicateNumbers(nodeId) {
+    if (!nodeId) return "";
+    const code = getWorkflowFolderCode(nodeId);
+    const path = getWorkflowDisplayPath(nodeId);
+    return code ? code + "  " + path : path;
+  };
+
+  const originalPreviewFileDestination = previewFileDestination;
+  previewFileDestination = function previewFileDestinationWithCleanFolderNames() {
+    const fileName = byId("destinationFileName").value.trim() || "[New file]";
+    const nodeId = confirmedDestinationNodeId || destinationCurrentNodeId;
+    const destination = nodeId ? getWorkflowDisplayPath(nodeId) : "[No final folder selected]";
+    const folderCode = nodeId ? getWorkflowFolderCode(nodeId) : "[No folder number]";
+    const reason = byId("destinationReason").value.trim() || "No reason written yet.";
+    const node = nodeId ? findNode(nodeId) : null;
+    const status = confirmedDestinationNodeId || (node && node.children.length === 0) ? "Final folder reached." : "Review whether this is final, or continue one level deeper.";
+
+    const advice = [
+      "File destination advice",
+      "",
+      "File:",
+      fileName,
+      "",
+      "Folder number:",
+      folderCode,
+      "",
+      "Suggested folder:",
+      destination,
+      "",
+      "Status:",
+      status,
+      "",
+      "Reason / memory clue:",
+      reason,
+      "",
+      "Important:",
+      "This is guidance only. The app does not move the file."
+    ].join("\n");
+
+    byId("fileDestinationOutput").textContent = advice;
+  };
 
   const originalShowFinalAdvice = window.showFinalAdvice;
   if (typeof originalShowFinalAdvice === "function") {
