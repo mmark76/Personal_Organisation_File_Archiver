@@ -1,0 +1,288 @@
+/* Reusable UI components: buttons, cards, forms, tree nodes, outputs, and status boxes. */
+
+.button,
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: auto;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 8px 12px;
+  background: var(--app-primary);
+  color: #ffffff;
+  border: 1px solid var(--app-primary);
+  border-radius: var(--app-radius-xs);
+  box-shadow: none;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.button:hover,
+button:hover {
+  background: var(--app-primary-hover);
+  border-color: var(--app-primary-hover);
+  color: #000000;
+}
+
+.button-secondary {
+  background: var(--app-secondary-bg);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+.button-secondary:hover {
+  background: var(--app-secondary-hover);
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+.button-success {
+  background: var(--app-success);
+  border-color: var(--app-success);
+  color: #ffffff;
+}
+
+.button-success:hover {
+  background: var(--app-success-hover);
+  border-color: var(--app-success-hover);
+  color: #ffffff;
+}
+
+.button-danger {
+  background: var(--app-danger);
+  border-color: var(--app-danger);
+  color: #ffffff;
+}
+
+.button-danger:hover {
+  background: var(--app-danger-hover);
+  border-color: var(--app-danger-hover);
+  color: #ffffff;
+}
+
+.choice-card {
+  display: grid;
+  gap: 8px;
+  min-height: 132px;
+  padding: 18px;
+  text-align: left;
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  border: 1px solid var(--app-border-soft);
+  border-radius: var(--app-radius);
+}
+
+.choice-card:hover {
+  background: var(--app-surface-muted);
+  border-color: var(--app-border);
+}
+
+.choice-card strong {
+  font-size: 17px;
+}
+
+.choice-card span {
+  color: var(--app-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.guidance-card,
+.file-status-box,
+.folder-tree-preview,
+.archive-result-box,
+.structure-output,
+.examples-box,
+.fixed-type {
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border-soft);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-text);
+}
+
+.guidance-card {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.guidance-card strong {
+  font-size: 13px;
+}
+
+.guidance-card span,
+.small-note,
+.file-status-box,
+.archive-result-box {
+  color: var(--app-muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.tree-container {
+  padding: 4px 0 0;
+}
+
+.tree-children {
+  margin-left: 18px;
+  padding-left: 12px;
+  border-left: 1px solid var(--app-border-soft);
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 100%;
+  margin: 4px 0;
+  padding: 7px 9px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--app-radius-xs);
+}
+
+.tree-node:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--app-border-soft);
+}
+
+.main-category-node {
+  margin-top: 8px;
+  border-left: 3px solid var(--app-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.node-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.node-name {
+  color: var(--app-text);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.main-category-node .node-name {
+  font-size: 13.5px;
+  font-weight: 750;
+}
+
+.folder-display-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #171717;
+  color: #e5e5e5;
+  border: 1px solid var(--app-border);
+  font-family: var(--app-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.node-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.node-actions button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--app-muted-strong);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.node-actions button:hover {
+  background: var(--app-surface-muted);
+  color: var(--app-text);
+}
+
+.node-actions button.danger:hover {
+  color: #fca5a5;
+}
+
+.structure-output,
+.folder-tree-preview {
+  min-height: 170px;
+  max-height: 360px;
+  overflow: auto;
+  padding: 13px;
+  background: #000000;
+  font-family: var(--app-mono);
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.file-status-box,
+.archive-result-box {
+  min-height: 48px;
+  padding: 12px;
+}
+
+label {
+  display: block;
+  margin: 12px 0 5px;
+  color: var(--app-text);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 9px 10px;
+  background: #000000;
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-xs);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #a3a3a3;
+}
+
+.examples-box {
+  margin-top: 10px;
+  padding: 10px;
+  color: var(--app-muted);
+  font-size: 12.5px;
+}
+
+.fixed-type {
+  margin-top: 10px;
+  padding: 10px;
+  color: var(--app-muted);
+  font-size: 12.5px;
+}
