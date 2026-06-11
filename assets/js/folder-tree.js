@@ -1,37 +1,36 @@
-/* Folder tree data logic and folder modal behavior. */
+/* Folder tree data model and operations. */
 
 window.FolderTree = (() => {
-  const { state, thinkingTypes, getNextNodeId, resetNodeCounter } = window.AppState;
-  const { sanitizeFolderName } = window.AppUtils;
+  const { state, thinkingTypes, getNextNodeId } = window.AppState;
 
-  function findNodeById(nodeId, current = state.tree) {
-    if (!current) return null;
-    if (current.id === nodeId) return current;
+  function findNodeById(nodeId, node = state.tree) {
+    if (!node) return null;
+    if (node.id === nodeId) return node;
 
-    for (const child of current.children || []) {
-      const found = findNodeById(nodeId, child);
-      if (found) return found;
+    for (const child of node.children || []) {
+      const result = findNodeById(nodeId, child);
+      if (result) return result;
     }
 
     return null;
   }
 
-  function findParentNode(nodeId, current = state.tree, parent = null) {
-    if (!current) return null;
-    if (current.id === nodeId) return parent;
+  function findParentNode(nodeId, node = state.tree, parent = null) {
+    if (!node) return null;
+    if (node.id === nodeId) return parent;
 
-    for (const child of current.children || []) {
-      const found = findParentNode(nodeId, child, current);
-      if (found) return found;
+    for (const child of node.children || []) {
+      const result = findParentNode(nodeId, child, node);
+      if (result) return result;
     }
 
     return null;
   }
 
-  function containsNode(current, nodeId) {
-    if (!current || !nodeId) return false;
-    if (current.id === nodeId) return true;
-    return (current.children || []).some(child => containsNode(child, nodeId));
+  function containsNode(rootNode, nodeId) {
+    if (!rootNode || !nodeId) return false;
+    if (rootNode.id === nodeId) return true;
+    return (rootNode.children || []).some(child => containsNode(child, nodeId));
   }
 
   function getNodePath(nodeId) {
@@ -40,7 +39,6 @@ window.FolderTree = (() => {
     function walk(node) {
       if (!node) return false;
       path.push(node);
-
       if (node.id === nodeId) return true;
 
       for (const child of node.children || []) {
@@ -51,16 +49,12 @@ window.FolderTree = (() => {
       return false;
     }
 
-    walk(state.tree);
-    return path;
+    return walk(state.tree) ? path : [];
   }
 
-  function getVisibleName(name, node = null) {
-    if (node && node.fixed && node.branch) {
-      return String(name || "").replace(/^\d{2}_/, "");
-    }
-
-    return String(name || "");
+  function getVisibleName(name, node) {
+    if (!node || !node.fixed) return name;
+    return name;
   }
 
   function getFolderPath(nodeId) {
@@ -75,7 +69,7 @@ window.FolderTree = (() => {
 
     function walk(node) {
       if (!node || node.id === "documents") {
-        (node.children || []).forEach(walk);
+        (node?.children || []).forEach(walk);
         return;
       }
 
@@ -87,93 +81,96 @@ window.FolderTree = (() => {
     return paths;
   }
 
-  function getAllowedThinkingTypes(parent) {
-    if (!parent) return Object.keys(thinkingTypes);
-    if (parent.childLayerType) return [parent.childLayerType];
-    if (parent.branch === "professional") return Object.keys(thinkingTypes);
-    return Object.keys(thinkingTypes).filter(type => type !== "004_ROLE_BASED");
+  function getAllowedThinkingTypes(parentNode) {
+    const entries = Object.entries(thinkingTypes);
+    if (!parentNode) return entries;
+
+    const rootBranch = getNodePath(parentNode.id).find(node => node.branch)?.branch;
+    if (rootBranch === "professional") return entries;
+
+    return entries.filter(([key]) => key !== "004_ROLE_BASED");
   }
 
-  function hasSiblingFolderName(parent, name) {
-    return (parent.children || []).some(child => child.name === name);
+  function hasDuplicateSiblingName(parentNode, folderName) {
+    return (parentNode.children || []).some(child => child.name === folderName);
   }
 
   function updateThinkingPrompt() {
     const select = document.getElementById("thinkingTypeSelect");
-    const examplesBox = document.getElementById("examplesBox");
-    if (!select || !examplesBox) return;
+    const prompt = document.getElementById("thinkingTypePrompt");
+    if (!select || !prompt) return;
 
-    const selectedType = thinkingTypes[select.value];
-    examplesBox.textContent = selectedType ? selectedType.prompt : "";
+    const selected = thinkingTypes[select.value];
+    prompt.textContent = selected ? selected.prompt : "";
   }
 
   function openAddFolderModal(parentId) {
-    const parent = findNodeById(parentId);
-    if (!parent) return;
+    const parentNode = findNodeById(parentId);
+    if (!parentNode) return;
 
     state.selectedParentId = parentId;
 
-    const context = document.getElementById("folderModalContext");
+    const modalContext = document.getElementById("folderModalContext");
+    const nameInput = document.getElementById("folderNameInput");
     const select = document.getElementById("thinkingTypeSelect");
-    const fixedType = document.getElementById("fixedThinkingType");
-    const input = document.getElementById("folderNameInput");
+    const fixedType = document.getElementById("fixedLayerType");
 
-    if (context) context.textContent = `Add a folder under ${getVisibleName(parent.name, parent)}.`;
-    if (input) input.value = "";
-
-    const allowedTypes = getAllowedThinkingTypes(parent);
+    if (modalContext) modalContext.textContent = `Add a folder under: ${getFolderPath(parentId) || parentNode.name}`;
+    if (nameInput) nameInput.value = "";
 
     if (select) {
       select.innerHTML = "";
-      allowedTypes.forEach(type => {
+      getAllowedThinkingTypes(parentNode).forEach(([key, value]) => {
         const option = document.createElement("option");
-        option.value = type;
-        option.textContent = thinkingTypes[type].label;
+        option.value = key;
+        option.textContent = value.label;
         select.appendChild(option);
       });
-      select.disabled = Boolean(parent.childLayerType);
-    }
 
-    if (fixedType) {
-      if (parent.childLayerType) {
-        fixedType.hidden = false;
-        fixedType.textContent = `This layer already uses: ${thinkingTypes[parent.childLayerType].label}`;
+      if (parentNode.childLayerType) {
+        select.value = parentNode.childLayerType;
+        select.disabled = true;
+        if (fixedType) fixedType.textContent = `This layer already uses: ${thinkingTypes[parentNode.childLayerType].label}`;
       } else {
-        fixedType.hidden = true;
-        fixedType.textContent = "";
+        select.disabled = false;
+        if (fixedType) fixedType.textContent = "";
       }
     }
 
     updateThinkingPrompt();
     window.AppModals.openModal("folderModal");
+    if (nameInput) nameInput.focus();
   }
 
   function confirmAddFolder() {
-    const parent = findNodeById(state.selectedParentId);
-    const select = document.getElementById("thinkingTypeSelect");
+    const parentNode = findNodeById(state.selectedParentId);
     const input = document.getElementById("folderNameInput");
+    const select = document.getElementById("thinkingTypeSelect");
 
-    if (!parent || !select || !input) return;
+    if (!parentNode || !input || !select) return;
 
-    const name = sanitizeFolderName(input.value);
-    if (!name) {
+    const folderName = window.AppUtils.sanitizeFolderName(input.value);
+    const thinkingType = parentNode.childLayerType || select.value;
+
+    if (!folderName) {
       alert(window.AppMessages.invalidFolderName);
       return;
     }
 
-    if (hasSiblingFolderName(parent, name)) {
+    if (hasDuplicateSiblingName(parentNode, folderName)) {
       alert(window.AppMessages.duplicateFolderName);
       return;
     }
 
-    const thinkingType = parent.childLayerType || select.value;
-    if (!parent.childLayerType) parent.childLayerType = thinkingType;
+    if (!parentNode.childLayerType) {
+      parentNode.childLayerType = thinkingType;
+    }
 
-    parent.children.push({
+    parentNode.children.push({
       id: getNextNodeId(),
-      name,
+      name: folderName,
       fixed: false,
-      branch: parent.branch || null,
+      branch: parentNode.branch,
       thinkingType,
       childLayerType: null,
       children: []
@@ -201,13 +198,19 @@ window.FolderTree = (() => {
     window.FolderTreeRender.renderAll();
   }
 
+  function getArchiveResultSelector() {
+    return window.AppState.getActiveMode() === "archiveFolder"
+      ? "#folderArchiveResultBox"
+      : "#archiveResultBox";
+  }
+
   function selectArchiveFolder(nodeId) {
     const node = findNodeById(nodeId);
     if (!node || node.id === "documents") return;
 
     state.selectedArchiveFolderId = nodeId;
     window.AppUtils.setText(
-      "#archiveResultBox",
+      getArchiveResultSelector(),
       `${window.AppMessages.archiveDestinationSelected} ${getFolderPath(nodeId)}`
     );
     window.FolderTreeRender.renderArchivePreview();
@@ -226,51 +229,65 @@ window.FolderTree = (() => {
   }
 
   function loadExampleTree() {
-    resetNodeCounter();
-    state.selectedArchiveFolderId = null;
+    const profile = {
+      id: "profile",
+      name: "01_PROFILE",
+      fixed: true,
+      branch: "profile",
+      thinkingType: null,
+      childLayerType: "003_FUNCTIONAL",
+      children: [
+        createNode("CVS", "profile", "003_FUNCTIONAL"),
+        createNode("DEGREES", "profile", "003_FUNCTIONAL"),
+        createNode("CERTIFICATES", "profile", "003_FUNCTIONAL"),
+        createNode("REFERENCES", "profile", "003_FUNCTIONAL")
+      ]
+    };
 
-    const chronological = "001_CHRONOLOGICAL";
-    const thematic = "002_THEMATIC";
-    const functional = "003_FUNCTIONAL";
+    const personal = {
+      id: "personal",
+      name: "02_PERSONAL",
+      fixed: true,
+      branch: "personal",
+      thinkingType: null,
+      childLayerType: "002_THEMATIC",
+      children: [
+        createNode("FAMILY", "personal", "002_THEMATIC"),
+        createNode("HEALTH", "personal", "002_THEMATIC"),
+        createNode("FINANCIAL", "personal", "002_THEMATIC"),
+        createNode("INTERESTS", "personal", "002_THEMATIC", "002_THEMATIC", [
+          createNode("CHESS", "personal", "002_THEMATIC"),
+          createNode("SWIMMING", "personal", "002_THEMATIC"),
+          createNode("BLOG_WRITING", "personal", "002_THEMATIC")
+        ])
+      ]
+    };
 
-    state.tree = window.AppState.createFixedTree();
-    const profile = findNodeById("profile");
-    const personal = findNodeById("personal");
-    const professional = findNodeById("professional");
+    const professional = {
+      id: "professional",
+      name: "03_PROFESSIONAL",
+      fixed: true,
+      branch: "professional",
+      thinkingType: null,
+      childLayerType: "001_CHRONOLOGICAL",
+      children: [
+        createNode("2002-2010_PRIVATE_SECTOR", "professional", "001_CHRONOLOGICAL"),
+        createNode("2010-2019_MARINAS_PPP_DBFOT", "professional", "001_CHRONOLOGICAL"),
+        createNode("2019-2026_STATE_FAIR_SITE_MANAGEMENT", "professional", "001_CHRONOLOGICAL"),
+        createNode("2026-NOW_HEALTH_AND_SAFETY_OFFICER", "professional", "001_CHRONOLOGICAL")
+      ]
+    };
 
-    profile.childLayerType = functional;
-    profile.children = [
-      createNode("CVS", "profile", functional),
-      createNode("DEGREES", "profile", functional),
-      createNode("CERTIFICATES", "profile", functional),
-      createNode("REFERENCES", "profile", functional),
-      createNode("SUPPORTING_EVIDENCE", "profile", functional)
-    ];
-
-    const interests = createNode("INTERESTS", "personal", thematic, thematic, [
-      createNode("CHESS", "personal", thematic),
-      createNode("SWIMMING", "personal", thematic),
-      createNode("MNEMONIC_TECHNIQUES", "personal", thematic),
-      createNode("BLOG_WRITING", "personal", thematic),
-      createNode("WEB_APPS", "personal", thematic),
-      createNode("LEARNING", "personal", thematic)
-    ]);
-
-    personal.childLayerType = thematic;
-    personal.children = [
-      createNode("FAMILY", "personal", thematic),
-      createNode("HEALTH", "personal", thematic),
-      createNode("FINANCIAL", "personal", thematic),
-      interests
-    ];
-
-    professional.childLayerType = chronological;
-    professional.children = [
-      createNode("2002-2010_PRIVATE_SECTOR", "professional", chronological),
-      createNode("2010-2019_MARINAS_PPP_DBFOT", "professional", chronological),
-      createNode("2019-2026_STATE_FAIR_SITE_MANAGEMENT", "professional", chronological),
-      createNode("2026-NOW_HEALTH_AND_SAFETY_OFFICER", "professional", chronological)
-    ];
+    window.AppState.resetNodeCounter();
+    window.AppState.setTree({
+      id: "documents",
+      name: "DOCUMENTS",
+      fixed: true,
+      branch: null,
+      thinkingType: null,
+      childLayerType: null,
+      children: [profile, personal, professional]
+    });
 
     window.FolderTreeRender.renderAll();
   }
@@ -283,11 +300,14 @@ window.FolderTree = (() => {
     getVisibleName,
     getFolderPath,
     getAllFolderPaths,
+    getAllowedThinkingTypes,
+    hasDuplicateSiblingName,
+    updateThinkingPrompt,
     openAddFolderModal,
     confirmAddFolder,
     deleteFolder,
     selectArchiveFolder,
-    updateThinkingPrompt,
+    createNode,
     loadExampleTree
   };
 })();
