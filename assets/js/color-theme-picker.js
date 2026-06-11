@@ -123,7 +123,7 @@ window.ColorThemePicker = (() => {
     button.type = "button";
     button.id = "openColorThemePickerButton";
     button.className = "button button-secondary";
-    button.textContent = "Colors";
+    button.textContent = "Customize App Appearance and Colors";
     button.addEventListener("click", openPicker);
 
     headerActions.appendChild(button);
