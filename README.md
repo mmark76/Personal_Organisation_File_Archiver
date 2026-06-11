@@ -1,13 +1,13 @@
 # Personal Memory-Based File Archiver
 
-**Personal Memory-Based File Archiver** is a standalone browser-based tool that helps the user build a personal memory-based folder tree and archive files manually into user-selected archive folders.
+**Personal Memory-Based File Archiver** is a standalone browser-based tool that helps the user build a personal memory-based folder tree, view an existing one and archive files manually into user-selected archive folders.
 
 The app follows a memory-based approach: files are organised according to how the user naturally remembers them, such as by life area, work period, responsibility, project, subject, interest, or document function.
 
 The current app has three main choices:
 
-- **Build New Folder Tree** — create, review, and optionally create a memory-based folder tree on the local computer. The copy, export, import, and official template download buttons for this mode are currently implemented in the codebase but temporarily disabled and hidden in the visible app interface.
-- **Build Existing Folder Tree on this PC** — choose a local folder and read only folder names up to the selected depth as a starting tree.
+- **Build New Folder Tree on this PC** — create, review, and optionally create a memory-based folder tree on the local computer. The copy, export, import, and official template download buttons for this mode are currently implemented in the codebase but temporarily disabled and hidden in the visible app interface.
+- **View Existing Folder Tree on this PC** — choose a local folder and read only folder names up to the selected depth as a starting tree.
 - **Archive a File** — choose an archive folder tree from this PC or from a JSON file, load one file, review its basic browser metadata, receive a simple offline folder suggestion, select a destination, and archive the file after the user grants browser permission.
 
 The app does not delete, upload, rename, modify, automatically scan, or automatically move files. The archive action leaves the original file untouched.
@@ -71,10 +71,10 @@ For direct local folder creation, existing folder tree reading, and archiving op
 The app provides three main working areas:
 
 1. **Build New Folder Tree** — the user can build, review, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names. The copy, export, import, and official template download buttons for this mode are temporarily disabled and hidden in the visible app interface.
-2. **Build Existing Folder Tree on this PC** — the user can choose one local root folder and select a reading depth of 1, 2, or 3 levels. The app reads only folder names up to that depth and turns them into a starting folder tree for review.
+2. **View Existing Folder Tree on this PC** — the user can choose one local root folder and select a reading depth of 1, 2, or 3 levels. The app reads only folder names up to that depth and turns them into a starting folder tree for review.
 3. **Archive a File** — the user can choose an archive folder tree from this PC or import a folder tree JSON file, load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the archive tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
 
-In **Build New Folder Tree**, the first level is fixed:
+In **Build New Folder Tree on the PC**, the first level is fixed:
 
 ```text
 01_PROFILE
@@ -112,9 +112,9 @@ The default example tree is created locally in the browser. It includes `01_PROF
 
 The codebase contains support for copying the visible tree as text, exporting the tree as JSON, importing a previously exported JSON tree, and downloading official JSON templates. In the current visible app interface, these Build New Folder Tree utility buttons are temporarily disabled and hidden.
 
-## Build Existing Folder Tree on this PC Mode
+## View Existing Folder Tree on this PC Mode
 
-Build Existing Folder Tree on this PC Mode lets the user:
+View Existing Folder Tree on this PC Mode lets the user:
 
 - choose one local root folder through the browser directory picker;
 - choose a folder reading depth of 1, 2, or 3 levels;
