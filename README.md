@@ -53,6 +53,7 @@ assets/js/modals.js
 assets/js/feedback.js
 assets/js/privacy-notice.js
 assets/js/app-init.js
+assets/js/color-theme-picker.js
 
 assets/images/organize-your-pc-logo.svg
 assets/images/local-copyright-protected-badge.svg
