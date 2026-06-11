@@ -69,13 +69,50 @@ window.AppInit = (() => {
     });
   }
 
+  function addDefaultTemplateArchiveChoice(panelSelector, buttonId, noteId) {
+    const panel = qs(panelSelector);
+    if (!panel) return;
+
+    if (!qs(`#${buttonId}`)) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.id = buttonId;
+      button.className = "button button-secondary";
+      button.textContent = "Use Default Template";
+      panel.appendChild(button);
+    }
+
+    if (!qs(`#${noteId}`)) {
+      const note = document.createElement("p");
+      note.id = noteId;
+      note.className = "small-note";
+      note.textContent = "Default Template loads destination choices only. During archiving, the app creates only the selected destination path inside Organize Your PC, not the whole template.";
+      panel.insertAdjacentElement("afterend", note);
+    }
+  }
+
+  function loadDefaultTemplateForArchiving(resultSelector) {
+    window.FolderTree.loadExampleTree();
+    window.AppUtils.setText(
+      resultSelector,
+      "Default Template loaded. Select a destination. During archiving, only the selected destination path will be created inside Organize Your PC."
+    );
+  }
+
   function bindArchiveActions() {
+    addDefaultTemplateArchiveChoice(
+      "#archiveTreeChoicePanel",
+      "useDefaultArchiveTemplateButton",
+      "defaultArchiveTemplateNote"
+    );
+
     qs("#chooseArchiveTreeButton")?.addEventListener("click", () => {
       const panel = qs("#archiveTreeChoicePanel");
       if (panel) panel.hidden = !panel.hidden;
     });
 
     qs("#useArchiveFolderTreeOnPcButton")?.addEventListener("click", window.FolderTreeExisting.chooseExistingFolderTreeForArchive);
+    qs("#useDefaultArchiveTemplateButton")?.addEventListener("click", () => loadDefaultTemplateForArchiving("#archiveResultBox"));
     qs("#importArchiveTreeButton")?.addEventListener("click", () => qs("#archiveTreeImportInput")?.click());
     qs("#archiveTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
     qs("#importFileButton")?.addEventListener("click", window.FileImport.openFileInput);
@@ -85,12 +122,19 @@ window.AppInit = (() => {
   }
 
   function bindFolderArchiveActions() {
+    addDefaultTemplateArchiveChoice(
+      "#folderArchiveTreeChoicePanel",
+      "useDefaultFolderArchiveTemplateButton",
+      "defaultFolderArchiveTemplateNote"
+    );
+
     qs("#chooseFolderArchiveTreeButton")?.addEventListener("click", () => {
       const panel = qs("#folderArchiveTreeChoicePanel");
       if (panel) panel.hidden = !panel.hidden;
     });
 
     qs("#useFolderArchiveTreeOnPcButton")?.addEventListener("click", window.FolderTreeExisting.chooseExistingFolderTreeForFolderArchive);
+    qs("#useDefaultFolderArchiveTemplateButton")?.addEventListener("click", () => loadDefaultTemplateForArchiving("#folderArchiveResultBox"));
     qs("#importFolderArchiveTreeButton")?.addEventListener("click", () => qs("#folderArchiveTreeImportInput")?.click());
     qs("#folderArchiveTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
     qs("#chooseFolderToArchiveButton")?.addEventListener("click", window.FolderArchive.chooseFolderToArchive);
