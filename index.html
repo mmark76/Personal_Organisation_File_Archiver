@@ -6,8 +6,8 @@
 
   <title>Organize Your PC | Personal Memory-Based File Archiver</title>
 
-  <meta name="description" content="A private browser-based file archiving app that helps users build a memory-based folder tree and archive files manually with full user control." />
-  <meta name="keywords" content="file organisation, folder tree, file archiving, memory-based organisation, digital information management, personal productivity, local browser app, document management, Personal Memory-Based File Archiver" />
+  <meta name="description" content="A private browser-based file and folder archiving app that helps users build a memory-based folder tree and archive items manually with full user control." />
+  <meta name="keywords" content="file organisation, folder tree, file archiving, folder archiving, memory-based organisation, digital information management, personal productivity, local browser app, document management, Personal Memory-Based File Archiver" />
   <meta name="author" content="Markellos Markides" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#000000" />
@@ -20,7 +20,7 @@
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Organize Your PC" />
-  <meta property="og:description" content="Build a memory-based folder tree and archive files manually with full user control." />
+  <meta property="og:description" content="Build a memory-based folder tree and archive files or folders manually with full user control." />
   <meta property="og:url" content="https://organizeyourpc.com/" />
   <meta property="og:site_name" content="Organize Your PC" />
   <meta property="og:locale" content="en_US" />
@@ -28,7 +28,7 @@
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Organize Your PC" />
-  <meta name="twitter:description" content="Build a memory-based folder tree and archive files manually with full user control." />
+  <meta name="twitter:description" content="Build a memory-based folder tree and archive files or folders manually with full user control." />
   <meta name="twitter:image" content="https://organizeyourpc.com/assets/images/organize-your-pc-social-preview.png" />
 
   <script type="application/ld+json">
@@ -39,7 +39,7 @@
     "alternateName": "Personal Memory-Based File Archiver",
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Any modern browser",
-    "description": "A local browser-based app for building a memory-based folder tree and archiving files manually with full user control.",
+    "description": "A local browser-based app for building a memory-based folder tree and archiving files or folders manually with full user control.",
     "creator": {
       "@type": "Person",
       "name": "Markellos Markides"
@@ -75,7 +75,7 @@
       </div>
 
       <p class="app-intro">
-        Build a folder tree based on how you remember your files, then archive each file manually with full control.
+        Build a folder tree based on how you remember your files, then archive files or folders manually with full control.
       </p>
 
       <div class="header-actions" aria-label="General app actions">
@@ -90,7 +90,7 @@
     <section id="mainChoiceScreen" class="screen screen-active" aria-labelledby="mainChoiceTitle">
       <div class="screen-card">
         <h2 id="mainChoiceTitle">Choose what you want to do</h2>
-        <p>Start with a new tree, view an existing folder tree on this PC, or archive a file.</p>
+        <p>Start with a new tree, view an existing folder tree on this PC, archive a file, or archive a whole folder.</p>
 
         <div class="choice-grid">
           <button type="button" id="openFolderTreeModeButton" class="choice-card">
@@ -106,6 +106,11 @@
           <button type="button" id="openArchiveModeButton" class="choice-card">
             <strong>Archive a File</strong>
             <span>Load a file and archive it manually to the destination folder you choose.</span>
+          </button>
+
+          <button type="button" id="openArchiveFolderModeButton" class="choice-card">
+            <strong>Archive a Folder</strong>
+            <span>Choose a folder and copy it recursively to the destination folder you choose.</span>
           </button>
         </div>
       </div>
@@ -255,6 +260,57 @@
         </section>
       </section>
     </section>
+
+    <section id="archiveFolderScreen" class="screen" aria-labelledby="archiveFolderTitle" hidden aria-hidden="true">
+      <div class="screen-toolbar">
+        <button type="button" class="button button-secondary back-to-main-button">Back to main choices</button>
+      </div>
+
+      <section class="work-panel archive-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="archiveFolderTitle">Archive a Folder</h2>
+            <p>Choose one folder, select its destination from the tree, and archive a recursive copy there.</p>
+          </div>
+        </div>
+
+        <div class="archive-actions">
+          <button type="button" id="chooseFolderArchiveTreeButton" class="button button-secondary">Choose Folder Tree</button>
+          <button type="button" id="chooseFolderToArchiveButton" class="button">Choose Folder to Archive</button>
+          <button type="button" id="archiveFolderButton" class="button button-success">Archive the Folder</button>
+        </div>
+
+        <p class="small-note">This copies the selected folder and its contents. It does not delete or move the original folder.</p>
+
+        <div id="folderArchiveTreeChoicePanel" class="action-row" hidden>
+          <label for="folderArchiveTreeDepthSelect">Folder depth to read</label>
+          <select id="folderArchiveTreeDepthSelect">
+            <option value="1">1 level</option>
+            <option value="2" selected>2 levels</option>
+            <option value="3">3 levels</option>
+          </select>
+          <button type="button" id="useFolderArchiveTreeOnPcButton" class="button button-secondary">Use folder tree on this PC</button>
+          <button type="button" id="importFolderArchiveTreeButton" class="button button-secondary">Import tree JSON</button>
+        </div>
+
+        <input type="file" id="folderArchiveTreeImportInput" accept="application/json,.json" hidden />
+
+        <section class="file-status-card" aria-labelledby="folderArchiveStatusTitle">
+          <h3 id="folderArchiveStatusTitle">Loaded Folder</h3>
+          <div id="folderArchiveStatusBox" class="file-status-box">No folder loaded yet.</div>
+        </section>
+
+        <section class="folder-tree-preview-card" aria-labelledby="folderArchiveTreePreviewTitle">
+          <h3 id="folderArchiveTreePreviewTitle">Select Archive Destination</h3>
+          <div id="folderArchiveTreePreview" class="folder-tree-preview">No folder tree loaded yet.</div>
+        </section>
+
+        <section class="archive-result-card" aria-labelledby="folderArchiveResultTitle">
+          <h3 id="folderArchiveResultTitle">Archive Result</h3>
+          <div id="folderArchiveResultBox" class="archive-result-box">No archive action yet.</div>
+        </section>
+      </section>
+    </section>
   </main>
 
   <div id="folderModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="folderModalTitle" hidden>
@@ -296,9 +352,9 @@
       </div>
 
       <div class="modal-content">
-        <p>Organize Your PC is a personal memory-based file organizing and archiving app.</p>
-        <p>It does not delete, upload, rename, modify, or automatically move files.</p>
-        <p>The app can archive a loaded file only after the user chooses a destination folder and gives browser permission.</p>
+        <p>Organize Your PC is a personal memory-based file and folder organizing and archiving app.</p>
+        <p>It does not delete, upload, rename, modify, or automatically move files or folders.</p>
+        <p>The app can archive a loaded file or chosen folder only after the user chooses a destination folder and gives browser permission.</p>
       </div>
 
       <div class="modal-actions">
@@ -315,11 +371,12 @@
       </div>
 
       <div class="modal-content">
-        <p>The app has three main choices.</p>
+        <p>The app has four main choices.</p>
         <ol>
           <li><strong>Build New Folder Tree on this PC:</strong> create and manage your memory-based folder structure.</li>
           <li><strong>View Existing Folder Tree on this PC:</strong> choose a local folder and build the folder tree up to the depth you select.</li>
           <li><strong>Archive a File:</strong> load a file, select a destination from the folder tree, and archive it there with your permission.</li>
+          <li><strong>Archive a Folder:</strong> choose a folder, select a destination from the folder tree, and archive a recursive copy there with your permission.</li>
         </ol>
         <p>Only one mode is active at a time.</p>
       </div>
@@ -358,7 +415,7 @@
   <section id="privacyNotice" class="privacy-notice" role="region" aria-label="Privacy notice" hidden>
     <div class="privacy-content">
       <strong>Privacy notice</strong>
-      <p>This app runs locally in your browser. It does not upload, delete, rename, or automatically move your files.</p>
+      <p>This app runs locally in your browser. It does not upload, delete, rename, or automatically move your files or folders.</p>
     </div>
 
     <div class="privacy-actions">
@@ -395,6 +452,7 @@
   <script src="assets/js/file-advisor.js" defer></script>
   <script src="assets/js/file-import.js" defer></script>
   <script src="assets/js/file-archive.js" defer></script>
+  <script src="assets/js/folder-archive.js" defer></script>
 
   <script src="assets/js/modals.js" defer></script>
   <script src="assets/js/feedback.js" defer></script>
