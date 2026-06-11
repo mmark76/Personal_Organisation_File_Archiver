@@ -7,8 +7,8 @@ window.ColorThemePicker = (() => {
     appBg: "#000000",
     appSurface: "#0a0a0a",
     appSurfaceSoft: "#111111",
-    appText: "#f8fafc",
-    appMuted: "#d4d4d4",
+    appText: "#ffffff",
+    appMuted: "#ffffff",
     appPrimary: "#6b7280",
     appPrimaryHover: "#9ca3af",
     appSuccess: "#166534",
@@ -28,7 +28,7 @@ window.ColorThemePicker = (() => {
     { key: "appSuccess", label: "Success button", cssVariable: "--app-success" },
     { key: "appDanger", label: "Danger button", cssVariable: "--app-danger" },
     { key: "appFocus", label: "Focus outline", cssVariable: "--app-focus" },
-    { key: "appHighlight", label: "Gold highlight", cssVariable: "--custom-highlight" }
+    { key: "appHighlight", label: "Main title highlight", cssVariable: "--custom-highlight" }
   ];
 
   function isValidHexColor(value) {
@@ -76,6 +76,7 @@ window.ColorThemePicker = (() => {
       rootStyle.setProperty(field.cssVariable, safeTheme[field.key]);
     });
 
+    rootStyle.setProperty("--app-muted-strong", safeTheme.appMuted);
     applyExtraHighlightStyles(safeTheme.appHighlight);
   }
 
@@ -89,22 +90,8 @@ window.ColorThemePicker = (() => {
     }
 
     style.textContent = `
-      .app-brand h1,
-      .screen-card h2,
-      .choice-card strong,
-      .choice-card:hover strong {
+      .app-brand h1 {
         color: ${highlightColor};
-      }
-
-      .choice-card {
-        border-color: color-mix(in srgb, ${highlightColor} 34%, transparent);
-        box-shadow: 0 0 0 1px color-mix(in srgb, ${highlightColor} 8%, transparent), 0 18px 44px rgba(0, 0, 0, 0.35);
-      }
-
-      .choice-card:hover,
-      .archive-destination-button:hover,
-      .archive-destination-button.archive-destination-selected {
-        border-color: color-mix(in srgb, ${highlightColor} 82%, transparent);
       }
     `;
   }
