@@ -75,6 +75,12 @@
   gap: 10px;
 }
 
+.header-actions #openColorThemePickerButton,
+.header-actions #downloadSettingsButton {
+  position: relative;
+  z-index: 120;
+}
+
 .app-main {
   width: min(var(--app-width), calc(100% - 40px));
   margin: 0 auto 28px;
