@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Archive Core Tests | Organize Your PC</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #0a0a0a;
+      color: #f8fafc;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: #fbbf24;
+    }
+
+    .summary,
+    .test-result,
+    .hidden-fixtures {
+      margin-top: 16px;
+      padding: 14px;
+      border: 1px solid #404040;
+      border-radius: 12px;
+      background: #111111;
+    }
+
+    .test-result.pass {
+      border-color: #166534;
+    }
+
+    .test-result.fail {
+      border-color: #b91c1c;
+    }
+
+    code {
+      color: #fbbf24;
+    }
+
+    .hidden-fixtures {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Archive Core Tests</h1>
+    <p>
+      This standalone browser test page checks the core archive workflow without changing the production app code.
+      Open this file in a modern browser and read the results below.
+    </p>
+
+    <section id="summary" class="summary">Tests have not run yet.</section>
+    <section id="results"></section>
+  </main>
+
+  <div class="hidden-fixtures" aria-hidden="true">
+    <div id="treeContainer"></div>
+    <pre id="treeOutput"></pre>
+    <div id="archiveTreePreview"></div>
+    <div id="archiveResultBox"></div>
+    <select id="thinkingTypeSelect">
+      <option value="001_CHRONOLOGICAL">001 - Chronological</option>
+      <option value="002_THEMATIC">002 - Thematic</option>
+      <option value="003_FUNCTIONAL">003 - Functional</option>
+      <option value="004_ROLE_BASED">004 - Role-based</option>
+    </select>
+    <input id="folderNameInput" />
+    <div id="examplesBox"></div>
+  </div>
+
+  <script src="../assets/js/app-state.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/error-messages.js"></script>
+  <script src="../assets/js/browser-support.js"></script>
+  <script src="../assets/js/folder-tree-codes.js"></script>
+  <script src="../assets/js/folder-tree.js"></script>
+  <script src="../assets/js/folder-tree-render.js"></script>
+  <script src="../assets/js/folder-creation.js"></script>
+  <script src="../assets/js/file-archive.js"></script>
+
+  <script>
+    "use strict";
+
+    class FakeFileHandle {
+      constructor(name, content = "") {
+        this.kind = "file";
+        this.name = name;
+        this.content = content;
+      }
+
+      async createWritable() {
+        const handle = this;
+        const chunks = [];
+
+        return {
+          async write(chunk) {
+            chunks.push(chunk);
+          },
+          async close() {
+            let content = "";
+
+            for (const chunk of chunks) {
+              if (chunk instanceof Blob) {
+                content += await chunk.text();
+              } else {
+                content += String(chunk);
+              }
+            }
+
+            handle.content = content;
+          }
+        };
+      }
+
+      async getFile() {
+        return new File([this.content], this.name);
+      }
+    }
+
+    class FakeDirectoryHandle {
+      constructor(name) {
+        this.kind = "directory";
+        this.name = name;
+        this.directories = new Map();
+        this.files = new Map();
+      }
+
+      async getDirectoryHandle(name, options = {}) {
+        if (this.directories.has(name)) {
+          return this.directories.get(name);
+        }
+
+        if (!options.create) {
+          throw new DOMException("Directory not found", "NotFoundError");
+        }
+
+        const directory = new FakeDirectoryHandle(name);
+        this.directories.set(name, directory);
+        return directory;
+      }
+
+      async getFileHandle(name, options = {}) {
+        if (this.files.has(name)) {
+          return this.files.get(name);
+        }
+
+        if (!options.create) {
+          throw new DOMException("File not found", "NotFoundError");
+        }
+
+        const file = new FakeFileHandle(name);
+        this.files.set(name, file);
+        return file;
+      }
+
+      async *entries() {
+        for (const entry of this.directories) {
+          yield entry;
+        }
+
+        for (const entry of this.files) {
+          yield entry;
+        }
+      }
+    }
+
+    const tests = [];
+    const alerts = [];
+
+    window.alert = message => alerts.push(String(message));
+    window.AppModals = {
+      closeModal() {}
+    };
+
+    function test(name, callback) {
+      tests.push({ name, callback });
+    }
+
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message);
+      }
+    }
+
+    function createTestTree() {
+      return {
+        id: "documents",
+        name: "DOCUMENTS",
+        fixed: true,
+        branch: null,
+        thinkingType: null,
+        childLayerType: null,
+        children: [
+          {
+            id: "profile",
+            name: "01_PROFILE",
+            fixed: true,
+            branch: "profile",
+            thinkingType: null,
+            childLayerType: "003_FUNCTIONAL",
+            children: [
+              {
+                id: "cvs",
+                name: "CVS",
+                fixed: false,
+                branch: "profile",
+                thinkingType: "003_FUNCTIONAL",
+                childLayerType: null,
+                children: []
+              }
+            ]
+          },
+          {
+            id: "personal",
+            name: "02_PERSONAL",
+            fixed: true,
+            branch: "personal",
+            thinkingType: null,
+            childLayerType: null,
+            children: []
+          },
+          {
+            id: "professional",
+            name: "03_PROFESSIONAL",
+            fixed: true,
+            branch: "professional",
+            thinkingType: null,
+            childLayerType: null,
+            children: []
+          }
+        ]
+      };
+    }
+
+    async function getDirectoryByPath(rootHandle, path) {
+      const parts = path.split("/").filter(Boolean);
+      let currentHandle = rootHandle;
+
+      for (const part of parts) {
+        currentHandle = await currentHandle.getDirectoryHandle(part);
+      }
+
+      return currentHandle;
+    }
+
+    function resetArchiveMode() {
+      window.AppState.setActiveMode("archive");
+      window.AppState.resetMode("archive");
+      window.AppState.setActiveMode("archive");
+      window.AppState.setTree(createTestTree());
+      window.AppUtils.setText("#archiveResultBox", "");
+      window.FolderTreeRender.renderArchivePreview();
+    }
+
+    test("Archive file copies to the selected folder and avoids overwriting duplicate names", async () => {
+      resetArchiveMode();
+
+      const rootHandle = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+      window.showDirectoryPicker = async () => rootHandle;
+      window.AppState.setAppRootHandle(rootHandle);
+
+      window.FolderTree.selectArchiveFolder("cvs");
+      window.AppState.setLoadedFile(new File(["first version"], "sample.txt", { type: "text/plain" }));
+
+      await window.FileArchive.archiveLoadedFile();
+
+      const destination = await getDirectoryByPath(rootHandle, "01_PROFILE/CVS");
+      const firstFile = await destination.getFileHandle("sample.txt");
+      assert(firstFile.content === "first version", "The first file was not copied to the selected destination.");
+
+      window.AppState.setLoadedFile(new File(["second version"], "sample.txt", { type: "text/plain" }));
+      await window.FileArchive.archiveLoadedFile();
+
+      const duplicateFile = await destination.getFileHandle("sample_copy_1.txt");
+      assert(duplicateFile.content === "second version", "The duplicate file did not receive a safe copy name.");
+      assert(firstFile.content === "first version", "The original archived file was overwritten.");
+    });
+
+    test("Folder creation creates expected paths and respects naming and duplicate rules", async () => {
+      const rootHandle = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+
+      await window.FolderCreation.createDirectoryPath(rootHandle, "01_PROFILE/CVS");
+      await window.FolderCreation.createDirectoryPath(rootHandle, "02_PERSONAL/HEALTH");
+
+      const cvsFolder = await getDirectoryByPath(rootHandle, "01_PROFILE/CVS");
+      const healthFolder = await getDirectoryByPath(rootHandle, "02_PERSONAL/HEALTH");
+
+      assert(cvsFolder.name === "CVS", "The CVS folder was not created correctly.");
+      assert(healthFolder.name === "HEALTH", "The HEALTH folder was not created correctly.");
+      assert(window.AppUtils.sanitizeFolderName("my folder") === "MY_FOLDER", "Spaces should become underscores and names should be uppercase.");
+      assert(window.AppUtils.sanitizeFolderName("bad:name") === "BAD_NAME", "Invalid Windows path characters should be removed.");
+      assert(window.AppUtils.sanitizeFolderName("CON") === "", "Windows reserved device names should not be accepted.");
+
+      window.AppState.setActiveMode("buildTree");
+      window.AppState.resetMode("buildTree");
+      window.AppState.setActiveMode("buildTree");
+      alerts.length = 0;
+
+      const input = document.getElementById("folderNameInput");
+      const select = document.getElementById("thinkingTypeSelect");
+      select.value = "003_FUNCTIONAL";
+
+      window.AppState.state.selectedParentId = "profile";
+      input.value = "CVS";
+      window.FolderTree.confirmAddFolder();
+
+      window.AppState.state.selectedParentId = "profile";
+      input.value = "CVS";
+      window.FolderTree.confirmAddFolder();
+
+      const profile = window.FolderTree.findNodeById("profile");
+      assert(profile.children.length === 1, "Duplicate sibling folder names should not be added.");
+      assert(alerts.includes(window.AppMessages.duplicateFolderName), "A duplicate-folder warning should be shown.");
+    });
+
+    test("Archive destination selection stores only a valid folder node", async () => {
+      resetArchiveMode();
+
+      assert(window.AppState.state.selectedArchiveFolderId === null, "No archive destination should be selected initially.");
+
+      window.FolderTree.selectArchiveFolder("missing-node");
+      assert(window.AppState.state.selectedArchiveFolderId === null, "A missing node should not be accepted as a destination.");
+
+      window.FolderTree.selectArchiveFolder("documents");
+      assert(window.AppState.state.selectedArchiveFolderId === null, "The internal DOCUMENTS root should not be accepted as an archive destination.");
+
+      window.FolderTree.selectArchiveFolder("cvs");
+      assert(window.AppState.state.selectedArchiveFolderId === "cvs", "A valid folder node should be stored as the selected destination.");
+      assert(
+        document.getElementById("archiveResultBox").textContent.includes("01_PROFILE/CVS"),
+        "The selected destination path should be visible to the user."
+      );
+    });
+
+    async function runTests() {
+      const results = document.getElementById("results");
+      const summary = document.getElementById("summary");
+      let passed = 0;
+
+      for (const item of tests) {
+        const result = document.createElement("article");
+        result.className = "test-result";
+
+        try {
+          await item.callback();
+          passed += 1;
+          result.classList.add("pass");
+          result.innerHTML = `<strong>PASS:</strong> ${item.name}`;
+        } catch (error) {
+          result.classList.add("fail");
+          result.innerHTML = `<strong>FAIL:</strong> ${item.name}<br><code>${error.message}</code>`;
+        }
+
+        results.appendChild(result);
+      }
+
+      summary.textContent = `${passed} of ${tests.length} tests passed.`;
+    }
+
+    runTests();
+  </script>
+</body>
+</html>
