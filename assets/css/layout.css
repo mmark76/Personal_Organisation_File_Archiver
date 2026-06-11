@@ -97,7 +97,7 @@
   padding: 24px;
   text-align: center;
   background: #050505;
-  border-color: rgba(255, 255, 255, 0.16);
+  border-color: var(--app-border-soft);
 }
 
 .screen-card h2,
@@ -110,7 +110,7 @@
 }
 
 .screen-card h2 {
-  color: #fbbf24;
+  color: var(--app-text);
   font-weight: 850;
 }
 
@@ -230,6 +230,4 @@
 
 .copyrighted-badge img {
   display: block;
-  width: 96px;
-  height: auto;
 }
