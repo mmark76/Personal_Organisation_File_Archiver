@@ -67,6 +67,28 @@ Open `index.html` in a modern browser.
 
 For direct local folder creation, existing folder tree reading, and archiving operations, use a browser that supports the File System Access API, such as Chrome or Edge. Browser support may also depend on secure-context rules.
 
+## Settings and Appearance
+
+The app includes a local **Settings** panel for user-controlled appearance changes, including colours, borders, layout sizes, and fonts.
+
+Settings preview live in the browser and are saved locally only when the user clicks **Save settings**.
+
+Saved settings are stored in local browser storage under:
+
+```text
+organizeYourPcColorTheme
+```
+
+The user can download the saved settings to the computer by clicking **Download settings**. The downloaded JSON file is named:
+
+```text
+organize_your_pc_settings.json
+```
+
+The settings export contains the app name, export type, schema version, export date, storage key, and the saved settings object.
+
+The **Settings** and **Download settings** controls remain available above ordinary app modals so the user can adjust or download settings while a modal dialog is open.
+
 ## What the App Does
 
 The app provides three main working areas:
