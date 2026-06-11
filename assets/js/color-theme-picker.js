@@ -14,7 +14,15 @@ window.ColorThemePicker = (() => {
     appSuccess: "#166534",
     appDanger: "#b91c1c",
     appFocus: "#2563eb",
-    appHighlight: "#fbbf24"
+    appHighlight: "#fbbf24",
+    appBorder: "#404040",
+    appBorderSoft: "#262626",
+    buttonBorder: "#ffffff",
+    buttonBorderHover: "#ffffff",
+    choiceBorder: "#ffffff",
+    archiveDestinationBorder: "#ffffff",
+    inputBorder: "#404040",
+    modalBorder: "#404040"
   };
 
   const fields = [
@@ -28,7 +36,15 @@ window.ColorThemePicker = (() => {
     { key: "appSuccess", label: "Success button", cssVariable: "--app-success" },
     { key: "appDanger", label: "Danger button", cssVariable: "--app-danger" },
     { key: "appFocus", label: "Focus outline", cssVariable: "--app-focus" },
-    { key: "appHighlight", label: "Main title highlight", cssVariable: "--custom-highlight" }
+    { key: "appHighlight", label: "Main title highlight", cssVariable: "--custom-highlight" },
+    { key: "appBorder", label: "App frame border", cssVariable: "--app-border" },
+    { key: "appBorderSoft", label: "Soft/internal border", cssVariable: "--app-border-soft" },
+    { key: "buttonBorder", label: "Button border", cssVariable: "--button-border" },
+    { key: "buttonBorderHover", label: "Button hover border", cssVariable: "--button-border-hover" },
+    { key: "choiceBorder", label: "Choice card border", cssVariable: "--choice-card-border" },
+    { key: "archiveDestinationBorder", label: "Archive selection border", cssVariable: "--archive-destination-border" },
+    { key: "inputBorder", label: "Input field border", cssVariable: "--input-border" },
+    { key: "modalBorder", label: "Color modal border", cssVariable: "--color-modal-border" }
   ];
 
   let isOpen = false;
@@ -85,21 +101,64 @@ window.ColorThemePicker = (() => {
     });
 
     rootStyle.setProperty("--app-muted-strong", safeTheme.appMuted);
-    applyHighlightStyle(safeTheme.appHighlight);
+    applyGeneratedThemeStyles(safeTheme);
   }
 
-  function applyHighlightStyle(highlightColor) {
-    let style = document.getElementById("colorThemePickerHighlightStyles");
+  function applyGeneratedThemeStyles(theme) {
+    let style = document.getElementById("colorThemePickerGeneratedStyles");
 
     if (!style) {
       style = document.createElement("style");
-      style.id = "colorThemePickerHighlightStyles";
+      style.id = "colorThemePickerGeneratedStyles";
       document.head.appendChild(style);
     }
 
     style.textContent = `
       .app-brand h1 {
-        color: ${highlightColor};
+        color: ${theme.appHighlight};
+      }
+
+      .button,
+      button,
+      .button-secondary,
+      .button-success,
+      .button-danger,
+      .header-actions .button {
+        border-color: ${theme.buttonBorder};
+      }
+
+      .button:hover,
+      button:hover,
+      .button-secondary:hover,
+      .button-success:hover,
+      .button-danger:hover,
+      .header-actions .button:hover {
+        border-color: ${theme.buttonBorderHover};
+      }
+
+      .choice-card,
+      .choice-card:hover {
+        border-color: ${theme.choiceBorder};
+        box-shadow: 0 0 0 1px color-mix(in srgb, ${theme.choiceBorder} 18%, transparent), 0 18px 44px rgba(0, 0, 0, 0.35);
+      }
+
+      .archive-destination-button:hover,
+      .archive-destination-button.archive-destination-selected {
+        border-color: ${theme.archiveDestinationBorder};
+      }
+
+      input,
+      select,
+      textarea {
+        border-color: ${theme.inputBorder};
+      }
+
+      .ctp-card,
+      .ctp-row,
+      .ctp-hex,
+      .ctp-swatch,
+      .ctp-close {
+        border-color: ${theme.modalBorder};
       }
     `;
   }
@@ -114,14 +173,15 @@ window.ColorThemePicker = (() => {
     style.textContent = `
       #colorThemePickerModal {
         position: fixed;
-        inset: 0;
+        top: 92px;
+        right: 18px;
+        left: auto;
+        bottom: auto;
         z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        background: rgba(0, 0, 0, 0.76);
-        backdrop-filter: blur(6px);
+        width: min(380px, calc(100vw - 24px));
+        padding: 0;
+        background: transparent;
+        pointer-events: none;
       }
 
       #colorThemePickerModal[hidden] {
@@ -129,161 +189,139 @@ window.ColorThemePicker = (() => {
       }
 
       .ctp-card {
-        width: min(760px, calc(100vw - 32px));
-        max-height: min(82vh, 820px);
+        width: 100%;
+        max-height: calc(100vh - 122px);
         overflow: auto;
-        padding: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 22px;
+        padding: 16px;
+        border: 1px solid var(--color-modal-border, #404040);
+        border-radius: 18px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
           #060606;
-        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+        box-shadow: 0 18px 56px rgba(0, 0, 0, 0.62);
         color: var(--app-text);
+        pointer-events: auto;
       }
 
       .ctp-header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 10px;
+        gap: 12px;
+        margin-bottom: 8px;
       }
 
       .ctp-header h2 {
         margin: 0;
-        font-size: 28px;
-        line-height: 1.15;
+        font-size: 19px;
+        line-height: 1.2;
         font-weight: 800;
         color: #ffffff;
       }
 
       .ctp-close {
-        width: 42px;
-        min-width: 42px;
-        height: 42px;
-        min-height: 42px;
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+        min-height: 34px;
         padding: 0;
-        border: 1px solid #ffffff;
-        border-radius: 12px;
+        border: 1px solid var(--color-modal-border, #404040);
+        border-radius: 10px;
         background: transparent;
         color: #ffffff;
-        font-size: 24px;
+        font-size: 21px;
         line-height: 1;
       }
 
       .ctp-close:hover {
         background: rgba(255, 255, 255, 0.08);
         color: #ffffff;
-        border-color: #ffffff;
       }
 
       .ctp-intro {
-        margin: 0 0 18px;
-        color: rgba(255, 255, 255, 0.88);
-        font-size: 14px;
-        line-height: 1.5;
+        margin: 4px 0 12px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 12px;
+        line-height: 1.4;
       }
 
       .ctp-grid {
         display: grid;
-        gap: 12px;
+        gap: 7px;
       }
 
       .ctp-row {
         display: grid;
-        grid-template-columns: minmax(180px, 1fr) auto auto;
+        grid-template-columns: minmax(130px, 1fr) 40px 78px;
         align-items: center;
-        gap: 12px;
-        padding: 12px 14px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.03);
+        gap: 8px;
+        padding: 8px 9px;
+        border: 1px solid var(--color-modal-border, #404040);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.025);
       }
 
       .ctp-label {
         margin: 0;
         color: #ffffff;
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 700;
         text-align: left;
       }
 
       .ctp-swatch {
-        width: 54px;
-        height: 36px;
+        width: 34px;
+        height: 26px;
         padding: 0;
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        border-radius: 10px;
+        border: 1px solid var(--color-modal-border, #404040);
+        border-radius: 8px;
         background: transparent;
         cursor: pointer;
       }
 
       .ctp-hex {
-        width: 104px;
-        min-width: 104px;
-        padding: 8px 10px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 10px;
+        width: 78px;
+        min-width: 78px;
+        padding: 6px 7px;
+        border: 1px solid var(--color-modal-border, #404040);
+        border-radius: 8px;
         background: #0d0d0d;
         color: #ffffff;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.02em;
         text-align: center;
       }
 
       .ctp-actions {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
       }
 
       .ctp-actions .button,
       .ctp-actions button {
-        min-height: 40px;
+        min-height: 34px;
+        padding: 7px 9px;
+        font-size: 12px;
       }
 
-      @media (max-width: 640px) {
+      .ctp-actions .ctp-save-button {
+        grid-column: 1 / -1;
+      }
+
+      @media (max-width: 720px) {
         #colorThemePickerModal {
-          padding: 14px;
+          top: auto;
+          right: 12px;
+          bottom: 12px;
+          width: min(360px, calc(100vw - 24px));
         }
 
         .ctp-card {
-          padding: 18px;
-          border-radius: 18px;
-        }
-
-        .ctp-header h2 {
-          font-size: 24px;
-        }
-
-        .ctp-row {
-          grid-template-columns: 1fr;
-          justify-items: start;
-          gap: 10px;
-        }
-
-        .ctp-label {
-          text-align: left;
-        }
-
-        .ctp-controls {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .ctp-actions {
-          justify-content: stretch;
-        }
-
-        .ctp-actions .button,
-        .ctp-actions button {
-          flex: 1 1 100%;
+          max-height: min(70vh, 560px);
         }
       }
     `;
@@ -293,10 +331,6 @@ window.ColorThemePicker = (() => {
 
   function getModal() {
     return document.getElementById("colorThemePickerModal");
-  }
-
-  function getGrid() {
-    return document.getElementById("colorThemePickerGrid");
   }
 
   function createButton() {
@@ -328,9 +362,6 @@ window.ColorThemePicker = (() => {
     label.setAttribute("for", `colorThemePicker_swatch_${field.key}`);
     label.textContent = field.label;
 
-    const controls = document.createElement("div");
-    controls.className = "ctp-controls";
-
     const swatch = document.createElement("input");
     swatch.type = "color";
     swatch.id = `colorThemePicker_swatch_${field.key}`;
@@ -346,8 +377,6 @@ window.ColorThemePicker = (() => {
       }
       handleLivePreview();
     });
-
-    controls.appendChild(swatch);
 
     const hexInput = document.createElement("input");
     hexInput.type = "text";
@@ -378,7 +407,7 @@ window.ColorThemePicker = (() => {
       }
     });
 
-    row.append(label, controls, hexInput);
+    row.append(label, swatch, hexInput);
     return row;
   }
 
@@ -410,7 +439,7 @@ window.ColorThemePicker = (() => {
 
     const intro = document.createElement("p");
     intro.className = "ctp-intro";
-    intro.textContent = "Select colors for the app. Changes are previewed live and saved locally in this browser.";
+    intro.textContent = "Small docked panel. Changes are previewed live and saved locally in this browser.";
 
     titleWrap.append(title, intro);
 
@@ -437,7 +466,7 @@ window.ColorThemePicker = (() => {
     const resetButton = document.createElement("button");
     resetButton.type = "button";
     resetButton.className = "button button-secondary";
-    resetButton.textContent = "Reset defaults";
+    resetButton.textContent = "Reset";
     resetButton.addEventListener("click", resetTheme);
 
     const closeActionButton = document.createElement("button");
@@ -448,7 +477,7 @@ window.ColorThemePicker = (() => {
 
     const saveButton = document.createElement("button");
     saveButton.type = "button";
-    saveButton.className = "button";
+    saveButton.className = "button ctp-save-button";
     saveButton.textContent = "Save colors";
     saveButton.addEventListener("click", saveCurrentTheme);
 
@@ -456,12 +485,6 @@ window.ColorThemePicker = (() => {
 
     card.append(header, grid, actions);
     modal.appendChild(card);
-
-    modal.addEventListener("click", event => {
-      if (event.target === modal) {
-        closePicker();
-      }
-    });
 
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && isOpen) {
