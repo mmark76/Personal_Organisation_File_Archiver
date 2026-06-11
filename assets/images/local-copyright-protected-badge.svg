@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="125" height="25" viewBox="0 0 125 25" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="82" height="25" viewBox="0 0 82 25" role="img" aria-labelledby="title desc">
   <title id="title">Copyright protected badge</title>
   <desc id="desc">A local offline badge showing that the work is copyright protected.</desc>
-  <rect width="125" height="25" rx="4" fill="#ffffff"/>
-  <rect x="0.5" y="0.5" width="124" height="24" rx="3.5" fill="none" stroke="#111827"/>
+  <rect width="82" height="25" rx="4" fill="#ffffff"/>
+  <rect x="0.5" y="0.5" width="81" height="24" rx="3.5" fill="none" stroke="#111827"/>
   <circle cx="13" cy="12.5" r="7.5" fill="#111827"/>
   <text x="13" y="16" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" fill="#ffffff">©</text>
   <text x="25" y="10.5" font-family="Arial, Helvetica, sans-serif" font-size="7" font-weight="700" fill="#111827">COPYRIGHT</text>
