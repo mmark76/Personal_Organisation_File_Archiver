@@ -225,8 +225,11 @@
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
+  line-height: 0;
 }
 
 .copyrighted-badge img {
   display: block;
+  width: 96px;
+  height: auto;
 }
