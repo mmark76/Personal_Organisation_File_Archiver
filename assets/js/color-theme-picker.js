@@ -15,48 +15,48 @@ window.ColorThemePicker = (() => {
 
   const defaultTheme = {
     appBg: "#000000",
-    appSurface: "#0a0a0a",
+    appSurface: "#0A0A0A",
     appSurfaceSoft: "#111111",
-    appText: "#ffffff",
-    appMuted: "#ffffff",
-    appPrimary: "#6b7280",
-    appPrimaryHover: "#9ca3af",
+    appText: "#FFFFFF",
+    appMuted: "#FFFFFF",
+    appPrimary: "#6B7280",
+    appPrimaryHover: "#9CA3AF",
     appSuccess: "#166534",
-    appDanger: "#b91c1c",
-    appFocus: "#2563eb",
-    appHighlight: "#fbbf24",
+    appDanger: "#B91C1C",
+    appFocus: "#2563EB",
+    appHighlight: "#FBBF24",
     appBorder: "#404040",
     appBorderSoft: "#262626",
-    buttonBorder: "#ffffff",
-    buttonBorderHover: "#ffffff",
-    choiceBorder: "#ffffff",
-    archiveDestinationBorder: "#ffffff",
+    buttonBorder: "#819C87",
+    buttonBorderHover: "#FFFFFF",
+    choiceBorder: "#7E8452",
+    archiveDestinationBorder: "#FFFFFF",
     inputBorder: "#404040",
     modalBorder: "#404040",
-    appWidth: 1180,
-    homePanelWidth: 760,
-    workPanelWidth: 960,
-    headerPaddingY: 24,
-    headerPaddingX: 26,
-    homePanelPadding: 24,
-    workPanelPadding: 20,
-    choiceCardHeight: 132,
-    choiceCardPadding: 18,
-    choiceGridGap: 14,
-    buttonHeight: 36,
-    buttonPaddingY: 8,
-    buttonPaddingX: 12,
-    settingsPanelWidth: 380,
-    appFont: "Segoe UI, Roboto, Arial, sans-serif",
+    appWidth: 760,
+    homePanelWidth: 520,
+    workPanelWidth: 640,
+    headerPaddingY: 10,
+    headerPaddingX: 12,
+    homePanelPadding: 42,
+    workPanelPadding: 10,
+    choiceCardHeight: 72,
+    choiceCardPadding: 8,
+    choiceGridGap: 6,
+    buttonHeight: 28,
+    buttonPaddingY: 4,
+    buttonPaddingX: 28,
+    settingsPanelWidth: 420,
+    appFont: "Trebuchet MS, Arial, sans-serif",
     monoFont: "Segoe UI Mono, Consolas, monospace",
-    titleFontSize: 52,
-    subtitleFontSize: 24,
-    bodyFontSize: 14,
-    panelTitleFontSize: 22,
+    titleFontSize: 64,
+    subtitleFontSize: 17,
+    bodyFontSize: 11,
+    panelTitleFontSize: 16,
     buttonFontSize: 13,
     choiceTitleFontSize: 17,
-    choiceTextFontSize: 13,
-    treeFontSize: 12
+    choiceTextFontSize: 11,
+    treeFontSize: 11
   };
 
   const colorFields = [
@@ -116,6 +116,13 @@ window.ColorThemePicker = (() => {
 
   let isOpen = false;
 
+  function createElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
   function isValidHexColor(value) {
     return /^#[0-9a-f]{6}$/i.test(String(value || "").trim());
   }
@@ -138,28 +145,20 @@ window.ColorThemePicker = (() => {
   function getSafeTheme(theme) {
     const safeTheme = { ...defaultTheme };
 
-    if (!theme || typeof theme !== "object") {
-      return safeTheme;
-    }
+    if (!theme || typeof theme !== "object") return safeTheme;
 
     colorFields.forEach(field => {
       const normalized = normalizeHexColor(theme[field.key]);
-      if (normalized) {
-        safeTheme[field.key] = normalized;
-      }
+      if (normalized) safeTheme[field.key] = normalized;
     });
 
     [...sizeFields, ...fontSizeFields].forEach(field => {
       const value = clampNumber(theme[field.key], field.min, field.max);
-      if (value !== null) {
-        safeTheme[field.key] = value;
-      }
+      if (value !== null) safeTheme[field.key] = value;
     });
 
     fontFields.forEach(field => {
-      if (isValidFont(theme[field.key])) {
-        safeTheme[field.key] = theme[field.key];
-      }
+      if (isValidFont(theme[field.key])) safeTheme[field.key] = theme[field.key];
     });
 
     return safeTheme;
@@ -182,6 +181,23 @@ window.ColorThemePicker = (() => {
     localStorage.removeItem(storageKey);
   }
 
+  function downloadSavedSettings() {
+    const exportData = {
+      app: "Personal Memory-Based File Archiver",
+      type: "organize-your-pc-settings",
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      storageKey,
+      settings: loadTheme()
+    };
+
+    window.AppUtils.downloadTextFile(
+      "organize_your_pc_settings.json",
+      JSON.stringify(exportData, null, 2),
+      "application/json;charset=utf-8"
+    );
+  }
+
   function applyTheme(theme) {
     const safeTheme = getSafeTheme(theme);
     const rootStyle = document.documentElement.style;
@@ -194,12 +210,12 @@ window.ColorThemePicker = (() => {
     rootStyle.setProperty("--app-font", safeTheme.appFont);
     rootStyle.setProperty("--app-mono", safeTheme.monoFont);
     rootStyle.setProperty("--app-muted-strong", safeTheme.appMuted);
+
     applyGeneratedThemeStyles(safeTheme);
   }
 
   function applyGeneratedThemeStyles(theme) {
     let style = document.getElementById("colorThemePickerGeneratedStyles");
-
     if (!style) {
       style = document.createElement("style");
       style.id = "colorThemePickerGeneratedStyles";
@@ -211,14 +227,8 @@ window.ColorThemePicker = (() => {
     const headerActionPaddingX = Math.max(10, Math.round(theme.buttonPaddingX * 1.08));
 
     style.textContent = `
-      .app-brand h1 {
-        color: ${theme.appHighlight};
-        font-size: clamp(30px, 4vw, ${theme.titleFontSize}px);
-      }
-
-      .app-subtitle {
-        font-size: clamp(14px, 2vw, ${theme.subtitleFontSize}px);
-      }
+      .app-brand h1 { color: ${theme.appHighlight}; font-size: clamp(30px, 4vw, ${theme.titleFontSize}px); }
+      .app-subtitle { font-size: clamp(14px, 2vw, ${theme.subtitleFontSize}px); }
 
       .app-intro,
       .screen-card p,
@@ -238,36 +248,13 @@ window.ColorThemePicker = (() => {
         font-size: ${theme.panelTitleFontSize}px;
       }
 
-      .app-header-inner {
-        padding: ${theme.headerPaddingY}px ${theme.headerPaddingX}px;
-      }
-
-      .screen-card {
-        width: min(${theme.homePanelWidth}px, 100%);
-        padding: ${theme.homePanelPadding}px;
-      }
-
-      .work-panel {
-        max-width: ${theme.workPanelWidth}px;
-        padding: ${theme.workPanelPadding}px;
-      }
-
-      .choice-grid {
-        gap: ${theme.choiceGridGap}px;
-      }
-
-      .choice-card {
-        min-height: ${theme.choiceCardHeight}px;
-        padding: ${theme.choiceCardPadding}px;
-      }
-
-      .choice-card strong {
-        font-size: ${theme.choiceTitleFontSize}px;
-      }
-
-      .choice-card span {
-        font-size: ${theme.choiceTextFontSize}px;
-      }
+      .app-header-inner { padding: ${theme.headerPaddingY}px ${theme.headerPaddingX}px; }
+      .screen-card { width: min(${theme.homePanelWidth}px, 100%); padding: ${theme.homePanelPadding}px; }
+      .work-panel { max-width: ${theme.workPanelWidth}px; padding: ${theme.workPanelPadding}px; }
+      .choice-grid { gap: ${theme.choiceGridGap}px; }
+      .choice-card { min-height: ${theme.choiceCardHeight}px; padding: ${theme.choiceCardPadding}px; }
+      .choice-card strong { font-size: ${theme.choiceTitleFontSize}px; }
+      .choice-card span { font-size: ${theme.choiceTextFontSize}px; }
 
       .button,
       button,
@@ -338,9 +325,7 @@ window.ColorThemePicker = (() => {
   }
 
   function injectPickerStyles() {
-    if (document.getElementById("colorThemePickerStyles")) {
-      return;
-    }
+    if (document.getElementById("colorThemePickerStyles")) return;
 
     const style = document.createElement("style");
     style.id = "colorThemePickerStyles";
@@ -350,15 +335,13 @@ window.ColorThemePicker = (() => {
         top: 92px;
         right: 18px;
         z-index: 1000;
-        width: min(380px, calc(100vw - 24px));
+        width: min(420px, calc(100vw - 24px));
         padding: 0;
         background: transparent;
         pointer-events: none;
       }
 
-      #colorThemePickerModal[hidden] {
-        display: none !important;
-      }
+      #colorThemePickerModal[hidden] { display: none !important; }
 
       .ctp-card {
         width: 100%;
@@ -449,17 +432,9 @@ window.ColorThemePicker = (() => {
         background: rgba(255, 255, 255, 0.025);
       }
 
-      .ctp-row {
-        grid-template-columns: minmax(130px, 1fr) 40px 78px;
-      }
-
-      .ctp-size-row {
-        grid-template-columns: minmax(112px, 1fr) minmax(86px, 120px) 58px;
-      }
-
-      .ctp-font-row {
-        grid-template-columns: minmax(112px, 1fr) minmax(150px, 1.2fr);
-      }
+      .ctp-row { grid-template-columns: minmax(130px, 1fr) 40px 78px; }
+      .ctp-size-row { grid-template-columns: minmax(112px, 1fr) minmax(86px, 120px) 58px; }
+      .ctp-font-row { grid-template-columns: minmax(112px, 1fr) minmax(150px, 1.2fr); }
 
       .ctp-label {
         margin: 0;
@@ -549,7 +524,6 @@ window.ColorThemePicker = (() => {
         }
       }
     `;
-
     document.head.appendChild(style);
   }
 
@@ -558,64 +532,46 @@ window.ColorThemePicker = (() => {
   }
 
   function createButton() {
-    if (document.getElementById("openColorThemePickerButton")) {
-      return;
-    }
+    if (document.getElementById("openColorThemePickerButton")) return;
 
     const headerActions = document.querySelector(".header-actions");
-    if (!headerActions) {
-      return;
-    }
+    if (!headerActions) return;
 
-    const button = document.createElement("button");
+    const button = createElement("button", "button button-secondary", "Settings");
     button.type = "button";
     button.id = "openColorThemePickerButton";
-    button.className = "button button-secondary";
-    button.textContent = "Settings";
     button.addEventListener("click", openPicker);
-
     headerActions.appendChild(button);
   }
 
   function createSectionTitle(text) {
-    const title = document.createElement("div");
-    title.className = "ctp-section-title";
-    title.textContent = text;
-    return title;
+    return createElement("div", "ctp-section-title", text);
   }
 
   function createColorRow(field) {
-    const row = document.createElement("div");
-    row.className = "ctp-row";
-
-    const label = document.createElement("label");
-    label.className = "ctp-label";
+    const row = createElement("div", "ctp-row");
+    const label = createElement("label", "ctp-label", field.label);
     label.setAttribute("for", `colorThemePicker_swatch_${field.key}`);
-    label.textContent = field.label;
 
-    const swatch = document.createElement("input");
+    const swatch = createElement("input", "ctp-swatch");
     swatch.type = "color";
     swatch.id = `colorThemePicker_swatch_${field.key}`;
     swatch.name = field.key;
-    swatch.className = "ctp-swatch";
     swatch.value = defaultTheme[field.key];
-    swatch.addEventListener("input", event => {
-      const value = event.target.value.toUpperCase();
-      const hexInput = document.getElementById(`colorThemePicker_hex_${field.key}`);
-      if (hexInput) {
-        hexInput.value = value;
-      }
-      handleLivePreview();
-    });
 
-    const hexInput = document.createElement("input");
+    const hexInput = createElement("input", "ctp-hex");
     hexInput.type = "text";
     hexInput.id = `colorThemePicker_hex_${field.key}`;
-    hexInput.className = "ctp-hex";
     hexInput.inputMode = "text";
     hexInput.maxLength = 7;
     hexInput.value = defaultTheme[field.key];
     hexInput.setAttribute("aria-label", `${field.label} hex value`);
+
+    swatch.addEventListener("input", event => {
+      const value = event.target.value.toUpperCase();
+      hexInput.value = value;
+      handleLivePreview();
+    });
 
     hexInput.addEventListener("input", event => {
       event.target.value = event.target.value.toUpperCase();
@@ -623,17 +579,12 @@ window.ColorThemePicker = (() => {
 
     hexInput.addEventListener("change", event => {
       const normalized = normalizeHexColor(event.target.value);
-      const swatchInput = document.getElementById(`colorThemePicker_swatch_${field.key}`);
-
       if (normalized) {
         event.target.value = normalized;
-        if (swatchInput) {
-          swatchInput.value = normalized;
-        }
+        swatch.value = normalized;
         handleLivePreview();
       } else {
-        const currentTheme = getFormTheme();
-        event.target.value = currentTheme[field.key];
+        event.target.value = getFormTheme()[field.key];
       }
     });
 
@@ -642,26 +593,20 @@ window.ColorThemePicker = (() => {
   }
 
   function createNumberRow(field) {
-    const row = document.createElement("div");
-    row.className = "ctp-size-row";
-
-    const label = document.createElement("label");
-    label.className = "ctp-label";
+    const row = createElement("div", "ctp-size-row");
+    const label = createElement("label", "ctp-label", field.label);
     label.setAttribute("for", `colorThemePicker_size_${field.key}`);
-    label.textContent = field.label;
 
-    const rangeInput = document.createElement("input");
+    const rangeInput = createElement("input", "ctp-size-range");
     rangeInput.type = "range";
     rangeInput.id = `colorThemePicker_size_${field.key}`;
-    rangeInput.className = "ctp-size-range";
     rangeInput.min = String(field.min);
     rangeInput.max = String(field.max);
     rangeInput.step = String(field.step);
     rangeInput.value = String(defaultTheme[field.key]);
 
-    const numberInput = document.createElement("input");
+    const numberInput = createElement("input", "ctp-size-value");
     numberInput.type = "number";
-    numberInput.className = "ctp-size-value";
     numberInput.id = `colorThemePicker_sizeValue_${field.key}`;
     numberInput.min = String(field.min);
     numberInput.max = String(field.max);
@@ -685,22 +630,16 @@ window.ColorThemePicker = (() => {
   }
 
   function createFontRow(field) {
-    const row = document.createElement("div");
-    row.className = "ctp-font-row";
-
-    const label = document.createElement("label");
-    label.className = "ctp-label";
+    const row = createElement("div", "ctp-font-row");
+    const label = createElement("label", "ctp-label", field.label);
     label.setAttribute("for", `colorThemePicker_font_${field.key}`);
-    label.textContent = field.label;
 
-    const select = document.createElement("select");
+    const select = createElement("select", "ctp-font-select");
     select.id = `colorThemePicker_font_${field.key}`;
-    select.className = "ctp-font-select";
 
     fontOptions.forEach(([value, labelText]) => {
-      const option = document.createElement("option");
+      const option = createElement("option", "", labelText);
       option.value = value;
-      option.textContent = labelText;
       select.appendChild(option);
     });
 
@@ -711,94 +650,64 @@ window.ColorThemePicker = (() => {
     return row;
   }
 
+  function createActionButton(text, className, handler) {
+    const button = createElement("button", className, text);
+    button.type = "button";
+    button.addEventListener("click", handler);
+    return button;
+  }
+
   function createModal() {
-    if (getModal()) {
-      return;
-    }
+    if (getModal()) return;
 
     injectPickerStyles();
 
-    const modal = document.createElement("div");
+    const modal = createElement("div");
     modal.id = "colorThemePickerModal";
     modal.setAttribute("role", "dialog");
     modal.setAttribute("aria-modal", "true");
     modal.setAttribute("aria-labelledby", "colorThemePickerTitle");
     modal.hidden = true;
 
-    const card = document.createElement("div");
-    card.className = "ctp-card";
+    const card = createElement("div", "ctp-card");
+    const header = createElement("div", "ctp-header");
+    const titleWrap = createElement("div");
 
-    const header = document.createElement("div");
-    header.className = "ctp-header";
-
-    const titleWrap = document.createElement("div");
-
-    const title = document.createElement("h2");
+    const title = createElement("h2", "", "Settings");
     title.id = "colorThemePickerTitle";
-    title.textContent = "Settings";
 
-    const intro = document.createElement("p");
-    intro.className = "ctp-intro";
-    intro.textContent = "Colors, borders, sizes, and fonts. Changes preview live and are saved locally in this browser.";
-
+    const intro = createElement("p", "ctp-intro", "Colors, borders, sizes, and fonts. Changes preview live and are saved locally in this browser.");
     titleWrap.append(title, intro);
 
-    const closeButton = document.createElement("button");
-    closeButton.type = "button";
-    closeButton.className = "ctp-close";
+    const closeButton = createActionButton("×", "ctp-close", closePicker);
     closeButton.setAttribute("aria-label", "Close settings");
-    closeButton.textContent = "×";
-    closeButton.addEventListener("click", closePicker);
-
     header.append(titleWrap, closeButton);
 
-    const grid = document.createElement("div");
+    const grid = createElement("div", "ctp-grid");
     grid.id = "colorThemePickerGrid";
-    grid.className = "ctp-grid";
-
     grid.appendChild(createSectionTitle("Colors and borders"));
     colorFields.forEach(field => grid.appendChild(createColorRow(field)));
-
     grid.appendChild(createSectionTitle("Layout sizes"));
     sizeFields.forEach(field => grid.appendChild(createNumberRow(field)));
-
     grid.appendChild(createSectionTitle("Fonts"));
     fontFields.forEach(field => grid.appendChild(createFontRow(field)));
     fontSizeFields.forEach(field => grid.appendChild(createNumberRow(field)));
 
-    const actions = document.createElement("div");
-    actions.className = "ctp-actions";
-
-    const resetButton = document.createElement("button");
-    resetButton.type = "button";
-    resetButton.className = "button button-secondary";
-    resetButton.textContent = "Reset";
-    resetButton.addEventListener("click", resetTheme);
-
-    const closeActionButton = document.createElement("button");
-    closeActionButton.type = "button";
-    closeActionButton.className = "button button-secondary";
-    closeActionButton.textContent = "Close";
-    closeActionButton.addEventListener("click", closePicker);
-
-    const saveButton = document.createElement("button");
-    saveButton.type = "button";
-    saveButton.className = "button ctp-save-button";
-    saveButton.textContent = "Save settings";
-    saveButton.addEventListener("click", saveCurrentTheme);
-
-    actions.append(resetButton, closeActionButton, saveButton);
+    const actions = createElement("div", "ctp-actions");
+    actions.append(
+      createActionButton("Reset", "button button-secondary", resetTheme),
+      createActionButton("Download settings", "button button-secondary", downloadSavedSettings),
+      createActionButton("Close", "button button-secondary", closePicker),
+      createActionButton("Save settings", "button ctp-save-button", saveCurrentTheme)
+    );
 
     card.append(header, grid, actions);
     modal.appendChild(card);
+    document.body.appendChild(modal);
 
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && isOpen) {
-        closePicker();
-      }
+      if (event.key === "Escape" && isOpen) closePicker();
     });
-
-    document.body.appendChild(modal);
   }
 
   function getFormTheme() {
