@@ -1,7 +1,7 @@
 /* Shared application state. */
 
 window.AppState = (() => {
-  const modeNames = ["buildTree", "existingTree", "archive"];
+  const modeNames = ["buildTree", "existingTree", "archive", "archiveFolder"];
 
   const thinkingTypes = {
     "001_CHRONOLOGICAL": {
@@ -83,6 +83,8 @@ window.AppState = (() => {
       selectedParentId: null,
       selectedArchiveFolderId: null,
       loadedFile: null,
+      loadedFolderHandle: null,
+      loadedFolderName: null,
       appRootHandle: null,
       lastFocusedElement: null
     };
@@ -184,6 +186,12 @@ window.AppState = (() => {
     getActiveState().loadedFile = file;
   }
 
+  function setLoadedFolder(handle) {
+    const currentState = getActiveState();
+    currentState.loadedFolderHandle = handle || null;
+    currentState.loadedFolderName = handle ? handle.name : null;
+  }
+
   function setAppRootHandle(handle) {
     getActiveState().appRootHandle = handle;
   }
@@ -203,6 +211,7 @@ window.AppState = (() => {
     resetTree,
     setTree,
     setLoadedFile,
+    setLoadedFolder,
     setAppRootHandle,
     createEmptyTree,
     createFixedTree
