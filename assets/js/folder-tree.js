@@ -104,6 +104,12 @@ window.FolderTree = (() => {
     prompt.textContent = selected ? selected.prompt : "";
   }
 
+  function setFixedTypeText(element, text) {
+    if (!element) return;
+    element.textContent = text;
+    element.hidden = !text;
+  }
+
   function openAddFolderModal(parentId) {
     const parentNode = findNodeById(parentId);
     if (!parentNode) return;
@@ -113,7 +119,7 @@ window.FolderTree = (() => {
     const modalContext = document.getElementById("folderModalContext");
     const nameInput = document.getElementById("folderNameInput");
     const select = document.getElementById("thinkingTypeSelect");
-    const fixedType = document.getElementById("fixedLayerType");
+    const fixedType = document.getElementById("fixedThinkingType");
 
     if (modalContext) modalContext.textContent = `Add a folder under: ${getFolderPath(parentId) || parentNode.name}`;
     if (nameInput) nameInput.value = "";
@@ -130,10 +136,10 @@ window.FolderTree = (() => {
       if (parentNode.childLayerType) {
         select.value = parentNode.childLayerType;
         select.disabled = true;
-        if (fixedType) fixedType.textContent = `This layer already uses: ${thinkingTypes[parentNode.childLayerType].label}`;
+        setFixedTypeText(fixedType, `This layer already uses: ${thinkingTypes[parentNode.childLayerType].label}`);
       } else {
         select.disabled = false;
-        if (fixedType) fixedType.textContent = "";
+        setFixedTypeText(fixedType, "");
       }
     }
 
