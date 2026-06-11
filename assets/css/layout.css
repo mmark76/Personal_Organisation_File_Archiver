@@ -230,4 +230,6 @@
 
 .copyrighted-badge img {
   display: block;
+  width: 82px;
+  height: 25px;
 }
