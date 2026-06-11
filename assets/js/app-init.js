@@ -13,6 +13,7 @@ window.AppInit = (() => {
     qs("#openFolderTreeModeButton")?.addEventListener("click", window.AppNavigation.showFolderTreeMode);
     qs("#openExistingFolderTreeModeButton")?.addEventListener("click", window.AppNavigation.showExistingFolderTreeMode);
     qs("#openArchiveModeButton")?.addEventListener("click", window.AppNavigation.showArchiveMode);
+    qs("#openArchiveFolderModeButton")?.addEventListener("click", window.AppNavigation.showArchiveFolderMode);
 
     qsa(".back-to-main-button").forEach(button => {
       button.addEventListener("click", window.AppNavigation.showMainChoices);
@@ -77,6 +78,19 @@ window.AppInit = (() => {
     window.FileAdvisor?.bindEvents();
   }
 
+  function bindFolderArchiveActions() {
+    qs("#chooseFolderArchiveTreeButton")?.addEventListener("click", () => {
+      const panel = qs("#folderArchiveTreeChoicePanel");
+      if (panel) panel.hidden = !panel.hidden;
+    });
+
+    qs("#useFolderArchiveTreeOnPcButton")?.addEventListener("click", window.FolderTreeExisting.chooseExistingFolderTreeForFolderArchive);
+    qs("#importFolderArchiveTreeButton")?.addEventListener("click", () => qs("#folderArchiveTreeImportInput")?.click());
+    qs("#folderArchiveTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
+    qs("#chooseFolderToArchiveButton")?.addEventListener("click", window.FolderArchive.chooseFolderToArchive);
+    qs("#archiveFolderButton")?.addEventListener("click", window.FolderArchive.archiveLoadedFolder);
+  }
+
   function bindFeedbackActions() {
     qs("#sendFeedbackButton")?.addEventListener("click", window.AppFeedback.sendFeedback);
     qs("#cancelFeedbackButton")?.addEventListener("click", window.AppFeedback.closeFeedback);
@@ -104,6 +118,11 @@ window.AppInit = (() => {
       window.FileAdvisor?.renderSuggestion();
     });
 
+    window.AppState.withMode("archiveFolder", () => {
+      window.FolderTreeRender.renderArchivePreview();
+      window.FolderArchive?.renderFolderStatus();
+    });
+
     window.AppState.setActiveMode("buildTree");
   }
 
@@ -112,6 +131,7 @@ window.AppInit = (() => {
     bindNavigationActions();
     bindFolderTreeActions();
     bindArchiveActions();
+    bindFolderArchiveActions();
     bindFeedbackActions();
     bindPrivacyActions();
 
