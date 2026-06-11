@@ -4,6 +4,16 @@ window.FolderTreeRender = (() => {
   const { state } = window.AppState;
   const { qs } = window.AppUtils;
 
+  function getArchivePreviewSelector() {
+    return window.AppState.getActiveMode() === "archiveFolder"
+      ? "#folderArchiveTreePreview"
+      : "#archiveTreePreview";
+  }
+
+  function getArchiveSubjectLabel() {
+    return window.AppState.getActiveMode() === "archiveFolder" ? "folder" : "file";
+  }
+
   function createNodeElement(node, indexPath) {
     const wrapper = document.createElement("div");
     wrapper.className = "tree-item";
@@ -144,7 +154,7 @@ window.FolderTreeRender = (() => {
   }
 
   function renderArchivePreview() {
-    const preview = qs("#archiveTreePreview");
+    const preview = qs(getArchivePreviewSelector());
     if (!preview) return;
 
     preview.innerHTML = "";
@@ -160,7 +170,7 @@ window.FolderTreeRender = (() => {
 
     const instruction = document.createElement("p");
     instruction.className = "archive-tree-instruction";
-    instruction.textContent = "Select the folder where this file should be archived.";
+    instruction.textContent = `Select the folder where this ${getArchiveSubjectLabel()} should be archived.`;
     preview.appendChild(instruction);
 
     const selectableTree = document.createElement("div");
@@ -204,14 +214,16 @@ window.FolderTreeRender = (() => {
       });
     }
 
-    const archivePreview = qs("#archiveTreePreview");
-    if (archivePreview) {
+    ["#archiveTreePreview", "#folderArchiveTreePreview"].forEach(selector => {
+      const archivePreview = qs(selector);
+      if (!archivePreview) return;
+
       archivePreview.addEventListener("click", event => {
         const button = event.target.closest("button[data-archive-node-id]");
         if (!button) return;
         window.FolderTree.selectArchiveFolder(button.dataset.archiveNodeId);
       });
-    }
+    });
   }
 
   return {
