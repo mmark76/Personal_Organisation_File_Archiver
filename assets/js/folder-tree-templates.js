@@ -35,7 +35,7 @@ window.FolderTreeTemplates = (() => {
 
   function buildFolderTree(children) {
     return {
-      name: "DOCUMENTS",
+      name: "Organize Your PC",
       fixed: true,
       branch: null,
       thinkingType: null,
@@ -66,35 +66,67 @@ window.FolderTreeTemplates = (() => {
     ])
   );
 
-  const defaultExampleTemplate = buildTemplate(
-    "Default Example Template",
-    "The official default example folder tree used by the app.",
+  const defaultTemplate = buildTemplate(
+    "Default Template",
+    "The official general-purpose default folder tree used by the app.",
     buildFolderTree([
       fixedFirstLevelNode("01_PROFILE", "profile", functional, [
-        userNode("CVS", "profile", functional),
-        userNode("DEGREES", "profile", functional),
-        userNode("CERTIFICATES", "profile", functional),
-        userNode("REFERENCES", "profile", functional),
-        userNode("SUPPORTING_EVIDENCE", "profile", functional)
+        userNode("00_INBOX", "profile", functional),
+        userNode("01_IDENTITY", "profile", functional, functional, [
+          userNode("01_ID_CARD", "profile", functional),
+          userNode("02_PASSPORT", "profile", functional),
+          userNode("03_DRIVING_LICENSE", "profile", functional),
+          userNode("04_PERSONAL_DETAILS", "profile", functional)
+        ]),
+        userNode("02_OFFICIAL_RECORDS", "profile", functional),
+        userNode("03_PROFESSIONAL_LICENSES", "profile", functional),
+        userNode("04_CV", "profile", functional),
+        userNode("05_DEGREES", "profile", functional),
+        userNode("06_CERTIFICATES", "profile", functional),
+        userNode("07_REFERENCES", "profile", functional),
+        userNode("08_PUBLIC_PROFILE_AND_PORTFOLIO", "profile", functional)
       ]),
       fixedFirstLevelNode("02_PERSONAL", "personal", thematic, [
-        userNode("FAMILY", "personal", thematic),
-        userNode("HEALTH", "personal", thematic),
-        userNode("FINANCIAL", "personal", thematic),
-        userNode("INTERESTS", "personal", thematic, thematic, [
-          userNode("CHESS", "personal", thematic),
-          userNode("SWIMMING", "personal", thematic),
-          userNode("MNEMONIC_TECHNIQUES", "personal", thematic),
-          userNode("BLOG_WRITING", "personal", thematic),
-          userNode("WEB_APPS", "personal", thematic),
-          userNode("LEARNING", "personal", thematic)
+        userNode("00_INBOX", "personal", thematic),
+        userNode("01_FAMILY_AND_FRIENDS", "personal", thematic),
+        userNode("02_HEALTH", "personal", thematic),
+        userNode("03_FINANCE", "personal", thematic),
+        userNode("04_HOBBIES_AND_INTERESTS", "personal", thematic),
+        userNode("05_HOME_AND_ASSETS", "personal", thematic),
+        userNode("06_PHOTOS_AND_VIDEOS", "personal", thematic),
+        userNode("07_DIGITAL_LIFE", "personal", thematic, functional, [
+          userNode("01_ACCOUNTS_AND_ACCESS", "personal", functional),
+          userNode("02_DEVICES_AND_SOFTWARE", "personal", functional),
+          userNode("03_BACKUPS_AND_EXPORTS", "personal", functional)
         ])
       ]),
       fixedFirstLevelNode("03_PROFESSIONAL", "professional", chronological, [
-        userNode("2002-2010_PRIVATE_SECTOR", "professional", chronological),
-        userNode("2010-2019_MARINAS_PPP_DBFOT", "professional", chronological),
-        userNode("2019-2026_STATE_FAIR_SITE_MANAGEMENT", "professional", chronological),
-        userNode("2026-NOW_HEALTH_AND_SAFETY_OFFICER", "professional", chronological)
+        userNode("00_INBOX", "professional", chronological),
+        userNode("01_PERIOD_1", "professional", chronological, functional, [
+          userNode("01_MAIN_ACTIVITY", "professional", functional),
+          userNode("02_PROJECTS", "professional", functional),
+          userNode("03_DOCUMENTS", "professional", functional),
+          userNode("04_NOTES_AND_REPORTS", "professional", functional),
+          userNode("05_CORRESPONDENCE", "professional", functional),
+          userNode("06_ARCHIVE", "professional", functional)
+        ]),
+        userNode("02_PERIOD_2", "professional", chronological, functional, [
+          userNode("01_MAIN_ACTIVITY", "professional", functional),
+          userNode("02_PROJECTS", "professional", functional),
+          userNode("03_DOCUMENTS", "professional", functional),
+          userNode("04_NOTES_AND_REPORTS", "professional", functional),
+          userNode("05_CORRESPONDENCE", "professional", functional),
+          userNode("06_ARCHIVE", "professional", functional)
+        ]),
+        userNode("03_PERIOD_3", "professional", chronological, functional, [
+          userNode("01_MAIN_ACTIVITY", "professional", functional),
+          userNode("02_PROJECTS", "professional", functional),
+          userNode("03_DOCUMENTS", "professional", functional),
+          userNode("04_NOTES_AND_REPORTS", "professional", functional),
+          userNode("05_CORRESPONDENCE", "professional", functional),
+          userNode("06_ARCHIVE", "professional", functional)
+        ]),
+        userNode("04_GENERAL_ARCHIVE", "professional", chronological)
       ])
     ])
   );
@@ -119,8 +151,8 @@ window.FolderTreeTemplates = (() => {
       data: blankValidTemplate
     },
     "default-example": {
-      filename: "default_example_folder_tree_template.json",
-      data: defaultExampleTemplate
+      filename: "default_folder_tree_template.json",
+      data: defaultTemplate
     },
     "professional-timeline": {
       filename: "professional_timeline_folder_tree_template.json",
