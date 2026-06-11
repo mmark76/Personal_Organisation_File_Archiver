@@ -1,7 +1,56 @@
 /* App initialization and event binding. */
 
 window.AppInit = (() => {
-  const { qs, qsa } = window.AppUtils;
+  const { qs, qsa, downloadTextFile } = window.AppUtils;
+  const settingsStorageKey = "organizeYourPcColorTheme";
+
+  function getSavedSettingsTheme() {
+    if (window.ColorThemePicker?.loadTheme) {
+      return window.ColorThemePicker.loadTheme();
+    }
+
+    try {
+      const storedTheme = localStorage.getItem(settingsStorageKey);
+      return storedTheme ? JSON.parse(storedTheme) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function downloadSavedSettings() {
+    const theme = getSavedSettingsTheme();
+
+    const exportData = {
+      app: "Personal Memory-Based File Archiver",
+      type: "organize-your-pc-settings",
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      storageKey: settingsStorageKey,
+      settings: theme || {}
+    };
+
+    downloadTextFile(
+      "organize_your_pc_settings.json",
+      JSON.stringify(exportData, null, 2),
+      "application/json;charset=utf-8"
+    );
+  }
+
+  function createDownloadSettingsButton() {
+    if (qs("#downloadSettingsButton")) return;
+
+    const headerActions = qs(".header-actions");
+    if (!headerActions) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.id = "downloadSettingsButton";
+    button.className = "button button-secondary";
+    button.textContent = "Download settings";
+    button.addEventListener("click", downloadSavedSettings);
+
+    headerActions.appendChild(button);
+  }
 
   function bindHeaderActions() {
     qs("#openDisclaimerButton")?.addEventListener("click", () => window.AppModals.openModal("disclaimerModal"));
@@ -115,6 +164,7 @@ window.AppInit = (() => {
     bindFeedbackActions();
     bindPrivacyActions();
 
+    createDownloadSettingsButton();
     applyTemporaryMainChoiceLabels();
     temporarilyDisableFolderTreeUtilityButtons();
 
