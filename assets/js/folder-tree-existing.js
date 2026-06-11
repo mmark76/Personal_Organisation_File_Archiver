@@ -123,9 +123,19 @@ window.FolderTreeExisting = (() => {
     });
   }
 
+  function chooseExistingFolderTreeForFolderArchive() {
+    return chooseExistingFolderTree({
+      depthSelectId: "folderArchiveTreeDepthSelect",
+      statusSelector: "#folderArchiveResultBox",
+      afterLoad: window.FolderTreeRender.renderArchivePreview,
+      hideSelector: "#folderArchiveTreeChoicePanel"
+    });
+  }
+
   return {
     chooseExistingFolderTree,
     chooseExistingFolderTreeForArchive,
+    chooseExistingFolderTreeForFolderArchive,
     renderExistingTreePreview
   };
 })();
