@@ -21,6 +21,18 @@ window.FolderArchive = (() => {
     }
   }
 
+  async function isSameDirectory(firstHandle, secondHandle) {
+    if (!firstHandle || !secondHandle || typeof firstHandle.isSameEntry !== "function") {
+      return false;
+    }
+
+    try {
+      return await firstHandle.isSameEntry(secondHandle);
+    } catch (error) {
+      return false;
+    }
+  }
+
   function splitFileName(filename) {
     const dotIndex = filename.lastIndexOf(".");
     if (dotIndex <= 0) return { base: filename, extension: "" };
@@ -75,7 +87,7 @@ window.FolderArchive = (() => {
     stats.bytes += file.size || 0;
   }
 
-  async function copyDirectoryContents(sourceDirectoryHandle, targetDirectoryHandle, stats) {
+  async function copyDirectoryContents(sourceDirectoryHandle, targetDirectoryHandle, stats, rootTargetDirectoryHandle) {
     for await (const [name, handle] of sourceDirectoryHandle.entries()) {
       if (handle.kind === "file") {
         await copyFileToDirectory(handle, targetDirectoryHandle, stats);
@@ -83,10 +95,14 @@ window.FolderArchive = (() => {
       }
 
       if (handle.kind === "directory") {
+        if (await isSameDirectory(handle, rootTargetDirectoryHandle)) {
+          continue;
+        }
+
         const safeDirectoryName = await getAvailableDirectoryName(targetDirectoryHandle, name);
         const childTargetHandle = await targetDirectoryHandle.getDirectoryHandle(safeDirectoryName, { create: true });
         stats.folders += 1;
-        await copyDirectoryContents(handle, childTargetHandle, stats);
+        await copyDirectoryContents(handle, childTargetHandle, stats, rootTargetDirectoryHandle);
       }
     }
   }
@@ -153,7 +169,7 @@ window.FolderArchive = (() => {
       const targetFolderHandle = await destinationHandle.getDirectoryHandle(safeFolderName, { create: true });
       const stats = { files: 0, folders: 1, bytes: 0 };
 
-      await copyDirectoryContents(folderHandle, targetFolderHandle, stats);
+      await copyDirectoryContents(folderHandle, targetFolderHandle, stats, targetFolderHandle);
 
       setResult(
         `${window.AppMessages.folderArchiveComplete} Saved to: ${destinationPath}/${safeFolderName}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
