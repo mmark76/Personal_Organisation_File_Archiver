@@ -93,6 +93,42 @@ window.ColorThemePicker = (() => {
       .app-brand h1 {
         color: ${highlightColor};
       }
+
+      #colorThemePickerForm {
+        display: grid;
+        grid-template-columns: minmax(150px, 220px) 56px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px 14px;
+        max-width: 320px;
+        margin: 16px auto 0;
+      }
+
+      #colorThemePickerForm label {
+        text-align: right;
+        font-weight: 700;
+      }
+
+      #colorThemePickerForm input[type="color"] {
+        width: 48px;
+        height: 30px;
+        padding: 0;
+        justify-self: start;
+        border: 1px solid var(--app-border-soft);
+        border-radius: 6px;
+        background: transparent;
+      }
+
+      @media (max-width: 520px) {
+        #colorThemePickerForm {
+          grid-template-columns: 1fr 56px;
+          max-width: 100%;
+        }
+
+        #colorThemePickerForm label {
+          text-align: left;
+        }
+      }
     `;
   }
 
