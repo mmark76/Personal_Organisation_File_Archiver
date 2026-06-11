@@ -234,6 +234,17 @@ window.FolderTree = (() => {
     };
   }
 
+  function createPeriodNode(name) {
+    return createNode(name, "professional", "001_CHRONOLOGICAL", "003_FUNCTIONAL", [
+      createNode("01_MAIN_ACTIVITY", "professional", "003_FUNCTIONAL"),
+      createNode("02_PROJECTS", "professional", "003_FUNCTIONAL"),
+      createNode("03_DOCUMENTS", "professional", "003_FUNCTIONAL"),
+      createNode("04_NOTES_AND_REPORTS", "professional", "003_FUNCTIONAL"),
+      createNode("05_CORRESPONDENCE", "professional", "003_FUNCTIONAL"),
+      createNode("06_ARCHIVE", "professional", "003_FUNCTIONAL")
+    ]);
+  }
+
   function loadExampleTree() {
     const profile = {
       id: "profile",
@@ -243,10 +254,20 @@ window.FolderTree = (() => {
       thinkingType: null,
       childLayerType: "003_FUNCTIONAL",
       children: [
-        createNode("CVS", "profile", "003_FUNCTIONAL"),
-        createNode("DEGREES", "profile", "003_FUNCTIONAL"),
-        createNode("CERTIFICATES", "profile", "003_FUNCTIONAL"),
-        createNode("REFERENCES", "profile", "003_FUNCTIONAL")
+        createNode("00_INBOX", "profile", "003_FUNCTIONAL"),
+        createNode("01_IDENTITY", "profile", "003_FUNCTIONAL", "003_FUNCTIONAL", [
+          createNode("01_ID_CARD", "profile", "003_FUNCTIONAL"),
+          createNode("02_PASSPORT", "profile", "003_FUNCTIONAL"),
+          createNode("03_DRIVING_LICENSE", "profile", "003_FUNCTIONAL"),
+          createNode("04_PERSONAL_DETAILS", "profile", "003_FUNCTIONAL")
+        ]),
+        createNode("02_OFFICIAL_RECORDS", "profile", "003_FUNCTIONAL"),
+        createNode("03_PROFESSIONAL_LICENSES", "profile", "003_FUNCTIONAL"),
+        createNode("04_CV", "profile", "003_FUNCTIONAL"),
+        createNode("05_DEGREES", "profile", "003_FUNCTIONAL"),
+        createNode("06_CERTIFICATES", "profile", "003_FUNCTIONAL"),
+        createNode("07_REFERENCES", "profile", "003_FUNCTIONAL"),
+        createNode("08_PUBLIC_PROFILE_AND_PORTFOLIO", "profile", "003_FUNCTIONAL")
       ]
     };
 
@@ -258,13 +279,17 @@ window.FolderTree = (() => {
       thinkingType: null,
       childLayerType: "002_THEMATIC",
       children: [
-        createNode("FAMILY", "personal", "002_THEMATIC"),
-        createNode("HEALTH", "personal", "002_THEMATIC"),
-        createNode("FINANCIAL", "personal", "002_THEMATIC"),
-        createNode("INTERESTS", "personal", "002_THEMATIC", "002_THEMATIC", [
-          createNode("CHESS", "personal", "002_THEMATIC"),
-          createNode("SWIMMING", "personal", "002_THEMATIC"),
-          createNode("BLOG_WRITING", "personal", "002_THEMATIC")
+        createNode("00_INBOX", "personal", "002_THEMATIC"),
+        createNode("01_FAMILY_AND_FRIENDS", "personal", "002_THEMATIC"),
+        createNode("02_HEALTH", "personal", "002_THEMATIC"),
+        createNode("03_FINANCE", "personal", "002_THEMATIC"),
+        createNode("04_HOBBIES_AND_INTERESTS", "personal", "002_THEMATIC"),
+        createNode("05_HOME_AND_ASSETS", "personal", "002_THEMATIC"),
+        createNode("06_PHOTOS_AND_VIDEOS", "personal", "002_THEMATIC"),
+        createNode("07_DIGITAL_LIFE", "personal", "002_THEMATIC", "003_FUNCTIONAL", [
+          createNode("01_ACCOUNTS_AND_ACCESS", "personal", "003_FUNCTIONAL"),
+          createNode("02_DEVICES_AND_SOFTWARE", "personal", "003_FUNCTIONAL"),
+          createNode("03_BACKUPS_AND_EXPORTS", "personal", "003_FUNCTIONAL")
         ])
       ]
     };
@@ -277,17 +302,18 @@ window.FolderTree = (() => {
       thinkingType: null,
       childLayerType: "001_CHRONOLOGICAL",
       children: [
-        createNode("2002-2010_PRIVATE_SECTOR", "professional", "001_CHRONOLOGICAL"),
-        createNode("2010-2019_MARINAS_PPP_DBFOT", "professional", "001_CHRONOLOGICAL"),
-        createNode("2019-2026_STATE_FAIR_SITE_MANAGEMENT", "professional", "001_CHRONOLOGICAL"),
-        createNode("2026-NOW_HEALTH_AND_SAFETY_OFFICER", "professional", "001_CHRONOLOGICAL")
+        createNode("00_INBOX", "professional", "001_CHRONOLOGICAL"),
+        createPeriodNode("01_PERIOD_1"),
+        createPeriodNode("02_PERIOD_2"),
+        createPeriodNode("03_PERIOD_3"),
+        createNode("04_GENERAL_ARCHIVE", "professional", "001_CHRONOLOGICAL")
       ]
     };
 
     window.AppState.resetNodeCounter();
     window.AppState.setTree({
       id: "documents",
-      name: "DOCUMENTS",
+      name: "Organize Your PC",
       fixed: true,
       branch: null,
       thinkingType: null,
