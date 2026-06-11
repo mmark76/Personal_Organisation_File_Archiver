@@ -44,6 +44,12 @@ window.AppInit = (() => {
   function applyTemporaryMainChoiceLabels() {
     const buildNewTreeTitle = qs("#openFolderTreeModeButton strong");
     if (buildNewTreeTitle) buildNewTreeTitle.textContent = "Build New Folder Tree on this PC";
+
+    const loadDefaultTemplateButton = qs("#loadExampleTreeButton");
+    if (loadDefaultTemplateButton) loadDefaultTemplateButton.textContent = "Load Default Template";
+
+    const downloadDefaultTemplateButton = qs('[data-template-download-id="default-example"]');
+    if (downloadDefaultTemplateButton) downloadDefaultTemplateButton.textContent = "Download Default Template";
   }
 
   function temporarilyDisableFolderTreeUtilityButtons() {
