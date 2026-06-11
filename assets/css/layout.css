@@ -75,8 +75,7 @@
   gap: 10px;
 }
 
-.header-actions #openColorThemePickerButton,
-.header-actions #downloadSettingsButton {
+.header-actions #openColorThemePickerButton {
   position: relative;
   z-index: 120;
 }
