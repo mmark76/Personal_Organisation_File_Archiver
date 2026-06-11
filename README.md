@@ -73,13 +73,15 @@ The app includes a local **Settings** panel for user-controlled appearance chang
 
 Settings preview live in the browser and are saved locally only when the user clicks **Save settings**.
 
+The current default settings are defined in `assets/js/color-theme-picker.js` and are based on the saved settings export used by the project owner.
+
 Saved settings are stored in local browser storage under:
 
 ```text
 organizeYourPcColorTheme
 ```
 
-The user can download the saved settings to the computer by clicking **Download settings**. The downloaded JSON file is named:
+The user can download the saved settings to the computer from inside the **Settings** panel by clicking **Download settings**. The downloaded JSON file is named:
 
 ```text
 organize_your_pc_settings.json
@@ -87,7 +89,7 @@ organize_your_pc_settings.json
 
 The settings export contains the app name, export type, schema version, export date, storage key, and the saved settings object.
 
-The **Settings** and **Download settings** controls remain available above ordinary app modals so the user can adjust or download settings while a modal dialog is open.
+The **Settings** button remains available above ordinary app modals so the user can open the settings panel while a modal dialog is visible.
 
 ## What the App Does
 
