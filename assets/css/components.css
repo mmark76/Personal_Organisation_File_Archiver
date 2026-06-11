@@ -12,7 +12,7 @@ button {
   padding: 8px 12px;
   background: var(--app-primary);
   color: #ffffff;
-  border: 1px solid var(--app-primary);
+  border: 1px solid #ffffff;
   border-radius: var(--app-radius-xs);
   box-shadow: none;
   font-size: 13px;
@@ -25,43 +25,43 @@ button {
 .button:hover,
 button:hover {
   background: var(--app-primary-hover);
-  border-color: var(--app-primary-hover);
+  border-color: #ffffff;
   color: #000000;
 }
 
 .button-secondary {
   background: var(--app-secondary-bg);
   color: var(--app-text);
-  border-color: var(--app-border);
+  border-color: #ffffff;
 }
 
 .button-secondary:hover {
   background: var(--app-secondary-hover);
-  border-color: var(--app-border);
+  border-color: #ffffff;
   color: var(--app-text);
 }
 
 .button-success {
   background: var(--app-success);
-  border-color: var(--app-success);
+  border-color: #ffffff;
   color: #ffffff;
 }
 
 .button-success:hover {
   background: var(--app-success-hover);
-  border-color: var(--app-success-hover);
+  border-color: #ffffff;
   color: #ffffff;
 }
 
 .button-danger {
   background: var(--app-danger);
-  border-color: var(--app-danger);
+  border-color: #ffffff;
   color: #ffffff;
 }
 
 .button-danger:hover {
   background: var(--app-danger-hover);
-  border-color: var(--app-danger-hover);
+  border-color: #ffffff;
   color: #ffffff;
 }
 
@@ -70,7 +70,7 @@ button:hover {
   padding: 7px 14px;
   background: transparent;
   color: var(--app-muted-strong);
-  border-color: var(--app-border);
+  border-color: #ffffff;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 650;
@@ -79,7 +79,7 @@ button:hover {
 .header-actions .button:hover {
   background: var(--app-surface-muted);
   color: var(--app-text);
-  border-color: var(--app-muted);
+  border-color: #ffffff;
 }
 
 .choice-card {
@@ -92,19 +92,19 @@ button:hover {
   text-align: center;
   background: linear-gradient(180deg, #181818 0%, #0f0f0f 100%);
   color: var(--app-text);
-  border: 2px solid rgba(251, 191, 36, 0.34);
+  border: 2px solid #ffffff;
   border-radius: var(--app-radius);
-  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.08), 0 18px 44px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 18px 44px rgba(0, 0, 0, 0.35);
 }
 
 .choice-card:hover {
   background: linear-gradient(180deg, #202020 0%, #121212 100%);
-  border-color: rgba(251, 191, 36, 0.72);
+  border-color: #ffffff;
   color: var(--app-text);
 }
 
 .choice-card:hover strong {
-  color: #fbbf24;
+  color: var(--app-text);
 }
 
 .choice-card:hover span {
@@ -112,7 +112,7 @@ button:hover {
 }
 
 .choice-card strong {
-  color: #fbbf24;
+  color: var(--app-text);
   font-size: 17px;
   text-align: center;
 }
@@ -330,8 +330,8 @@ button:hover {
 
 .archive-destination-button:hover,
 .archive-destination-button.archive-destination-selected {
-  background: rgba(251, 191, 36, 0.12);
-  border-color: rgba(251, 191, 36, 0.82);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #ffffff;
   color: var(--app-text);
 }
 
