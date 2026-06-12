@@ -56,88 +56,115 @@ window.FolderTreeTemplates = (() => {
     };
   }
 
+  function createChessBranch() {
+    return userNode("CHESS", "personal", thematic, functional, [
+      userNode("PROFILE", "personal", functional),
+      userNode("GAMES", "personal", functional),
+      userNode("BOOKS", "personal", functional),
+      userNode("OPENINGS", "personal", functional),
+      userNode("MIDDLEGAME", "personal", functional),
+      userNode("ENDGAMES", "personal", functional),
+      userNode("COURSES", "personal", functional),
+      userNode("TRAINING", "personal", functional),
+      userNode("PREPARATION", "personal", functional),
+      userNode("ARCHIVE", "personal", functional)
+    ]);
+  }
+
+  function createDefaultChildren(includeChessBranch = false) {
+    const hobbiesChildren = includeChessBranch ? [createChessBranch()] : [];
+
+    return [
+      fixedFirstLevelNode("PROFILE", "profile", functional, [
+        userNode("INBOX", "profile", functional),
+        userNode("IDENTITY", "profile", functional, functional, [
+          userNode("ID_CARD", "profile", functional),
+          userNode("PASSPORT", "profile", functional),
+          userNode("DRIVING_LICENSE", "profile", functional),
+          userNode("PERSONAL_DETAILS", "profile", functional)
+        ]),
+        userNode("OFFICIAL_RECORDS", "profile", functional),
+        userNode("PROFESSIONAL_LICENSES", "profile", functional),
+        userNode("CV", "profile", functional),
+        userNode("DEGREES", "profile", functional),
+        userNode("CERTIFICATES", "profile", functional),
+        userNode("REFERENCES", "profile", functional),
+        userNode("PUBLIC_PROFILE_AND_PORTFOLIO", "profile", functional)
+      ]),
+      fixedFirstLevelNode("PERSONAL", "personal", thematic, [
+        userNode("INBOX", "personal", thematic),
+        userNode("FAMILY_AND_FRIENDS", "personal", thematic),
+        userNode("HEALTH", "personal", thematic),
+        userNode("FINANCE", "personal", thematic),
+        userNode("HOBBIES_AND_INTERESTS", "personal", thematic, includeChessBranch ? thematic : null, hobbiesChildren),
+        userNode("HOME_AND_ASSETS", "personal", thematic),
+        userNode("PHOTOS_AND_VIDEOS", "personal", thematic),
+        userNode("DIGITAL_LIFE", "personal", thematic, functional, [
+          userNode("ACCOUNTS_AND_ACCESS", "personal", functional),
+          userNode("DEVICES_AND_SOFTWARE", "personal", functional),
+          userNode("BACKUPS_AND_EXPORTS", "personal", functional)
+        ])
+      ]),
+      fixedFirstLevelNode("PROFESSIONAL", "professional", chronological, [
+        userNode("INBOX", "professional", chronological),
+        userNode("PERIOD_1", "professional", chronological, functional, [
+          userNode("MAIN_ACTIVITY", "professional", functional),
+          userNode("PROJECTS", "professional", functional),
+          userNode("DOCUMENTS", "professional", functional),
+          userNode("NOTES_AND_REPORTS", "professional", functional),
+          userNode("CORRESPONDENCE", "professional", functional),
+          userNode("ARCHIVE", "professional", functional)
+        ]),
+        userNode("PERIOD_2", "professional", chronological, functional, [
+          userNode("MAIN_ACTIVITY", "professional", functional),
+          userNode("PROJECTS", "professional", functional),
+          userNode("DOCUMENTS", "professional", functional),
+          userNode("NOTES_AND_REPORTS", "professional", functional),
+          userNode("CORRESPONDENCE", "professional", functional),
+          userNode("ARCHIVE", "professional", functional)
+        ]),
+        userNode("PERIOD_3", "professional", chronological, functional, [
+          userNode("MAIN_ACTIVITY", "professional", functional),
+          userNode("PROJECTS", "professional", functional),
+          userNode("DOCUMENTS", "professional", functional),
+          userNode("NOTES_AND_REPORTS", "professional", functional),
+          userNode("CORRESPONDENCE", "professional", functional),
+          userNode("ARCHIVE", "professional", functional)
+        ]),
+        userNode("GENERAL_ARCHIVE", "professional", chronological)
+      ])
+    ];
+  }
+
   const blankValidTemplate = buildTemplate(
     "Blank Valid Template",
     "A strict blank folder tree with only the fixed first-level folders.",
     buildFolderTree([
-      fixedFirstLevelNode("01_PROFILE", "profile"),
-      fixedFirstLevelNode("02_PERSONAL", "personal"),
-      fixedFirstLevelNode("03_PROFESSIONAL", "professional")
+      fixedFirstLevelNode("PROFILE", "profile"),
+      fixedFirstLevelNode("PERSONAL", "personal"),
+      fixedFirstLevelNode("PROFESSIONAL", "professional")
     ])
   );
 
   const defaultTemplate = buildTemplate(
-    "Default Template",
+    "Default Memory-Based Template",
     "The official general-purpose default folder tree used by the app.",
-    buildFolderTree([
-      fixedFirstLevelNode("01_PROFILE", "profile", functional, [
-        userNode("00_INBOX", "profile", functional),
-        userNode("01_IDENTITY", "profile", functional, functional, [
-          userNode("01_ID_CARD", "profile", functional),
-          userNode("02_PASSPORT", "profile", functional),
-          userNode("03_DRIVING_LICENSE", "profile", functional),
-          userNode("04_PERSONAL_DETAILS", "profile", functional)
-        ]),
-        userNode("02_OFFICIAL_RECORDS", "profile", functional),
-        userNode("03_PROFESSIONAL_LICENSES", "profile", functional),
-        userNode("04_CV", "profile", functional),
-        userNode("05_DEGREES", "profile", functional),
-        userNode("06_CERTIFICATES", "profile", functional),
-        userNode("07_REFERENCES", "profile", functional),
-        userNode("08_PUBLIC_PROFILE_AND_PORTFOLIO", "profile", functional)
-      ]),
-      fixedFirstLevelNode("02_PERSONAL", "personal", thematic, [
-        userNode("00_INBOX", "personal", thematic),
-        userNode("01_FAMILY_AND_FRIENDS", "personal", thematic),
-        userNode("02_HEALTH", "personal", thematic),
-        userNode("03_FINANCE", "personal", thematic),
-        userNode("04_HOBBIES_AND_INTERESTS", "personal", thematic),
-        userNode("05_HOME_AND_ASSETS", "personal", thematic),
-        userNode("06_PHOTOS_AND_VIDEOS", "personal", thematic),
-        userNode("07_DIGITAL_LIFE", "personal", thematic, functional, [
-          userNode("01_ACCOUNTS_AND_ACCESS", "personal", functional),
-          userNode("02_DEVICES_AND_SOFTWARE", "personal", functional),
-          userNode("03_BACKUPS_AND_EXPORTS", "personal", functional)
-        ])
-      ]),
-      fixedFirstLevelNode("03_PROFESSIONAL", "professional", chronological, [
-        userNode("00_INBOX", "professional", chronological),
-        userNode("01_PERIOD_1", "professional", chronological, functional, [
-          userNode("01_MAIN_ACTIVITY", "professional", functional),
-          userNode("02_PROJECTS", "professional", functional),
-          userNode("03_DOCUMENTS", "professional", functional),
-          userNode("04_NOTES_AND_REPORTS", "professional", functional),
-          userNode("05_CORRESPONDENCE", "professional", functional),
-          userNode("06_ARCHIVE", "professional", functional)
-        ]),
-        userNode("02_PERIOD_2", "professional", chronological, functional, [
-          userNode("01_MAIN_ACTIVITY", "professional", functional),
-          userNode("02_PROJECTS", "professional", functional),
-          userNode("03_DOCUMENTS", "professional", functional),
-          userNode("04_NOTES_AND_REPORTS", "professional", functional),
-          userNode("05_CORRESPONDENCE", "professional", functional),
-          userNode("06_ARCHIVE", "professional", functional)
-        ]),
-        userNode("03_PERIOD_3", "professional", chronological, functional, [
-          userNode("01_MAIN_ACTIVITY", "professional", functional),
-          userNode("02_PROJECTS", "professional", functional),
-          userNode("03_DOCUMENTS", "professional", functional),
-          userNode("04_NOTES_AND_REPORTS", "professional", functional),
-          userNode("05_CORRESPONDENCE", "professional", functional),
-          userNode("06_ARCHIVE", "professional", functional)
-        ]),
-        userNode("04_GENERAL_ARCHIVE", "professional", chronological)
-      ])
-    ])
+    buildFolderTree(createDefaultChildren(false))
+  );
+
+  const defaultTemplateWithChessBranch = buildTemplate(
+    "Default Memory-Based Template with Chess Branch",
+    "The official default folder tree with CHESS under PERSONAL / HOBBIES_AND_INTERESTS.",
+    buildFolderTree(createDefaultChildren(true))
   );
 
   const professionalTimelineTemplate = buildTemplate(
     "Professional Timeline Template",
     "A professional chronological folder tree template for career periods and roles.",
     buildFolderTree([
-      fixedFirstLevelNode("01_PROFILE", "profile"),
-      fixedFirstLevelNode("02_PERSONAL", "personal"),
-      fixedFirstLevelNode("03_PROFESSIONAL", "professional", chronological, [
+      fixedFirstLevelNode("PROFILE", "profile"),
+      fixedFirstLevelNode("PERSONAL", "personal"),
+      fixedFirstLevelNode("PROFESSIONAL", "professional", chronological, [
         userNode("2020-2022_FOUNDATION", "professional", chronological),
         userNode("2023-2024_GROWTH", "professional", chronological),
         userNode("2025-NOW_CURRENT_ROLE", "professional", chronological)
@@ -153,6 +180,10 @@ window.FolderTreeTemplates = (() => {
     "default-example": {
       filename: "default_folder_tree_template.json",
       data: defaultTemplate
+    },
+    "default-with-chess": {
+      filename: "default_folder_tree_with_chess_branch_template.json",
+      data: defaultTemplateWithChessBranch
     },
     "professional-timeline": {
       filename: "professional_timeline_folder_tree_template.json",
@@ -194,11 +225,19 @@ window.FolderTreeTemplates = (() => {
     return lines;
   }
 
-  function getDefaultTemplatePreviewText() {
-    const data = buildTemplateData("default-example");
+  function getDefaultTemplatePreviewText(templateId = "default-example") {
+    const data = buildTemplateData(templateId);
     if (!data?.folderTree) return "Default folder tree preview is not available.";
 
     return buildFolderTreePreviewLines(data.folderTree, "", true, true).join("\n");
+  }
+
+  function loadTemplate(templateId) {
+    const data = buildTemplateData(templateId);
+    if (!data) return false;
+
+    window.FolderTreeImport.importFolderTreeData(data);
+    return true;
   }
 
   function downloadTemplate(templateId) {
@@ -216,6 +255,7 @@ window.FolderTreeTemplates = (() => {
   return {
     buildTemplateData,
     downloadTemplate,
-    getDefaultTemplatePreviewText
+    getDefaultTemplatePreviewText,
+    loadTemplate
   };
 })();
