@@ -82,9 +82,9 @@
 
 body.modal-open .header-actions #openColorThemePickerButton {
   position: fixed;
-  top: 50%;
-  right: max(12px, calc((100vw - min(760px, calc(100vw - 36px))) / 2 - 108px));
-  transform: translateY(-50%);
+  top: max(56px, calc((100vh - min(84vh, 760px)) / 2 + 26px));
+  right: max(18px, calc((100vw - min(760px, calc(100vw - 36px))) / 2 - 126px));
+  transform: none;
   z-index: 100;
 }
 
