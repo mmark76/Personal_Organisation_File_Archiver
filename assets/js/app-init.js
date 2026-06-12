@@ -46,7 +46,7 @@ window.AppInit = (() => {
     if (buildNewTreeTitle) buildNewTreeTitle.textContent = "Build New Folder Tree on this PC";
 
     const loadDefaultTemplateButton = qs("#loadExampleTreeButton");
-    if (loadDefaultTemplateButton) loadDefaultTemplateButton.textContent = "Load Default Template";
+    if (loadDefaultTemplateButton) loadDefaultTemplateButton.textContent = "Choose Template to Load";
 
     const downloadDefaultTemplateButton = qs('[data-template-download-id="default-example"]');
     if (downloadDefaultTemplateButton) downloadDefaultTemplateButton.textContent = "Download Default Template";
