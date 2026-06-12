@@ -83,14 +83,12 @@ window.FolderTreeRender = (() => {
   }
 
   function getTextTreeLabel(node, indexPath) {
-    if (node.fixed) return node.name;
-
     const code = window.FolderTreeCodes.getDisplayCodeFromIndexPath(indexPath, node);
-    return `${code} ${node.name}`;
+    return code ? `${code} ${node.name}` : node.name;
   }
 
   function buildOutputLines() {
-    const lines = ["Organize Your PC"];
+    const lines = [state.tree?.name || "Organize Your PC"];
 
     function walk(node, indexPath, prefix, isLast) {
       const connector = isLast ? "└── " : "├── ";
