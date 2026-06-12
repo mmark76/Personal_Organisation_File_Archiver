@@ -173,6 +173,34 @@ window.FolderTreeTemplates = (() => {
     return data;
   }
 
+  function buildFolderTreePreviewLines(node, prefix = "", isLast = true, isRoot = false) {
+    const lines = [];
+
+    if (isRoot) {
+      lines.push(node.name);
+    } else {
+      const connector = isLast ? "└── " : "├── ";
+      lines.push(`${prefix}${connector}${node.name}`);
+    }
+
+    const children = Array.isArray(node.children) ? node.children : [];
+    const childPrefix = isRoot ? "" : `${prefix}${isLast ? "    " : "│   "}`;
+
+    children.forEach((child, index) => {
+      const childIsLast = index === children.length - 1;
+      lines.push(...buildFolderTreePreviewLines(child, childPrefix, childIsLast));
+    });
+
+    return lines;
+  }
+
+  function getDefaultTemplatePreviewText() {
+    const data = buildTemplateData("default-example");
+    if (!data?.folderTree) return "Default folder tree preview is not available.";
+
+    return buildFolderTreePreviewLines(data.folderTree, "", true, true).join("\n");
+  }
+
   function downloadTemplate(templateId) {
     const template = templates[templateId];
     const data = buildTemplateData(templateId);
@@ -187,6 +215,7 @@ window.FolderTreeTemplates = (() => {
 
   return {
     buildTemplateData,
-    downloadTemplate
+    downloadTemplate,
+    getDefaultTemplatePreviewText
   };
 })();
