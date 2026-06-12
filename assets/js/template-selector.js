@@ -6,15 +6,35 @@ window.TemplateSelector = (() => {
   }
 
   function createNode(name, branch, thinkingType, childLayerType = null, children = []) {
-    const node = window.FolderTree.createNode(name, branch, thinkingType, childLayerType, children);
-    return node;
+    return window.FolderTree.createNode(name, branch, thinkingType, childLayerType, children);
   }
 
-  function createFullChessBranch() {
+  function normalizeMotherFolderCode(value) {
+    return String(value || "").trim();
+  }
+
+  function isValidMotherFolderCode(value) {
+    return /^\d{2}(\.\d{3})*$/.test(value);
+  }
+
+  function buildChildDisplayCode(parentCode, childIndex) {
+    return `${parentCode}.${String(childIndex + 1).padStart(3, "0")}`;
+  }
+
+  function applyDisplayCodes(node, parentCode, childIndex) {
+    const nodeCode = buildChildDisplayCode(parentCode, childIndex);
+    node.displayCode = nodeCode;
+
+    (node.children || []).forEach((child, index) => {
+      applyDisplayCodes(child, nodeCode, index);
+    });
+  }
+
+  function createFullChessBranch(motherFolderCode) {
     const thematic = "002_THEMATIC";
     const functional = "003_FUNCTIONAL";
 
-    return createNode("CHESS", "personal", thematic, thematic, [
+    const chess = createNode("CHESS", "personal", thematic, thematic, [
       createNode("PROFILE", "personal", thematic, functional, [
         createNode("CHESS_IDS", "personal", functional),
         createNode("CERTIFICATES", "personal", functional)
@@ -56,24 +76,40 @@ window.TemplateSelector = (() => {
       ]),
       createNode("ARCHIVE", "personal", thematic)
     ]);
+
+    applyDisplayCodes(chess, motherFolderCode, 0);
+    return chess;
   }
 
-  function loadDefaultTemplateWithChessBranch() {
-    const loaded = window.FolderTreeTemplates?.loadTemplate?.("default-example");
-    if (!loaded) return false;
+  function loadChessTemplate() {
+    const motherFolderCode = normalizeMotherFolderCode(
+      window.prompt("Enter the mother folder code where CHESS will be placed, for example 02.005:")
+    );
 
-    const personal = window.FolderTree.findNodeById("personal");
-    const hobbies = (personal?.children || []).find(node => node.name === "HOBBIES_AND_INTERESTS");
-    if (!hobbies) return false;
+    if (!motherFolderCode) return false;
 
-    hobbies.childLayerType = "002_THEMATIC";
-    hobbies.children = [createFullChessBranch()];
+    if (!isValidMotherFolderCode(motherFolderCode)) {
+      window.alert("Please enter a valid mother folder code, for example 02.005.");
+      return false;
+    }
+
+    window.AppState.resetNodeCounter();
+    window.AppState.setTree({
+      id: "chess-template-root",
+      name: `Chess Template under ${motherFolderCode}`,
+      fixed: true,
+      branch: null,
+      thinkingType: null,
+      childLayerType: null,
+      children: [createFullChessBranch(motherFolderCode)]
+    });
+
     window.FolderTreeRender.renderAll();
     return true;
   }
 
   function loadSelectedTemplate(templateId) {
-    if (templateId === "default-with-chess") return loadDefaultTemplateWithChessBranch();
+    if (templateId === "chess-template") return loadChessTemplate();
     return Boolean(window.FolderTreeTemplates?.loadTemplate?.(templateId));
   }
 
@@ -85,7 +121,7 @@ window.TemplateSelector = (() => {
     button.addEventListener("click", () => {
       const loaded = loadSelectedTemplate(templateId);
       const status = qs("#treeTemplateStatus");
-      if (status) status.textContent = loaded ? `${label} loaded.` : "Template could not be loaded.";
+      if (status) status.textContent = loaded ? `${label} loaded.` : "Template was not loaded.";
     });
     return button;
   }
@@ -106,7 +142,7 @@ window.TemplateSelector = (() => {
 
     panel.append(
       createTemplateButton("Default Memory-Based Template", "default-example"),
-      createTemplateButton("Default Template with Chess Branch", "default-with-chess")
+      createTemplateButton("Chess Template", "chess-template")
     );
 
     const status = document.createElement("p");
