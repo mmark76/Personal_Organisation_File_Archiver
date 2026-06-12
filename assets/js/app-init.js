@@ -69,6 +69,33 @@ window.AppInit = (() => {
     });
   }
 
+  function renderHowItWorksDefaultFolderTreePreview() {
+    const modalContent = qs("#howItWorksModal .modal-content");
+    if (!modalContent || qs("#howItWorksDefaultFolderTreePreview")) return;
+
+    const section = document.createElement("section");
+    section.className = "structure-section";
+    section.setAttribute("aria-labelledby", "howItWorksDefaultFolderTreeTitle");
+
+    const title = document.createElement("h3");
+    title.id = "howItWorksDefaultFolderTreeTitle";
+    title.textContent = "Default Folder Tree";
+
+    const explanation = document.createElement("p");
+    explanation.textContent = "The app can build this ready-made default folder tree on your PC. You can use it as it is or create your own custom structure. The first three main categories are fixed: Profile, Personal, and Professional.";
+
+    const preview = document.createElement("pre");
+    preview.id = "howItWorksDefaultFolderTreePreview";
+    preview.className = "structure-output";
+    preview.setAttribute("aria-label", "Default folder tree preview");
+    preview.textContent = window.FolderTreeTemplates?.getDefaultTemplatePreviewText?.() || "Default folder tree preview is not available.";
+
+    section.appendChild(title);
+    section.appendChild(explanation);
+    section.appendChild(preview);
+    modalContent.appendChild(section);
+  }
+
   function addDefaultTemplateArchiveChoice(panelSelector, buttonId, noteId) {
     const panel = qs(panelSelector);
     if (!panel) return;
@@ -187,6 +214,7 @@ window.AppInit = (() => {
 
     applyTemporaryMainChoiceLabels();
     temporarilyDisableFolderTreeUtilityButtons();
+    renderHowItWorksDefaultFolderTreePreview();
 
     window.AppModals.bindModalEvents();
     window.AppAccessibility.bindKeyboardHandlers();
