@@ -2,27 +2,33 @@
 
 window.FileImport = (() => {
   const { setLoadedFile } = window.AppState;
-  const { formatBytes, escapeHtml, setHtml } = window.AppUtils;
+  const { formatBytes } = window.AppUtils;
+
+  function appendStatusLine(container, text) {
+    container.append(document.createTextNode(text), document.createElement("br"));
+  }
 
   function renderFileStatus() {
     const file = window.AppState.state.loadedFile;
+    const box = document.getElementById("fileStatusBox");
 
     if (!file) {
-      setHtml("#fileStatusBox", window.AppMessages.noFileLoaded);
+      if (box) box.textContent = window.AppMessages.noFileLoaded;
       window.FileAdvisor?.renderSuggestion();
       return;
     }
 
-    const modified = file.lastModified ? new Date(file.lastModified).toLocaleString() : "Unknown";
-    const type = file.type || "Unknown type";
+    if (box) {
+      const modified = file.lastModified ? new Date(file.lastModified).toLocaleString() : "Unknown";
+      const type = file.type || "Unknown type";
+      const fileName = document.createElement("strong");
 
-    setHtml(
-      "#fileStatusBox",
-      `<strong>${escapeHtml(file.name)}</strong><br>` +
-      `Type: ${escapeHtml(type)}<br>` +
-      `Size: ${formatBytes(file.size)}<br>` +
-      `Last modified: ${escapeHtml(modified)}`
-    );
+      fileName.textContent = file.name;
+      box.replaceChildren(fileName, document.createElement("br"));
+      appendStatusLine(box, `Type: ${type}`);
+      appendStatusLine(box, `Size: ${formatBytes(file.size)}`);
+      box.append(document.createTextNode(`Last modified: ${modified}`));
+    }
 
     window.FileAdvisor?.renderSuggestion();
   }
