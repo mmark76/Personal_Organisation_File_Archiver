@@ -9,7 +9,8 @@ window.FolderTreeCodes = (() => {
     return padPart(indexPath[0] + 1, 2);
   }
 
-  function getDisplayCodeFromIndexPath(indexPath) {
+  function getDisplayCodeFromIndexPath(indexPath, node = null) {
+    if (node?.displayCode) return node.displayCode;
     if (!indexPath.length) return "";
 
     const codeParts = [getMainFolderCode(indexPath)];
