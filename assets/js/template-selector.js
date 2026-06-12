@@ -95,8 +95,8 @@ window.TemplateSelector = (() => {
 
     window.AppState.resetNodeCounter();
     window.AppState.setTree({
-      id: "chess-template-root",
-      name: `Chess Template under ${motherFolderCode}`,
+      id: "documents",
+      name: "Organize Your PC",
       fixed: true,
       branch: null,
       thinkingType: null,
