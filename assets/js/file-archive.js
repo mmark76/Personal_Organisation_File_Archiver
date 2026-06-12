@@ -66,8 +66,11 @@ window.FileArchive = (() => {
       const fileHandle = await destinationHandle.getFileHandle(safeName, { create: true });
       const writable = await fileHandle.createWritable();
 
-      await writable.write(file);
-      await writable.close();
+      try {
+        await writable.write(file);
+      } finally {
+        await writable.close();
+      }
 
       window.AppUtils.setText(
         "#archiveResultBox",
