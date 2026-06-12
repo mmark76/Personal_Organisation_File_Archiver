@@ -1,12 +1,18 @@
 /* Modal open and close behavior. */
 
 window.AppModals = (() => {
+  function updateModalOpenState() {
+    const hasOpenModal = Boolean(document.querySelector(".modal:not([hidden])"));
+    document.body.classList.toggle("modal-open", hasOpenModal);
+  }
+
   function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
 
     window.AppAccessibility.storeFocusedElement();
     modal.hidden = false;
+    updateModalOpenState();
     window.AppAccessibility.focusFirstElement(modal);
   }
 
@@ -15,6 +21,7 @@ window.AppModals = (() => {
     if (!modal) return;
 
     modal.hidden = true;
+    updateModalOpenState();
     window.AppAccessibility.restoreFocusedElement();
   }
 
