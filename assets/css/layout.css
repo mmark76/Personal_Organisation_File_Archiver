@@ -80,6 +80,14 @@
   z-index: 120;
 }
 
+body.modal-open .header-actions #openColorThemePickerButton {
+  position: fixed;
+  top: 50%;
+  right: max(12px, calc((100vw - min(760px, calc(100vw - 36px))) / 2 - 108px));
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
 .app-main {
   width: min(var(--app-width), calc(100% - 40px));
   margin: 0 auto 28px;
