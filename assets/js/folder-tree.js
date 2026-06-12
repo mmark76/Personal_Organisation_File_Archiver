@@ -236,77 +236,77 @@ window.FolderTree = (() => {
 
   function createPeriodNode(name) {
     return createNode(name, "professional", "001_CHRONOLOGICAL", "003_FUNCTIONAL", [
-      createNode("01_MAIN_ACTIVITY", "professional", "003_FUNCTIONAL"),
-      createNode("02_PROJECTS", "professional", "003_FUNCTIONAL"),
-      createNode("03_DOCUMENTS", "professional", "003_FUNCTIONAL"),
-      createNode("04_NOTES_AND_REPORTS", "professional", "003_FUNCTIONAL"),
-      createNode("05_CORRESPONDENCE", "professional", "003_FUNCTIONAL"),
-      createNode("06_ARCHIVE", "professional", "003_FUNCTIONAL")
+      createNode("MAIN_ACTIVITY", "professional", "003_FUNCTIONAL"),
+      createNode("PROJECTS", "professional", "003_FUNCTIONAL"),
+      createNode("DOCUMENTS", "professional", "003_FUNCTIONAL"),
+      createNode("NOTES_AND_REPORTS", "professional", "003_FUNCTIONAL"),
+      createNode("CORRESPONDENCE", "professional", "003_FUNCTIONAL"),
+      createNode("ARCHIVE", "professional", "003_FUNCTIONAL")
     ]);
   }
 
   function loadExampleTree() {
     const profile = {
       id: "profile",
-      name: "01_PROFILE",
+      name: "PROFILE",
       fixed: true,
       branch: "profile",
       thinkingType: null,
       childLayerType: "003_FUNCTIONAL",
       children: [
-        createNode("00_INBOX", "profile", "003_FUNCTIONAL"),
-        createNode("01_IDENTITY", "profile", "003_FUNCTIONAL", "003_FUNCTIONAL", [
-          createNode("01_ID_CARD", "profile", "003_FUNCTIONAL"),
-          createNode("02_PASSPORT", "profile", "003_FUNCTIONAL"),
-          createNode("03_DRIVING_LICENSE", "profile", "003_FUNCTIONAL"),
-          createNode("04_PERSONAL_DETAILS", "profile", "003_FUNCTIONAL")
+        createNode("INBOX", "profile", "003_FUNCTIONAL"),
+        createNode("IDENTITY", "profile", "003_FUNCTIONAL", "003_FUNCTIONAL", [
+          createNode("ID_CARD", "profile", "003_FUNCTIONAL"),
+          createNode("PASSPORT", "profile", "003_FUNCTIONAL"),
+          createNode("DRIVING_LICENSE", "profile", "003_FUNCTIONAL"),
+          createNode("PERSONAL_DETAILS", "profile", "003_FUNCTIONAL")
         ]),
-        createNode("02_OFFICIAL_RECORDS", "profile", "003_FUNCTIONAL"),
-        createNode("03_PROFESSIONAL_LICENSES", "profile", "003_FUNCTIONAL"),
-        createNode("04_CV", "profile", "003_FUNCTIONAL"),
-        createNode("05_DEGREES", "profile", "003_FUNCTIONAL"),
-        createNode("06_CERTIFICATES", "profile", "003_FUNCTIONAL"),
-        createNode("07_REFERENCES", "profile", "003_FUNCTIONAL"),
-        createNode("08_PUBLIC_PROFILE_AND_PORTFOLIO", "profile", "003_FUNCTIONAL")
+        createNode("OFFICIAL_RECORDS", "profile", "003_FUNCTIONAL"),
+        createNode("PROFESSIONAL_LICENSES", "profile", "003_FUNCTIONAL"),
+        createNode("CV", "profile", "003_FUNCTIONAL"),
+        createNode("DEGREES", "profile", "003_FUNCTIONAL"),
+        createNode("CERTIFICATES", "profile", "003_FUNCTIONAL"),
+        createNode("REFERENCES", "profile", "003_FUNCTIONAL"),
+        createNode("PUBLIC_PROFILE_AND_PORTFOLIO", "profile", "003_FUNCTIONAL")
       ]
     };
 
     const personal = {
       id: "personal",
-      name: "02_PERSONAL",
+      name: "PERSONAL",
       fixed: true,
       branch: "personal",
       thinkingType: null,
       childLayerType: "002_THEMATIC",
       children: [
-        createNode("00_INBOX", "personal", "002_THEMATIC"),
-        createNode("01_FAMILY_AND_FRIENDS", "personal", "002_THEMATIC"),
-        createNode("02_HEALTH", "personal", "002_THEMATIC"),
-        createNode("03_FINANCE", "personal", "002_THEMATIC"),
-        createNode("04_HOBBIES_AND_INTERESTS", "personal", "002_THEMATIC"),
-        createNode("05_HOME_AND_ASSETS", "personal", "002_THEMATIC"),
-        createNode("06_PHOTOS_AND_VIDEOS", "personal", "002_THEMATIC"),
-        createNode("07_DIGITAL_LIFE", "personal", "002_THEMATIC", "003_FUNCTIONAL", [
-          createNode("01_ACCOUNTS_AND_ACCESS", "personal", "003_FUNCTIONAL"),
-          createNode("02_DEVICES_AND_SOFTWARE", "personal", "003_FUNCTIONAL"),
-          createNode("03_BACKUPS_AND_EXPORTS", "personal", "003_FUNCTIONAL")
+        createNode("INBOX", "personal", "002_THEMATIC"),
+        createNode("FAMILY_AND_FRIENDS", "personal", "002_THEMATIC"),
+        createNode("HEALTH", "personal", "002_THEMATIC"),
+        createNode("FINANCE", "personal", "002_THEMATIC"),
+        createNode("HOBBIES_AND_INTERESTS", "personal", "002_THEMATIC"),
+        createNode("HOME_AND_ASSETS", "personal", "002_THEMATIC"),
+        createNode("PHOTOS_AND_VIDEOS", "personal", "002_THEMATIC"),
+        createNode("DIGITAL_LIFE", "personal", "002_THEMATIC", "003_FUNCTIONAL", [
+          createNode("ACCOUNTS_AND_ACCESS", "personal", "003_FUNCTIONAL"),
+          createNode("DEVICES_AND_SOFTWARE", "personal", "003_FUNCTIONAL"),
+          createNode("BACKUPS_AND_EXPORTS", "personal", "003_FUNCTIONAL")
         ])
       ]
     };
 
     const professional = {
       id: "professional",
-      name: "03_PROFESSIONAL",
+      name: "PROFESSIONAL",
       fixed: true,
       branch: "professional",
       thinkingType: null,
       childLayerType: "001_CHRONOLOGICAL",
       children: [
-        createNode("00_INBOX", "professional", "001_CHRONOLOGICAL"),
-        createPeriodNode("01_PERIOD_1"),
-        createPeriodNode("02_PERIOD_2"),
-        createPeriodNode("03_PERIOD_3"),
-        createNode("04_GENERAL_ARCHIVE", "professional", "001_CHRONOLOGICAL")
+        createNode("INBOX", "professional", "001_CHRONOLOGICAL"),
+        createPeriodNode("PERIOD_1"),
+        createPeriodNode("PERIOD_2"),
+        createPeriodNode("PERIOD_3"),
+        createNode("GENERAL_ARCHIVE", "professional", "001_CHRONOLOGICAL")
       ]
     };
 
