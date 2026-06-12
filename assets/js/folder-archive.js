@@ -2,6 +2,7 @@
 
 window.FolderArchive = (() => {
   const resultSelector = "#folderArchiveResultBox";
+  const destinationInsideSourceMessage = "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.";
 
   function setResult(message) {
     window.AppUtils.setText(resultSelector, message);
@@ -28,6 +29,19 @@ window.FolderArchive = (() => {
 
     try {
       return await firstHandle.isSameEntry(secondHandle);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async function isSameOrDescendantDirectory(parentDirectoryHandle, possibleChildDirectoryHandle) {
+    if (!parentDirectoryHandle || !possibleChildDirectoryHandle || typeof parentDirectoryHandle.resolve !== "function") {
+      return false;
+    }
+
+    try {
+      const relativePath = await parentDirectoryHandle.resolve(possibleChildDirectoryHandle);
+      return Array.isArray(relativePath);
     } catch (error) {
       return false;
     }
@@ -164,7 +178,17 @@ window.FolderArchive = (() => {
       setResult(window.AppMessages.archiveRootPrompt);
 
       const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
+      if (await isSameOrDescendantDirectory(folderHandle, appRootHandle)) {
+        setResult(destinationInsideSourceMessage);
+        return;
+      }
+
       const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destinationPath);
+      if (await isSameOrDescendantDirectory(folderHandle, destinationHandle)) {
+        setResult(destinationInsideSourceMessage);
+        return;
+      }
+
       const safeFolderName = await getAvailableDirectoryName(destinationHandle, folderHandle.name);
       const targetFolderHandle = await destinationHandle.getDirectoryHandle(safeFolderName, { create: true });
       const stats = { files: 0, folders: 1, bytes: 0 };
