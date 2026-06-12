@@ -48,7 +48,7 @@ window.AppState = (() => {
       children: [
         {
           id: "profile",
-          name: "01_PROFILE",
+          name: "PROFILE",
           fixed: true,
           branch: "profile",
           thinkingType: null,
@@ -57,7 +57,7 @@ window.AppState = (() => {
         },
         {
           id: "personal",
-          name: "02_PERSONAL",
+          name: "PERSONAL",
           fixed: true,
           branch: "personal",
           thinkingType: null,
@@ -66,7 +66,7 @@ window.AppState = (() => {
         },
         {
           id: "professional",
-          name: "03_PROFESSIONAL",
+          name: "PROFESSIONAL",
           fixed: true,
           branch: "professional",
           thinkingType: null,
