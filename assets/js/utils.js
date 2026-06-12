@@ -94,11 +94,6 @@ window.AppUtils = (() => {
     if (element) element.textContent = text;
   }
 
-  function setHtml(selector, html) {
-    const element = qs(selector);
-    if (element) element.innerHTML = html;
-  }
-
   function escapeHtml(value) {
     return String(value || "")
       .replace(/&/g, "&amp;")
@@ -119,7 +114,6 @@ window.AppUtils = (() => {
     downloadTextFile,
     writeClipboard,
     setText,
-    setHtml,
     escapeHtml
   };
 })();
