@@ -2,12 +2,12 @@
 
 window.FolderTreeImport = (() => {
   const { state, thinkingTypes, resetNodeCounter } = window.AppState;
-  const fixedRootName = "DOCUMENTS";
+  const fixedRootName = "Organize Your PC";
   const roleBasedThinkingType = "004_ROLE_BASED";
   const fixedFirstLevelNodes = [
-    { name: "01_PROFILE", id: "profile", branch: "profile" },
-    { name: "02_PERSONAL", id: "personal", branch: "personal" },
-    { name: "03_PROFESSIONAL", id: "professional", branch: "professional" }
+    { name: "PROFILE", id: "profile", branch: "profile" },
+    { name: "PERSONAL", id: "personal", branch: "personal" },
+    { name: "PROFESSIONAL", id: "professional", branch: "professional" }
   ];
 
   function hasOwnProperty(object, propertyName) {
