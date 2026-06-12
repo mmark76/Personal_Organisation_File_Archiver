@@ -43,6 +43,7 @@ assets/js/folder-tree-render.js
 assets/js/folder-tree-import.js
 assets/js/folder-tree-export.js
 assets/js/folder-tree-templates.js
+assets/js/template-selector.js
 assets/js/folder-tree-existing.js
 assets/js/folder-creation.js
 
@@ -58,6 +59,7 @@ assets/js/app-init.js
 assets/js/color-theme-picker.js
 
 assets/images/organize-your-pc-logo.svg
+assets/images/organize-your-pc-social-preview.png
 assets/images/local-copyright-protected-badge.svg
 ```
 
