@@ -203,6 +203,21 @@ window.AppInit = (() => {
     window.AppState.setActiveMode("buildTree");
   }
 
+  function loadBuildTemplateSelectorScript() {
+    if (window.TemplateSelector?.initialize) {
+      window.TemplateSelector.initialize();
+      return;
+    }
+
+    if (qs('script[data-template-selector-script="true"]')) return;
+
+    const script = document.createElement("script");
+    script.src = "assets/js/template-selector.js";
+    script.dataset.templateSelectorScript = "true";
+    script.addEventListener("load", () => window.TemplateSelector?.initialize?.());
+    document.body.appendChild(script);
+  }
+
   function initialize() {
     bindHeaderActions();
     bindNavigationActions();
@@ -215,6 +230,7 @@ window.AppInit = (() => {
     applyTemporaryMainChoiceLabels();
     temporarilyDisableFolderTreeUtilityButtons();
     renderHowItWorksDefaultFolderTreePreview();
+    loadBuildTemplateSelectorScript();
 
     window.AppModals.bindModalEvents();
     window.AppAccessibility.bindKeyboardHandlers();
