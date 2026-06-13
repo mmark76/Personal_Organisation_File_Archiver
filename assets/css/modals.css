@@ -91,17 +91,3 @@
   border: 1px solid var(--app-border-soft);
   border-radius: var(--app-radius-sm);
 }
-
-/* Keep the non-draggable Settings panel aligned with the header. */
-body #colorThemePickerModal {
-  top: 24px;
-  bottom: auto;
-}
-
-@media (max-width: 720px) {
-  body #colorThemePickerModal {
-    top: 12px;
-    right: 12px;
-    bottom: auto;
-  }
-}
