@@ -20,6 +20,18 @@ window.AppInit = (() => {
     });
   }
 
+  function removeHiddenBuildModeUtilities() {
+    [
+      "#copyTreeButton",
+      "#importTreeButton",
+      "#exportTreeButton",
+      "#folderTreeImportInput",
+      ".template-download-button"
+    ].forEach(selector => {
+      qsa(selector).forEach(element => element.remove());
+    });
+  }
+
   function bindFolderTreeActions() {
     qs("#loadExampleTreeButton")?.addEventListener("click", window.FolderTree.loadExampleTree);
     qs("#createFoldersButton")?.addEventListener("click", window.FolderCreation.createFoldersOnComputer);
@@ -191,6 +203,7 @@ window.AppInit = (() => {
   }
 
   function initialize() {
+    removeHiddenBuildModeUtilities();
     bindHeaderActions();
     bindNavigationActions();
     bindFolderTreeActions();
