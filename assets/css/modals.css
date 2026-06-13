@@ -91,3 +91,11 @@
   border: 1px solid var(--app-border-soft);
   border-radius: var(--app-radius-sm);
 }
+
+body #colorThemePickerModal {
+  bottom: var(--app-footer-space);
+}
+
+body #colorThemePickerModal .ctp-card {
+  max-height: 100%;
+}
