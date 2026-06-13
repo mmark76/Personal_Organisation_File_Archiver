@@ -26,7 +26,8 @@ window.AppInit = (() => {
       "#importTreeButton",
       "#exportTreeButton",
       "#folderTreeImportInput",
-      ".template-download-button"
+      ".template-download-button",
+      '[aria-label="Official template downloads"]'
     ].forEach(selector => {
       qsa(selector).forEach(element => element.remove());
     });
