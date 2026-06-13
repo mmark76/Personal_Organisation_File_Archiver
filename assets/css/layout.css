@@ -99,13 +99,13 @@ body.modal-open .header-actions #openColorThemePickerButton {
 
 .screen-card,
 .work-panel {
+  width: min(760px, 100%);
   background: var(--app-surface);
   border: 1px solid var(--app-border-soft);
   border-radius: var(--app-radius);
 }
 
 .screen-card {
-  width: min(760px, 100%);
   margin: 18px auto 24px;
   padding: 24px;
   text-align: center;
@@ -158,7 +158,6 @@ body.modal-open .header-actions #openColorThemePickerButton {
 }
 
 .work-panel {
-  max-width: 960px;
   margin: 0 auto 28px;
   padding: 20px;
   text-align: center;
