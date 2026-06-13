@@ -1,7 +1,7 @@
 /* Layout rules for header, screens, work panels, and footer. */
 
 .app-header {
-  padding: 24px 20px 16px;
+  padding: 24px 20px 8px;
 }
 
 .app-header-inner {
@@ -106,7 +106,7 @@ body.modal-open .header-actions #openColorThemePickerButton {
 }
 
 .screen-card {
-  margin: 18px auto 24px;
+  margin: 8px auto 24px;
   padding: 24px;
   text-align: center;
   background: #050505;
