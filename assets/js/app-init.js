@@ -22,16 +22,8 @@ window.AppInit = (() => {
 
   function bindFolderTreeActions() {
     qs("#loadExampleTreeButton")?.addEventListener("click", window.FolderTree.loadExampleTree);
-    qs("#copyTreeButton")?.addEventListener("click", window.FolderTreeExport.copyFolderTreeText);
-    qs("#exportTreeButton")?.addEventListener("click", window.FolderTreeExport.exportFolderTreeJson);
     qs("#createFoldersButton")?.addEventListener("click", window.FolderCreation.createFoldersOnComputer);
-    qs("#importTreeButton")?.addEventListener("click", () => qs("#folderTreeImportInput")?.click());
-    qs("#folderTreeImportInput")?.addEventListener("change", event => window.FolderTreeImport.handleImportInput(event.target));
     qs("#chooseExistingFolderTreeButton")?.addEventListener("click", () => window.FolderTreeExisting.chooseExistingFolderTree());
-
-    qsa(".template-download-button").forEach(button => {
-      button.addEventListener("click", () => window.FolderTreeTemplates.downloadTemplate(button.dataset.templateDownloadId));
-    });
 
     qs("#thinkingTypeSelect")?.addEventListener("change", window.FolderTree.updateThinkingPrompt);
     qs("#confirmAddFolderButton")?.addEventListener("click", window.FolderTree.confirmAddFolder);
@@ -47,26 +39,6 @@ window.AppInit = (() => {
 
     const loadDefaultTemplateButton = qs("#loadExampleTreeButton");
     if (loadDefaultTemplateButton) loadDefaultTemplateButton.textContent = "Choose Template to Load from the Templates Library";
-
-    const downloadDefaultTemplateButton = qs('[data-template-download-id="default-example"]');
-    if (downloadDefaultTemplateButton) downloadDefaultTemplateButton.textContent = "Download Default Template";
-  }
-
-  function temporarilyDisableFolderTreeUtilityButtons() {
-    const buttonSelectors = [
-      "#copyTreeButton",
-      "#importTreeButton",
-      "#exportTreeButton",
-      ".template-download-button"
-    ];
-
-    buttonSelectors.forEach(selector => {
-      qsa(selector).forEach(button => {
-        button.disabled = true;
-        button.hidden = true;
-        button.setAttribute("aria-hidden", "true");
-      });
-    });
   }
 
   function renderHowItWorksDefaultFolderTreePreview() {
@@ -228,7 +200,6 @@ window.AppInit = (() => {
     bindPrivacyActions();
 
     applyTemporaryMainChoiceLabels();
-    temporarilyDisableFolderTreeUtilityButtons();
     renderHowItWorksDefaultFolderTreePreview();
     loadBuildTemplateSelectorScript();
 
