@@ -1,12 +1,22 @@
 /* Build a folder tree from an existing local folder chosen by the user. */
 
 window.FolderTreeExisting = (() => {
-  const { state, getNextNodeId, resetNodeCounter, setTree } = window.AppState;
+  const {
+    state,
+    getActiveMode,
+    getActiveModeRevision,
+    getModeState,
+    getNextNodeId,
+    resetNodeCounter,
+    setTree
+  } = window.AppState;
   const { setText } = window.AppUtils;
+  const activeLoadIds = new Map();
+  let nextLoadId = 0;
 
-  function createImportedNode(name, children = []) {
+  function createImportedNode(name, children = [], modeName) {
     return {
-      id: getNextNodeId(),
+      id: getNextNodeId(modeName),
       name: String(name || "UNTITLED_FOLDER"),
       fixed: false,
       branch: null,
@@ -35,17 +45,27 @@ window.FolderTreeExisting = (() => {
         ? await readFolderChildren(handle, currentDepth + 1, maxDepth, counter)
         : [];
 
-      folders.push(createImportedNode(name, children));
+      folders.push({
+        name: String(name || "UNTITLED_FOLDER"),
+        children
+      });
     }
 
     folders.sort((a, b) => a.name.localeCompare(b.name));
     return folders;
   }
 
-  function buildAppTree(rootFolderName, childNodes) {
+  function materializeImportedNode(folder, modeName) {
+    const children = folder.children.map(child => materializeImportedNode(child, modeName));
+    return createImportedNode(folder.name, children, modeName);
+  }
+
+  function buildAppTree(rootFolderName, childFolders, modeName) {
+    const childNodes = childFolders.map(folder => materializeImportedNode(folder, modeName));
     const rootNode = createImportedNode(
       rootFolderName || "SELECTED_FOLDER",
-      childNodes
+      childNodes,
+      modeName
     );
 
     return {
@@ -56,6 +76,21 @@ window.FolderTreeExisting = (() => {
       thinkingType: null,
       childLayerType: null,
       children: [rootNode]
+    };
+  }
+
+  function getArchiveDestination(nodeId) {
+    const pathNodes = window.FolderTree.getNodePath(nodeId)
+      .filter(node => node.id !== "documents");
+    const selectedRootNodeId = state.appRootTree === state.tree
+      ? state.appRootNodeId
+      : null;
+    const isSelectedRootTree = selectedRootNodeId && pathNodes[0]?.id === selectedRootNodeId;
+    const relativeNodes = isSelectedRootTree ? pathNodes.slice(1) : pathNodes;
+
+    return {
+      relativePath: relativeNodes.map(node => node.name).join("/"),
+      displayPath: pathNodes.map(node => node.name).join("/")
     };
   }
 
@@ -76,8 +111,25 @@ window.FolderTreeExisting = (() => {
       depthSelectId = "existingTreeDepthSelect",
       statusSelector = "#existingTreeStatusBox",
       afterLoad = renderExistingTreePreview,
-      hideSelector = null
+      hideSelector = null,
+      requiresWriteAccess = false
     } = options;
+    const modeName = getActiveMode();
+    const modeRevision = getActiveModeRevision();
+    const modeState = getModeState(modeName);
+    const initialTree = modeState.tree;
+    const loadId = nextLoadId + 1;
+
+    nextLoadId = loadId;
+    activeLoadIds.set(modeName, loadId);
+
+    const isCurrentLoad = () => (
+      activeLoadIds.get(modeName) === loadId &&
+      getActiveMode() === modeName &&
+      getActiveModeRevision() === modeRevision &&
+      getModeState(modeName) === modeState &&
+      modeState.tree === initialTree
+    );
 
     if (!window.BrowserSupport.supportsDirectoryPicker()) {
       setText(statusSelector, window.AppMessages.folderCreationUnsupported);
@@ -86,14 +138,33 @@ window.FolderTreeExisting = (() => {
 
     try {
       const maxDepth = getSelectedDepth(depthSelectId);
-      const rootHandle = await window.showDirectoryPicker({ mode: "read" });
+      const rootHandle = await window.showDirectoryPicker({
+        mode: requiresWriteAccess ? "readwrite" : "read"
+      });
+
+      if (!isCurrentLoad()) return;
+
+      const hasWriteAccess = !requiresWriteAccess ||
+        await window.FolderCreation.ensureReadWritePermission(rootHandle);
+
+      if (!isCurrentLoad()) return;
+
+      if (!hasWriteAccess) {
+        setText(statusSelector, window.FolderCreation.permissionDeniedMessage);
+        return;
+      }
+
       const counter = { count: 0 };
 
-      resetNodeCounter();
-      const childNodes = await readFolderChildren(rootHandle, 1, maxDepth, counter);
-      const tree = buildAppTree(rootHandle.name, childNodes);
+      const childFolders = await readFolderChildren(rootHandle, 1, maxDepth, counter);
+
+      if (!isCurrentLoad()) return;
+
+      resetNodeCounter(modeName);
+      const tree = buildAppTree(rootHandle.name, childFolders, modeName);
 
       setTree(tree);
+      window.FolderCreation.rememberRootHandle(rootHandle, tree.children[0].id);
       window.FolderTreeRender.renderAll();
       afterLoad?.();
 
@@ -105,8 +176,20 @@ window.FolderTreeExisting = (() => {
       const panel = hideSelector ? document.querySelector(hideSelector) : null;
       if (panel) panel.hidden = true;
     } catch (error) {
+      if (!isCurrentLoad()) return;
+
       if (error && error.name === "AbortError") {
-        setText(statusSelector, "Existing folder tree selection was cancelled.");
+        setText(
+          statusSelector,
+          requiresWriteAccess
+            ? window.FolderCreation.writeAccessCancelledMessage
+            : "Existing folder tree selection was cancelled."
+        );
+        return;
+      }
+
+      if (window.FolderCreation.isPermissionDeniedError(error)) {
+        setText(statusSelector, window.FolderCreation.permissionDeniedMessage);
         return;
       }
 
@@ -119,7 +202,8 @@ window.FolderTreeExisting = (() => {
       depthSelectId: "archiveTreeDepthSelect",
       statusSelector: "#archiveResultBox",
       afterLoad: window.FolderTreeRender.renderArchivePreview,
-      hideSelector: "#archiveTreeChoicePanel"
+      hideSelector: "#archiveTreeChoicePanel",
+      requiresWriteAccess: true
     });
   }
 
@@ -128,7 +212,8 @@ window.FolderTreeExisting = (() => {
       depthSelectId: "folderArchiveTreeDepthSelect",
       statusSelector: "#folderArchiveResultBox",
       afterLoad: window.FolderTreeRender.renderArchivePreview,
-      hideSelector: "#folderArchiveTreeChoicePanel"
+      hideSelector: "#folderArchiveTreeChoicePanel",
+      requiresWriteAccess: true
     });
   }
 
@@ -136,6 +221,7 @@ window.FolderTreeExisting = (() => {
     chooseExistingFolderTree,
     chooseExistingFolderTreeForArchive,
     chooseExistingFolderTreeForFolderArchive,
-    renderExistingTreePreview
+    renderExistingTreePreview,
+    getArchiveDestination
   };
 })();

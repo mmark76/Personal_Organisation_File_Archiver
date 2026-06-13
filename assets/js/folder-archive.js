@@ -173,17 +173,20 @@ window.FolderArchive = (() => {
       return;
     }
 
+    let destinationReady = false;
+
     try {
-      const destinationPath = window.FolderTree.getFolderPath(selectedNode.id);
+      const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
       setResult(window.AppMessages.archiveRootPrompt);
 
       const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
+      destinationReady = true;
       if (await isSameOrDescendantDirectory(folderHandle, appRootHandle)) {
         setResult(destinationInsideSourceMessage);
         return;
       }
 
-      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destinationPath);
+      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
       if (await isSameOrDescendantDirectory(folderHandle, destinationHandle)) {
         setResult(destinationInsideSourceMessage);
         return;
@@ -196,11 +199,25 @@ window.FolderArchive = (() => {
       await copyDirectoryContents(folderHandle, targetFolderHandle, stats, targetFolderHandle);
 
       setResult(
-        `${window.AppMessages.folderArchiveComplete} Saved to: ${destinationPath}/${safeFolderName}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
+        `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
       );
     } catch (error) {
+      if (window.FolderCreation.isStaleAfterWriteError(error)) {
+        setResult(window.FolderCreation.staleAfterWriteMessage);
+        return;
+      }
+
       if (error && error.name === "AbortError") {
-        setResult(window.AppMessages.archiveCancelled);
+        setResult(
+          destinationReady
+            ? window.AppMessages.archiveCancelled
+            : window.FolderCreation.writeAccessCancelledMessage
+        );
+        return;
+      }
+
+      if (window.FolderCreation.isPermissionDeniedError(error)) {
+        setResult(window.FolderCreation.permissionDeniedMessage);
         return;
       }
 

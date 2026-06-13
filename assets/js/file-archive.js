@@ -56,12 +56,15 @@ window.FileArchive = (() => {
       return;
     }
 
+    let destinationReady = false;
+
     try {
-      const destinationPath = window.FolderTree.getFolderPath(selectedNode.id);
+      const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
       window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveRootPrompt);
 
       const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
-      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destinationPath);
+      destinationReady = true;
+      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
       const safeName = await getAvailableFileName(destinationHandle, file.name);
       const fileHandle = await destinationHandle.getFileHandle(safeName, { create: true });
       const writable = await fileHandle.createWritable();
@@ -74,11 +77,26 @@ window.FileArchive = (() => {
 
       window.AppUtils.setText(
         "#archiveResultBox",
-        `${window.AppMessages.archiveComplete} Saved to: ${destinationPath}/${safeName}`
+        `${window.AppMessages.archiveComplete} Saved to: ${[destination.displayPath, safeName].filter(Boolean).join("/")}`
       );
     } catch (error) {
+      if (window.FolderCreation.isStaleAfterWriteError(error)) {
+        window.AppUtils.setText("#archiveResultBox", window.FolderCreation.staleAfterWriteMessage);
+        return;
+      }
+
       if (error && error.name === "AbortError") {
-        window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveCancelled);
+        window.AppUtils.setText(
+          "#archiveResultBox",
+          destinationReady
+            ? window.AppMessages.archiveCancelled
+            : window.FolderCreation.writeAccessCancelledMessage
+        );
+        return;
+      }
+
+      if (window.FolderCreation.isPermissionDeniedError(error)) {
+        window.AppUtils.setText("#archiveResultBox", window.FolderCreation.permissionDeniedMessage);
         return;
       }
 

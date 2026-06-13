@@ -24,6 +24,7 @@ window.AppState = (() => {
 
   const nodeCounters = {};
   let activeMode = "buildTree";
+  let activeModeRevision = 0;
 
   function createEmptyTree() {
     return {
@@ -131,12 +132,17 @@ window.AppState = (() => {
 
   function setActiveMode(modeName) {
     if (!modeNames.includes(modeName)) return activeMode;
+    if (activeMode !== modeName) activeModeRevision += 1;
     activeMode = modeName;
     return activeMode;
   }
 
   function getActiveMode() {
     return activeMode;
+  }
+
+  function getActiveModeRevision() {
+    return activeModeRevision;
   }
 
   function withMode(modeName, callback) {
@@ -202,6 +208,7 @@ window.AppState = (() => {
     thinkingTypes,
     setActiveMode,
     getActiveMode,
+    getActiveModeRevision,
     getModeState,
     getActiveState,
     withMode,

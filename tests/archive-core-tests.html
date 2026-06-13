@@ -68,6 +68,15 @@
     <pre id="treeOutput"></pre>
     <div id="archiveTreePreview"></div>
     <div id="archiveResultBox"></div>
+    <div id="folderArchiveTreePreview"></div>
+    <div id="folderArchiveResultBox"></div>
+    <div id="folderArchiveStatusBox"></div>
+    <select id="archiveTreeDepthSelect">
+      <option value="2" selected>2 levels</option>
+    </select>
+    <select id="folderArchiveTreeDepthSelect">
+      <option value="2" selected>2 levels</option>
+    </select>
     <select id="thinkingTypeSelect">
       <option value="001_CHRONOLOGICAL">001 - Chronological</option>
       <option value="002_THEMATIC">002 - Thematic</option>
@@ -85,8 +94,10 @@
   <script src="../assets/js/folder-tree-codes.js"></script>
   <script src="../assets/js/folder-tree.js"></script>
   <script src="../assets/js/folder-tree-render.js"></script>
+  <script src="../assets/js/folder-tree-existing.js"></script>
   <script src="../assets/js/folder-creation.js"></script>
   <script src="../assets/js/file-archive.js"></script>
+  <script src="../assets/js/folder-archive.js"></script>
 
   <script>
     "use strict";
@@ -128,11 +139,44 @@
     }
 
     class FakeDirectoryHandle {
-      constructor(name) {
+      constructor(name, options = {}) {
         this.kind = "directory";
         this.name = name;
         this.directories = new Map();
         this.files = new Map();
+        this.permissionState = options.permissionState || "granted";
+        this.requestPermissionState = options.requestPermissionState || this.permissionState;
+        this.events = options.events || [];
+        this.parent = options.parent || null;
+        this.entriesGate = options.entriesGate || null;
+        this.onEntriesStart = options.onEntriesStart || null;
+      }
+
+      async queryPermission(options = {}) {
+        this.events.push({ type: "query-permission", mode: options.mode, handle: this.name });
+        return this.permissionState;
+      }
+
+      async requestPermission(options = {}) {
+        this.events.push({ type: "request-permission", mode: options.mode, handle: this.name });
+        this.permissionState = this.requestPermissionState;
+        return this.permissionState;
+      }
+
+      async isSameEntry(otherHandle) {
+        return this === otherHandle;
+      }
+
+      async resolve(possibleChildHandle) {
+        const parts = [];
+        let current = possibleChildHandle;
+
+        while (current && current !== this) {
+          parts.unshift(current.name);
+          current = current.parent;
+        }
+
+        return current === this ? parts : null;
       }
 
       async getDirectoryHandle(name, options = {}) {
@@ -144,7 +188,13 @@
           throw new DOMException("Directory not found", "NotFoundError");
         }
 
-        const directory = new FakeDirectoryHandle(name);
+        this.events.push({ type: "create-directory", name, handle: this.name });
+        const directory = new FakeDirectoryHandle(name, {
+          permissionState: this.permissionState,
+          requestPermissionState: this.requestPermissionState,
+          events: this.events,
+          parent: this
+        });
         this.directories.set(name, directory);
         return directory;
       }
@@ -158,12 +208,16 @@
           throw new DOMException("File not found", "NotFoundError");
         }
 
+        this.events.push({ type: "create-file", name, handle: this.name });
         const file = new FakeFileHandle(name);
         this.files.set(name, file);
         return file;
       }
 
       async *entries() {
+        this.onEntriesStart?.();
+        if (this.entriesGate) await this.entriesGate;
+
         for (const entry of this.directories) {
           yield entry;
         }
@@ -190,6 +244,31 @@
       if (!condition) {
         throw new Error(message);
       }
+    }
+
+    function createDeferred() {
+      let resolve;
+      const promise = new Promise(resolvePromise => {
+        resolve = resolvePromise;
+      });
+
+      return { promise, resolve };
+    }
+
+    function countOccurrences(value, fragment) {
+      return String(value).split(fragment).length - 1;
+    }
+
+    function findNodeByName(node, name) {
+      if (!node) return null;
+      if (node.name === name) return node;
+
+      for (const child of node.children || []) {
+        const found = findNodeByName(child, name);
+        if (found) return found;
+      }
+
+      return null;
     }
 
     function createTestTree() {
@@ -259,6 +338,14 @@
       window.AppState.setActiveMode("archive");
       window.AppState.setTree(createTestTree());
       window.AppUtils.setText("#archiveResultBox", "");
+      window.FolderTreeRender.renderArchivePreview();
+    }
+
+    function resetFolderArchiveMode() {
+      window.AppState.setActiveMode("archiveFolder");
+      window.AppState.resetMode("archiveFolder");
+      window.AppState.setActiveMode("archiveFolder");
+      window.AppUtils.setText("#folderArchiveResultBox", "");
       window.FolderTreeRender.renderArchivePreview();
     }
 
@@ -340,6 +427,437 @@
         document.getElementById("archiveResultBox").textContent.includes("01_PROFILE/CVS"),
         "The selected destination path should be visible to the user."
       );
+    });
+
+    test("Existing tree archiving writes relative to the selected root without another app wrapper", async () => {
+      resetArchiveMode();
+
+      const events = [];
+      const selectedRoot = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName, {
+        permissionState: "prompt",
+        requestPermissionState: "granted",
+        events
+      });
+      await selectedRoot.getDirectoryHandle("PROFILE", { create: true });
+      events.length = 0;
+
+      let pickerOptions = null;
+      window.showDirectoryPicker = async options => {
+        pickerOptions = options;
+        return selectedRoot;
+      };
+
+      await window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+      const selectedRootNode = window.AppState.state.tree.children[0];
+      const profileNode = findNodeByName(window.AppState.state.tree, "PROFILE");
+      const rootDestination = window.FolderTreeExisting.getArchiveDestination(selectedRootNode.id);
+
+      assert(pickerOptions?.mode === "readwrite", "The existing archive root picker should request read/write access.");
+      assert(window.AppState.state.appRootHandle === selectedRoot, "The selected existing root handle should be retained.");
+      assert(rootDestination.relativePath === "", "The selected root should resolve to the destination handle itself.");
+      assert(rootDestination.displayPath === "Organize Your PC", "The selected root name should appear once in its display path.");
+      assert(profileNode, "The existing PROFILE folder should be available as a destination.");
+
+      window.FolderTree.selectArchiveFolder(profileNode.id);
+      window.AppState.setLoadedFile(new File(["existing root file"], "existing.txt", { type: "text/plain" }));
+      await window.FileArchive.archiveLoadedFile();
+
+      const profileDirectory = await selectedRoot.getDirectoryHandle("PROFILE");
+      const archivedFile = await profileDirectory.getFileHandle("existing.txt");
+      const resultText = document.getElementById("archiveResultBox").textContent;
+      const permissionRequestIndex = events.findIndex(event => event.type === "request-permission");
+      const fileCreationIndex = events.findIndex(event => event.type === "create-file" && event.name === "existing.txt");
+
+      assert(archivedFile.content === "existing root file", "The file should be written below the selected existing root.");
+      assert(!selectedRoot.directories.has(window.FolderCreation.appRootFolderName), "No additional Organize Your PC wrapper should be created.");
+      assert(countOccurrences(resultText, window.FolderCreation.appRootFolderName) === 1, "The selected root name should appear only once in the result path.");
+      assert(permissionRequestIndex >= 0 && permissionRequestIndex < fileCreationIndex, "Read/write permission should be requested before file creation.");
+    });
+
+    test("Permission denial leaves the existing tree unchanged and creates no output", async () => {
+      resetArchiveMode();
+
+      const events = [];
+      const deniedRoot = new FakeDirectoryHandle("Denied Existing Root", {
+        permissionState: "prompt",
+        requestPermissionState: "denied",
+        events
+      });
+      const treeBeforeSelection = window.AppState.state.tree;
+      window.showDirectoryPicker = async () => deniedRoot;
+
+      await window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+
+      assert(document.getElementById("archiveResultBox").textContent === window.FolderCreation.permissionDeniedMessage, "Permission denial should display a clear message.");
+      assert(window.AppState.state.tree === treeBeforeSelection, "A denied root should not replace the current archive tree.");
+      assert(!events.some(event => event.type === "create-directory" || event.type === "create-file"), "Permission denial should not create partial output.");
+    });
+
+    test("Permission fallback requires explicit query approval when requests are unavailable", async () => {
+      const promptOnlyHandle = new FakeDirectoryHandle("Prompt Only", {
+        permissionState: "prompt"
+      });
+      promptOnlyHandle.requestPermission = undefined;
+
+      const deniedOnlyHandle = new FakeDirectoryHandle("Denied Only", {
+        permissionState: "denied"
+      });
+      deniedOnlyHandle.requestPermission = undefined;
+
+      const grantedOnlyHandle = new FakeDirectoryHandle("Granted Only", {
+        permissionState: "granted"
+      });
+      grantedOnlyHandle.requestPermission = undefined;
+
+      const legacyHandle = new FakeDirectoryHandle("Legacy Handle");
+      legacyHandle.queryPermission = undefined;
+      legacyHandle.requestPermission = undefined;
+
+      assert(
+        !(await window.FolderCreation.ensureReadWritePermission(promptOnlyHandle)),
+        "A prompt query result should not be treated as write permission when requestPermission is unavailable."
+      );
+      assert(
+        !(await window.FolderCreation.ensureReadWritePermission(deniedOnlyHandle)),
+        "A denied query result should not be treated as write permission when requestPermission is unavailable."
+      );
+      assert(
+        await window.FolderCreation.ensureReadWritePermission(grantedOnlyHandle),
+        "An explicit granted query result should allow writes when requestPermission is unavailable."
+      );
+      assert(
+        await window.FolderCreation.ensureReadWritePermission(legacyHandle),
+        "A handle without either permission method should retain the graceful compatibility fallback."
+      );
+    });
+
+    test("Picker-level write denial is reported clearly without changing tree state", async () => {
+      resetArchiveMode();
+
+      const treeBeforeSelection = window.AppState.state.tree;
+      const originalEnsureReadWritePermission = window.FolderCreation.ensureReadWritePermission;
+      let permissionCheckCalled = false;
+
+      window.FolderCreation.ensureReadWritePermission = async () => {
+        permissionCheckCalled = true;
+        return true;
+      };
+      window.showDirectoryPicker = async () => {
+        throw new DOMException("The request was denied or cancelled.", "AbortError");
+      };
+
+      try {
+        await window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+      } finally {
+        window.FolderCreation.ensureReadWritePermission = originalEnsureReadWritePermission;
+      }
+
+      assert(
+        document.getElementById("archiveResultBox").textContent ===
+          "Destination selection was cancelled or read/write permission was not granted. No files or folders were created.",
+        "Picker-level write denial should explain both possible causes and confirm that no output was created."
+      );
+      assert(window.AppState.state.tree === treeBeforeSelection, "A picker-level denial should preserve the current archive tree.");
+      assert(window.AppState.state.appRootHandle === null, "A picker-level denial should not retain a destination handle.");
+      assert(!permissionCheckCalled, "Permission verification should not run when the picker returns no handle.");
+    });
+
+    test("Picker-level write denial is clear in new-structure creation", async () => {
+      window.AppState.setActiveMode("buildTree");
+      window.AppState.resetMode("buildTree");
+      window.AppState.setActiveMode("buildTree");
+      alerts.length = 0;
+      window.showDirectoryPicker = async () => {
+        throw new DOMException("The request was denied or cancelled.", "AbortError");
+      };
+
+      await window.FolderCreation.createFoldersOnComputer();
+
+      assert(
+        alerts.at(-1) === "Destination selection was cancelled or read/write permission was not granted. No files or folders were created.",
+        "New-structure picker denial should display the clear write-access message."
+      );
+    });
+
+    test("Picker-level write denial is clear in default-tree file archiving", async () => {
+      resetArchiveMode();
+      const treeBeforeArchive = window.AppState.state.tree;
+      window.FolderTree.selectArchiveFolder("cvs");
+      window.AppState.setLoadedFile(new File(["denied archive"], "denied.txt", { type: "text/plain" }));
+      window.showDirectoryPicker = async () => {
+        throw new DOMException("The request was denied or cancelled.", "AbortError");
+      };
+
+      await window.FileArchive.archiveLoadedFile();
+
+      assert(
+        document.getElementById("archiveResultBox").textContent ===
+          "Destination selection was cancelled or read/write permission was not granted. No files or folders were created.",
+        "File archive picker denial should display the clear write-access message."
+      );
+      assert(window.AppState.state.tree === treeBeforeArchive, "File archive picker denial should preserve the destination tree.");
+      assert(window.AppState.state.appRootHandle === null, "File archive picker denial should not retain a destination handle.");
+    });
+
+    test("Picker-level write denial is clear in default-tree folder archiving", async () => {
+      resetFolderArchiveMode();
+      window.AppState.setTree(createTestTree());
+      const treeBeforeArchive = window.AppState.state.tree;
+      window.FolderTree.selectArchiveFolder("cvs");
+      window.AppState.setLoadedFolder(new FakeDirectoryHandle("Denied Source Folder"));
+      window.showDirectoryPicker = async () => {
+        throw new DOMException("The request was denied or cancelled.", "AbortError");
+      };
+
+      await window.FolderArchive.archiveLoadedFolder();
+
+      assert(
+        document.getElementById("folderArchiveResultBox").textContent ===
+          "Destination selection was cancelled or read/write permission was not granted. No files or folders were created.",
+        "Folder archive picker denial should display the clear write-access message."
+      );
+      assert(window.AppState.state.tree === treeBeforeArchive, "Folder archive picker denial should preserve the destination tree.");
+      assert(window.AppState.state.appRootHandle === null, "Folder archive picker denial should not retain a destination handle.");
+    });
+
+    test("Stale existing-tree loads cannot update another mode or overwrite newer tree state", async () => {
+      resetArchiveMode();
+      window.AppState.resetMode("archiveFolder");
+
+      const archiveState = window.AppState.getModeState("archive");
+      const folderArchiveState = window.AppState.getModeState("archiveFolder");
+      const initialArchiveTree = archiveState.tree;
+      const initialFolderArchiveTree = folderArchiveState.tree;
+      const modeChangeGate = createDeferred();
+      const modeChangeStarted = createDeferred();
+      const delayedModeRoot = new FakeDirectoryHandle("Delayed Mode Root", {
+        entriesGate: modeChangeGate.promise,
+        onEntriesStart: modeChangeStarted.resolve
+      });
+      window.showDirectoryPicker = async () => delayedModeRoot;
+
+      const delayedModeLoad = window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+      await modeChangeStarted.promise;
+      window.AppState.setActiveMode("archiveFolder");
+      modeChangeGate.resolve();
+      await delayedModeLoad;
+
+      assert(archiveState.tree === initialArchiveTree, "A load invalidated by a mode change should leave its initiating tree unchanged.");
+      assert(archiveState.appRootHandle === null, "A load invalidated by a mode change should not retain its root handle.");
+      assert(folderArchiveState.tree === initialFolderArchiveTree, "A delayed load should not replace the newly active mode's tree.");
+      assert(folderArchiveState.appRootHandle === null, "A delayed load should not attach its root handle to the newly active mode.");
+
+      resetArchiveMode();
+      const newerLoadState = window.AppState.getModeState("archive");
+      const olderLoadGate = createDeferred();
+      const olderLoadStarted = createDeferred();
+      const olderRoot = new FakeDirectoryHandle("Older Root", {
+        entriesGate: olderLoadGate.promise,
+        onEntriesStart: olderLoadStarted.resolve
+      });
+      const newerRoot = new FakeDirectoryHandle("Newer Root");
+      const pickedRoots = [olderRoot, newerRoot];
+      window.showDirectoryPicker = async () => pickedRoots.shift();
+
+      const olderLoad = window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+      await olderLoadStarted.promise;
+      await window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+      olderLoadGate.resolve();
+      await olderLoad;
+
+      assert(newerLoadState.tree.children[0]?.name === "Newer Root", "An older load should not overwrite the result of a newer load.");
+      assert(newerLoadState.appRootHandle === newerRoot, "The newer load should retain only its own selected root handle.");
+
+      resetArchiveMode();
+      const replacementState = window.AppState.getModeState("archive");
+      const replacementGate = createDeferred();
+      const replacementStarted = createDeferred();
+      const delayedReplacementRoot = new FakeDirectoryHandle("Delayed Replacement Root", {
+        entriesGate: replacementGate.promise,
+        onEntriesStart: replacementStarted.resolve
+      });
+      const replacementTree = createTestTree();
+      window.showDirectoryPicker = async () => delayedReplacementRoot;
+
+      const delayedReplacementLoad = window.FolderTreeExisting.chooseExistingFolderTreeForArchive();
+      await replacementStarted.promise;
+      window.AppState.setTree(replacementTree);
+      replacementGate.resolve();
+      await delayedReplacementLoad;
+
+      assert(replacementState.tree === replacementTree, "A delayed load should not overwrite a replacement tree.");
+      assert(replacementState.appRootHandle === null, "A delayed load should not retain a handle after its tree is replaced.");
+    });
+
+    test("Existing tree folder archiving uses the retained selected root", async () => {
+      resetFolderArchiveMode();
+
+      const events = [];
+      const selectedRoot = new FakeDirectoryHandle("Existing Archive", {
+        permissionState: "prompt",
+        requestPermissionState: "granted",
+        events
+      });
+      await selectedRoot.getDirectoryHandle("DESTINATION", { create: true });
+      events.length = 0;
+      window.showDirectoryPicker = async () => selectedRoot;
+
+      await window.FolderTreeExisting.chooseExistingFolderTreeForFolderArchive();
+      const destinationNode = findNodeByName(window.AppState.state.tree, "DESTINATION");
+      window.FolderTree.selectArchiveFolder(destinationNode.id);
+
+      const sourceFolder = new FakeDirectoryHandle("Source Folder");
+      const sourceFile = await sourceFolder.getFileHandle("note.txt", { create: true });
+      sourceFile.content = "folder archive content";
+      window.AppState.setLoadedFolder(sourceFolder);
+
+      await window.FolderArchive.archiveLoadedFolder();
+
+      const destination = await selectedRoot.getDirectoryHandle("DESTINATION");
+      const archivedFolder = await destination.getDirectoryHandle("Source Folder");
+      const archivedFile = await archivedFolder.getFileHandle("note.txt");
+
+      assert(archivedFile.content === "folder archive content", "The source folder should be copied below the retained existing root.");
+      assert(!selectedRoot.directories.has(window.FolderCreation.appRootFolderName), "Folder archiving should not create an extra app wrapper.");
+    });
+
+    test("App-root selection cannot follow a later active mode", async () => {
+      resetArchiveMode();
+
+      const archiveState = window.AppState.getModeState("archive");
+      const archiveRoot = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+      window.FolderCreation.rememberRootHandle(archiveRoot);
+
+      window.AppState.setActiveMode("archiveFolder");
+      window.AppState.resetMode("archiveFolder");
+      const folderArchiveState = window.AppState.getModeState("archiveFolder");
+      const folderArchiveRoot = new FakeDirectoryHandle("Folder Archive Root");
+      folderArchiveState.appRootHandle = folderArchiveRoot;
+      folderArchiveState.appRootTree = folderArchiveState.tree;
+
+      const permissionStarted = createDeferred();
+      const permissionGate = createDeferred();
+      archiveRoot.queryPermission = async options => {
+        archiveRoot.events.push({ type: "query-permission", mode: options.mode, handle: archiveRoot.name });
+        permissionStarted.resolve();
+        await permissionGate.promise;
+        return "granted";
+      };
+
+      window.AppState.setActiveMode("archive");
+      const delayedRootRequest = window.FolderCreation.getOrChooseAppRootHandle();
+      await permissionStarted.promise;
+      window.AppState.setActiveMode("archiveFolder");
+      permissionGate.resolve();
+
+      let delayedError = null;
+      try {
+        await delayedRootRequest;
+      } catch (error) {
+        delayedError = error;
+      }
+
+      assert(delayedError?.code === "STALE_MODE_CONTEXT", "A destination request invalidated by a mode change should be cancelled.");
+      assert(archiveState.appRootHandle === archiveRoot, "The initiating mode should retain only its original root handle.");
+      assert(folderArchiveState.appRootHandle === folderArchiveRoot, "The newly active mode should retain only its own root handle.");
+
+      resetArchiveMode();
+      const pickerArchiveState = window.AppState.getModeState("archive");
+      window.AppState.setActiveMode("archiveFolder");
+      window.AppState.resetMode("archiveFolder");
+      const pickerFolderState = window.AppState.getModeState("archiveFolder");
+      const pickerGate = createDeferred();
+      const pickerStarted = createDeferred();
+      const selectedParent = new FakeDirectoryHandle("Delayed Parent");
+
+      window.AppState.setActiveMode("archive");
+      window.showDirectoryPicker = async () => {
+        pickerStarted.resolve();
+        await pickerGate.promise;
+        return selectedParent;
+      };
+
+      const delayedPickerRequest = window.FolderCreation.getOrChooseAppRootHandle();
+      await pickerStarted.promise;
+      window.AppState.setActiveMode("archiveFolder");
+      pickerGate.resolve();
+
+      let pickerError = null;
+      try {
+        await delayedPickerRequest;
+      } catch (error) {
+        pickerError = error;
+      }
+
+      assert(pickerError?.code === "STALE_MODE_CONTEXT", "A picker result invalidated by a mode change should be cancelled.");
+      assert(pickerArchiveState.appRootHandle === null, "A stale picker should not attach its handle to the initiating mode.");
+      assert(pickerFolderState.appRootHandle === null, "A stale picker should not attach its handle to the newly active mode.");
+      assert(!selectedParent.directories.has(window.FolderCreation.appRootFolderName), "A stale picker should not create an app root folder.");
+    });
+
+    test("A mode change during app-root creation reports possible partial output accurately", async () => {
+      resetArchiveMode();
+      window.FolderTree.selectArchiveFolder("cvs");
+      window.AppState.setLoadedFile(new File(["stale archive"], "stale.txt", { type: "text/plain" }));
+
+      window.AppState.setActiveMode("archiveFolder");
+      window.AppState.resetMode("archiveFolder");
+      const folderArchiveState = window.AppState.getModeState("archiveFolder");
+      const createGate = createDeferred();
+      const createStarted = createDeferred();
+      const selectedParent = new FakeDirectoryHandle("Delayed Parent");
+      const originalGetDirectoryHandle = selectedParent.getDirectoryHandle.bind(selectedParent);
+
+      selectedParent.getDirectoryHandle = async (name, options = {}) => {
+        const handle = await originalGetDirectoryHandle(name, options);
+        createStarted.resolve();
+        await createGate.promise;
+        return handle;
+      };
+
+      window.AppState.setActiveMode("archive");
+      window.showDirectoryPicker = async () => selectedParent;
+
+      const delayedArchive = window.FileArchive.archiveLoadedFile();
+      await createStarted.promise;
+      window.AppState.setActiveMode("archiveFolder");
+      createGate.resolve();
+      await delayedArchive;
+
+      const createdAppRoot = selectedParent.directories.get(window.FolderCreation.appRootFolderName);
+      assert(createdAppRoot, "The test should reproduce creation of the app root before stale cancellation.");
+      assert(
+        document.getElementById("archiveResultBox").textContent === window.FolderCreation.staleAfterWriteMessage,
+        "A stale cancellation after folder creation should disclose that partial output may exist."
+      );
+      assert(createdAppRoot.directories.size === 0, "No archive destination path should be created after stale cancellation.");
+      assert(createdAppRoot.files.size === 0, "No archive file should be created after stale cancellation.");
+      assert(folderArchiveState.appRootHandle === null, "The stale app root should not be attached to the newly active mode.");
+    });
+
+    test("New folder structure workflow still creates the normal app root", async () => {
+      window.AppState.setActiveMode("buildTree");
+      window.AppState.resetMode("buildTree");
+      window.AppState.setActiveMode("buildTree");
+
+      const events = [];
+      const selectedParent = new FakeDirectoryHandle("Chosen Parent", {
+        permissionState: "prompt",
+        requestPermissionState: "granted",
+        events
+      });
+      let pickerOptions = null;
+      window.showDirectoryPicker = async options => {
+        pickerOptions = options;
+        return selectedParent;
+      };
+
+      const appRoot = await window.FolderCreation.getOrChooseAppRootHandle();
+      await window.FolderCreation.createDirectoryPath(appRoot, "PROFILE");
+
+      assert(pickerOptions?.mode === "readwrite", "The normal destination picker should request read/write access.");
+      assert(selectedParent.directories.get(window.FolderCreation.appRootFolderName) === appRoot, "The normal workflow should still create the app root below the chosen parent.");
+      assert(appRoot.directories.has("PROFILE"), "The normal workflow should still create tree folders inside the app root.");
     });
 
     async function runTests() {
