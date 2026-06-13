@@ -5,8 +5,6 @@ window.AppMessages = {
   duplicateFolderName: "A folder with this name already exists at this level.",
   invalidFolderTree: "Import failed. Please choose a valid folder tree JSON file exported from this app.",
   folderTreeImported: "Folder tree JSON imported successfully.",
-  folderTreeCopied: "Folder tree copied to clipboard.",
-  folderTreeCopyFailed: "Folder tree copy failed. Please try again.",
   folderCreationUnsupported: "Folder creation requires a browser that supports direct folder access, such as Chrome or Edge.",
   folderCreationCancelled: "Folder creation was cancelled.",
   folderCreationComplete: "Folder tree created successfully.",
