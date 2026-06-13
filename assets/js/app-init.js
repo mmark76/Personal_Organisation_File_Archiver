@@ -69,6 +69,34 @@ window.AppInit = (() => {
     });
   }
 
+  function moveSettingsPanelHigher() {
+    if (qs("#settingsPanelPositionStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "settingsPanelPositionStyles";
+    style.textContent = `
+      #colorThemePickerModal {
+        top: 48px !important;
+      }
+
+      #colorThemePickerModal .ctp-card {
+        max-height: calc(100vh - 64px) !important;
+      }
+
+      @media (max-width: 720px) {
+        #colorThemePickerModal {
+          top: 8px !important;
+          bottom: auto !important;
+        }
+
+        #colorThemePickerModal .ctp-card {
+          max-height: calc(100vh - 16px) !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function renderHowItWorksDefaultFolderTreePreview() {
     const modalContent = qs("#howItWorksModal .modal-content");
     if (!modalContent || qs("#howItWorksDefaultFolderTreePreview")) return;
@@ -229,6 +257,7 @@ window.AppInit = (() => {
 
     applyTemporaryMainChoiceLabels();
     temporarilyDisableFolderTreeUtilityButtons();
+    moveSettingsPanelHigher();
     renderHowItWorksDefaultFolderTreePreview();
     loadBuildTemplateSelectorScript();
 
