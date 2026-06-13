@@ -5,6 +5,15 @@ window.TemplateSelector = (() => {
     return root.querySelector(selector);
   }
 
+  function loadSettingsPanelEnhancements() {
+    if (qs('script[data-settings-panel-enhancements="true"]')) return;
+
+    const script = document.createElement("script");
+    script.src = "assets/js/settings-panel-enhancements.js";
+    script.dataset.settingsPanelEnhancements = "true";
+    document.body.appendChild(script);
+  }
+
   function createNode(name, branch, thinkingType, childLayerType = null, children = []) {
     return window.FolderTree.createNode(name, branch, thinkingType, childLayerType, children);
   }
@@ -127,6 +136,8 @@ window.TemplateSelector = (() => {
   }
 
   function initialize() {
+    loadSettingsPanelEnhancements();
+
     const originalButton = qs("#loadExampleTreeButton");
     if (!originalButton || qs("#buildTemplateChoicePanel")) return;
 
