@@ -2,7 +2,7 @@
 
 window.AppInit = (() => {
   const { qs, qsa } = window.AppUtils;
-  const settingsPanelPositionKey = "organizeYourPcSettingsPanelPosition";
+  const settingsPanelPositionKey = "organizeYourPcSettingsPanelPositionV2";
 
   function bindHeaderActions() {
     qs("#openDisclaimerButton")?.addEventListener("click", () => window.AppModals.openModal("disclaimerModal"));
@@ -119,21 +119,38 @@ window.AppInit = (() => {
     modal.style.setProperty("bottom", "auto", "important");
   }
 
+  function getDefaultSettingsPanelPosition(modal) {
+    const headerPanel = qs(".app-header-inner");
+    const headerTop = headerPanel
+      ? headerPanel.getBoundingClientRect().top + window.scrollY
+      : window.scrollY + 12;
+    const preferredLeft = window.scrollX + window.innerWidth - modal.offsetWidth - 18;
+
+    return {
+      left: Math.max(window.scrollX + 8, preferredLeft),
+      top: Math.max(8, headerTop)
+    };
+  }
+
+  function alignSettingsPanelWithHeader(modal) {
+    const position = getDefaultSettingsPanelPosition(modal);
+    setSettingsPanelPosition(modal, position.left, position.top);
+  }
+
   function resetSettingsPanelPosition(modal) {
     localStorage.removeItem(settingsPanelPositionKey);
-    modal.style.removeProperty("left");
-    modal.style.removeProperty("top");
-    modal.style.removeProperty("right");
-    modal.style.removeProperty("bottom");
+    alignSettingsPanelWithHeader(modal);
   }
 
   function restoreSettingsPanelPosition(modal) {
     try {
       const savedPosition = JSON.parse(localStorage.getItem(settingsPanelPositionKey) || "null");
-      if (!savedPosition || !Number.isFinite(savedPosition.left) || !Number.isFinite(savedPosition.top)) return;
+      if (!savedPosition || !Number.isFinite(savedPosition.left) || !Number.isFinite(savedPosition.top)) return false;
       setSettingsPanelPosition(modal, savedPosition.left, savedPosition.top);
+      return true;
     } catch (error) {
       localStorage.removeItem(settingsPanelPositionKey);
+      return false;
     }
   }
 
@@ -143,7 +160,7 @@ window.AppInit = (() => {
     if (!modal || !header || modal.dataset.draggableReady === "true") return false;
 
     modal.dataset.draggableReady = "true";
-    restoreSettingsPanelPosition(modal);
+    if (!restoreSettingsPanelPosition(modal)) alignSettingsPanelWithHeader(modal);
 
     let dragOffsetX = 0;
     let dragOffsetY = 0;
@@ -201,6 +218,10 @@ window.AppInit = (() => {
       resetPositionButton.addEventListener("click", () => resetSettingsPanelPosition(modal));
       actions.appendChild(resetPositionButton);
     }
+
+    window.addEventListener("resize", () => {
+      if (!localStorage.getItem(settingsPanelPositionKey)) alignSettingsPanelWithHeader(modal);
+    });
 
     return true;
   }
