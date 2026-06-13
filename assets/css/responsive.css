@@ -3,7 +3,7 @@
 @media (max-width: 1100px) {
   .app-header-inner,
   .app-main {
-    width: min(100% - 32px, var(--app-width));
+    width: min(100% - 32px, 760px);
   }
 
   .choice-grid {
@@ -22,7 +22,7 @@
 
   .app-header-inner,
   .app-main {
-    width: min(100% - 20px, var(--app-width));
+    width: min(100% - 20px, 760px);
   }
 
   .app-header-inner {
