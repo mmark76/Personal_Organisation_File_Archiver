@@ -131,7 +131,7 @@ window.TemplateSelector = (() => {
     if (!originalButton || qs("#buildTemplateChoicePanel")) return;
 
     const button = originalButton.cloneNode(true);
-    button.textContent = "Choose Template to Load";
+    button.textContent = "Choose Template to Load from the Templates Library";
     originalButton.replaceWith(button);
 
     const panel = document.createElement("div");
