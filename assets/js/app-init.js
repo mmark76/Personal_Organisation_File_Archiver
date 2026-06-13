@@ -2,7 +2,6 @@
 
 window.AppInit = (() => {
   const { qs, qsa } = window.AppUtils;
-  const settingsPanelPositionKey = "organizeYourPcSettingsPanelPositionV2";
 
   function bindHeaderActions() {
     qs("#openDisclaimerButton")?.addEventListener("click", () => window.AppModals.openModal("disclaimerModal"));
@@ -68,173 +67,6 @@ window.AppInit = (() => {
         button.setAttribute("aria-hidden", "true");
       });
     });
-  }
-
-  function injectSettingsPanelPositionStyles() {
-    if (qs("#settingsPanelPositionStyles")) return;
-
-    const style = document.createElement("style");
-    style.id = "settingsPanelPositionStyles";
-    style.textContent = `
-      #colorThemePickerModal {
-        position: absolute !important;
-        top: 24px !important;
-        right: 18px !important;
-        bottom: auto !important;
-      }
-
-      #colorThemePickerModal .ctp-card {
-        max-height: min(68vh, 420px) !important;
-      }
-
-      #colorThemePickerModal .ctp-header {
-        cursor: grab;
-        user-select: none;
-        touch-action: none;
-      }
-
-      #colorThemePickerModal .ctp-header:active {
-        cursor: grabbing;
-      }
-
-      @media (max-width: 720px) {
-        #colorThemePickerModal {
-          top: 12px !important;
-          right: 12px !important;
-          bottom: auto !important;
-        }
-
-        #colorThemePickerModal .ctp-card {
-          max-height: min(64vh, 380px) !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  function setSettingsPanelPosition(modal, left, top) {
-    modal.style.setProperty("left", `${Math.round(left)}px`, "important");
-    modal.style.setProperty("top", `${Math.round(top)}px`, "important");
-    modal.style.setProperty("right", "auto", "important");
-    modal.style.setProperty("bottom", "auto", "important");
-  }
-
-  function getDefaultSettingsPanelPosition(modal) {
-    const headerPanel = qs(".app-header-inner");
-    const headerTop = headerPanel
-      ? headerPanel.getBoundingClientRect().top + window.scrollY
-      : window.scrollY + 12;
-    const preferredLeft = window.scrollX + window.innerWidth - modal.offsetWidth - 18;
-
-    return {
-      left: Math.max(window.scrollX + 8, preferredLeft),
-      top: Math.max(8, headerTop)
-    };
-  }
-
-  function alignSettingsPanelWithHeader(modal) {
-    const position = getDefaultSettingsPanelPosition(modal);
-    setSettingsPanelPosition(modal, position.left, position.top);
-  }
-
-  function resetSettingsPanelPosition(modal) {
-    localStorage.removeItem(settingsPanelPositionKey);
-    alignSettingsPanelWithHeader(modal);
-  }
-
-  function restoreSettingsPanelPosition(modal) {
-    try {
-      const savedPosition = JSON.parse(localStorage.getItem(settingsPanelPositionKey) || "null");
-      if (!savedPosition || !Number.isFinite(savedPosition.left) || !Number.isFinite(savedPosition.top)) return false;
-      setSettingsPanelPosition(modal, savedPosition.left, savedPosition.top);
-      return true;
-    } catch (error) {
-      localStorage.removeItem(settingsPanelPositionKey);
-      return false;
-    }
-  }
-
-  function makeSettingsPanelDraggable() {
-    const modal = qs("#colorThemePickerModal");
-    const header = qs("#colorThemePickerModal .ctp-header");
-    if (!modal || !header || modal.dataset.draggableReady === "true") return false;
-
-    modal.dataset.draggableReady = "true";
-    if (!restoreSettingsPanelPosition(modal)) alignSettingsPanelWithHeader(modal);
-
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
-    let activePointerId = null;
-
-    header.addEventListener("pointerdown", event => {
-      if (event.button !== 0 || event.target.closest("button, input, select, textarea, a")) return;
-
-      const bounds = modal.getBoundingClientRect();
-      dragOffsetX = event.clientX - bounds.left;
-      dragOffsetY = event.clientY - bounds.top;
-      activePointerId = event.pointerId;
-      header.setPointerCapture(event.pointerId);
-      event.preventDefault();
-    });
-
-    header.addEventListener("pointermove", event => {
-      if (activePointerId !== event.pointerId || !header.hasPointerCapture(event.pointerId)) return;
-
-      const pageLeft = window.scrollX;
-      const pageTop = window.scrollY;
-      const minimumLeft = pageLeft + 8;
-      const minimumTop = pageTop + 8;
-      const maximumLeft = Math.max(minimumLeft, pageLeft + window.innerWidth - modal.offsetWidth - 8);
-      const maximumTop = Math.max(minimumTop, pageTop + window.innerHeight - 48);
-      const nextLeft = Math.min(maximumLeft, Math.max(minimumLeft, event.clientX + pageLeft - dragOffsetX));
-      const nextTop = Math.min(maximumTop, Math.max(minimumTop, event.clientY + pageTop - dragOffsetY));
-
-      setSettingsPanelPosition(modal, nextLeft, nextTop);
-    });
-
-    function finishDragging(event) {
-      if (activePointerId !== event.pointerId) return;
-
-      if (header.hasPointerCapture(event.pointerId)) header.releasePointerCapture(event.pointerId);
-      activePointerId = null;
-
-      const left = Number.parseFloat(modal.style.left);
-      const top = Number.parseFloat(modal.style.top);
-      if (Number.isFinite(left) && Number.isFinite(top)) {
-        localStorage.setItem(settingsPanelPositionKey, JSON.stringify({ left, top }));
-      }
-    }
-
-    header.addEventListener("pointerup", finishDragging);
-    header.addEventListener("pointercancel", finishDragging);
-
-    const actions = qs("#colorThemePickerModal .ctp-actions");
-    if (actions && !qs("#resetSettingsPanelPositionButton")) {
-      const resetPositionButton = document.createElement("button");
-      resetPositionButton.type = "button";
-      resetPositionButton.id = "resetSettingsPanelPositionButton";
-      resetPositionButton.className = "button button-secondary";
-      resetPositionButton.textContent = "Reset panel position";
-      resetPositionButton.addEventListener("click", () => resetSettingsPanelPosition(modal));
-      actions.appendChild(resetPositionButton);
-    }
-
-    window.addEventListener("resize", () => {
-      if (!localStorage.getItem(settingsPanelPositionKey)) alignSettingsPanelWithHeader(modal);
-    });
-
-    return true;
-  }
-
-  function configureSettingsPanel() {
-    injectSettingsPanelPositionStyles();
-
-    if (makeSettingsPanelDraggable()) return;
-
-    const observer = new MutationObserver(() => {
-      if (makeSettingsPanelDraggable()) observer.disconnect();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   function renderHowItWorksDefaultFolderTreePreview() {
@@ -397,7 +229,6 @@ window.AppInit = (() => {
 
     applyTemporaryMainChoiceLabels();
     temporarilyDisableFolderTreeUtilityButtons();
-    configureSettingsPanel();
     renderHowItWorksDefaultFolderTreePreview();
     loadBuildTemplateSelectorScript();
 
