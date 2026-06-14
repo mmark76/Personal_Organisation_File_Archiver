@@ -103,10 +103,11 @@
     "use strict";
 
     class FakeFileHandle {
-      constructor(name, content = "") {
+      constructor(name, content = "", options = {}) {
         this.kind = "file";
         this.name = name;
         this.content = content;
+        this.reportedSize = options.reportedSize ?? null;
       }
 
       async createWritable() {
@@ -134,6 +135,10 @@
       }
 
       async getFile() {
+        if (this.reportedSize !== null) {
+          return { name: this.name, size: this.reportedSize };
+        }
+
         return new File([this.content], this.name);
       }
     }
@@ -719,6 +724,89 @@
 
       assert(archivedFile.content === "folder archive content", "The source folder should be copied below the retained existing root.");
       assert(!selectedRoot.directories.has(window.FolderCreation.appRootFolderName), "Folder archiving should not create an extra app wrapper.");
+    });
+
+    test("Oversized folder archives stop before destination selection or filesystem writes", async () => {
+      const megabyte = 1024 * 1024;
+      const scenarios = [
+        {
+          expectedReason: "one file is larger than 500 MB",
+          createSource() {
+            const source = new FakeDirectoryHandle("Single Large File");
+            source.files.set("large.bin", new FakeFileHandle("large.bin", "", { reportedSize: 500 * megabyte + 1 }));
+            return source;
+          }
+        },
+        {
+          expectedReason: "its total size is larger than 1 GB",
+          createSource() {
+            const source = new FakeDirectoryHandle("Large Total Size");
+            for (let index = 1; index <= 3; index += 1) {
+              const name = `part-${index}.bin`;
+              source.files.set(name, new FakeFileHandle(name, "", { reportedSize: 400 * megabyte }));
+            }
+            return source;
+          }
+        },
+        {
+          expectedReason: "it contains more than 2,000 files",
+          createSource() {
+            const source = new FakeDirectoryHandle("Too Many Files");
+            for (let index = 1; index <= 2001; index += 1) {
+              const name = `file-${index}.txt`;
+              source.files.set(name, new FakeFileHandle(name, "x"));
+            }
+            return source;
+          }
+        },
+        {
+          expectedReason: "its folder nesting is deeper than 20 levels",
+          createSource() {
+            const source = new FakeDirectoryHandle("Too Deep");
+            let current = source;
+
+            for (let depth = 1; depth <= 21; depth += 1) {
+              const child = new FakeDirectoryHandle(`level-${depth}`, { parent: current });
+              current.directories.set(child.name, child);
+              current = child;
+            }
+
+            return source;
+          }
+        },
+        {
+          expectedReason: "it contains more than 5,000 files and folders",
+          createSource() {
+            const source = new FakeDirectoryHandle("Too Many Entries");
+            for (let index = 1; index <= 5001; index += 1) {
+              const child = new FakeDirectoryHandle(`folder-${index}`, { parent: source });
+              source.directories.set(child.name, child);
+            }
+            return source;
+          }
+        }
+      ];
+
+      for (const scenario of scenarios) {
+        resetFolderArchiveMode();
+        window.AppState.setTree(createTestTree());
+        window.FolderTree.selectArchiveFolder("cvs");
+        window.AppState.setLoadedFolder(scenario.createSource());
+
+        let pickerCalls = 0;
+        window.showDirectoryPicker = async () => {
+          pickerCalls += 1;
+          return new FakeDirectoryHandle("Unexpected Destination");
+        };
+
+        await window.FolderArchive.archiveLoadedFolder();
+
+        const result = document.getElementById("folderArchiveResultBox").textContent;
+        assert(pickerCalls === 0, `${scenario.expectedReason}: destination selection should not start.`);
+        assert(result.includes(scenario.expectedReason), `${scenario.expectedReason}: the warning should identify the exceeded limit.`);
+        assert(result.includes("No files or folders were created"), `${scenario.expectedReason}: the warning should confirm that no output exists.`);
+        assert(result.includes("Copy and Paste in File Explorer"), `${scenario.expectedReason}: the warning should recommend manual copying.`);
+      }
     });
 
     test("App-root selection cannot follow a later active mode", async () => {

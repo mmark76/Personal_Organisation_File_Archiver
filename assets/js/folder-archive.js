@@ -3,6 +3,13 @@
 window.FolderArchive = (() => {
   const resultSelector = "#folderArchiveResultBox";
   const destinationInsideSourceMessage = "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.";
+  const archiveLimits = Object.freeze({
+    maxFiles: 2000,
+    maxTotalBytes: 1024 * 1024 * 1024,
+    maxFileBytes: 500 * 1024 * 1024,
+    maxDepth: 20,
+    maxScannedEntries: 5000
+  });
 
   function setResult(message) {
     window.AppUtils.setText(resultSelector, message);
@@ -83,6 +90,63 @@ window.FolderArchive = (() => {
     }
 
     return candidate;
+  }
+
+  function createFolderTooLargeResult(reason) {
+    return {
+      allowed: false,
+      message: `This folder is too large to archive safely with this app (${reason}). No files or folders were created. Please copy it manually using Copy and Paste in File Explorer.`
+    };
+  }
+
+  async function inspectFolderForArchive(rootDirectoryHandle) {
+    const pendingDirectories = [{ handle: rootDirectoryHandle, depth: 0 }];
+    let nextDirectoryIndex = 0;
+    let fileCount = 0;
+    let totalBytes = 0;
+    let scannedEntries = 0;
+
+    while (nextDirectoryIndex < pendingDirectories.length) {
+      const { handle: directoryHandle, depth } = pendingDirectories[nextDirectoryIndex];
+      nextDirectoryIndex += 1;
+
+      for await (const [, handle] of directoryHandle.entries()) {
+        scannedEntries += 1;
+        if (scannedEntries > archiveLimits.maxScannedEntries) {
+          return createFolderTooLargeResult("it contains more than 5,000 files and folders");
+        }
+
+        if (handle.kind === "directory") {
+          const childDepth = depth + 1;
+          if (childDepth > archiveLimits.maxDepth) {
+            return createFolderTooLargeResult("its folder nesting is deeper than 20 levels");
+          }
+
+          pendingDirectories.push({ handle, depth: childDepth });
+          continue;
+        }
+
+        if (handle.kind !== "file") continue;
+
+        fileCount += 1;
+        if (fileCount > archiveLimits.maxFiles) {
+          return createFolderTooLargeResult("it contains more than 2,000 files");
+        }
+
+        const file = await handle.getFile();
+        const fileSize = Number.isFinite(file.size) ? file.size : 0;
+        if (fileSize > archiveLimits.maxFileBytes) {
+          return createFolderTooLargeResult("one file is larger than 500 MB");
+        }
+
+        totalBytes += fileSize;
+        if (totalBytes > archiveLimits.maxTotalBytes) {
+          return createFolderTooLargeResult("its total size is larger than 1 GB");
+        }
+      }
+    }
+
+    return { allowed: true };
   }
 
   async function copyFileToDirectory(sourceFileHandle, targetDirectoryHandle, stats) {
@@ -176,6 +240,13 @@ window.FolderArchive = (() => {
     let destinationReady = false;
 
     try {
+      setResult("Checking folder size before archiving. No files or folders have been created yet.");
+      const inspection = await inspectFolderForArchive(folderHandle);
+      if (!inspection.allowed) {
+        setResult(inspection.message);
+        return;
+      }
+
       const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
       setResult(window.AppMessages.archiveRootPrompt);
 
