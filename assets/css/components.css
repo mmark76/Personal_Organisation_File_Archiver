@@ -172,6 +172,20 @@ button:hover {
   line-height: 1.45;
 }
 
+.main-backup-panel {
+  width: min(680px, 100%);
+  margin: 8px auto 0;
+  padding: 10px 14px;
+  border-color: var(--app-border-soft);
+  background: var(--app-surface-soft);
+  opacity: 0.9;
+}
+
+.main-backup-panel span {
+  color: var(--app-muted-strong);
+  font-size: 12px;
+}
+
 .guidance-card strong {
   font-size: 13px;
   text-align: center;
