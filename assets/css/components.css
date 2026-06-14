@@ -173,7 +173,7 @@ button:hover {
 }
 
 .main-backup-panel {
-  width: min(680px, 100%);
+  width: min(760px, 100%);
   margin: 8px auto 0;
   padding: 10px 14px;
   border-color: var(--app-border-soft);
