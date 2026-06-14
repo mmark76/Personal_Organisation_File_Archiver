@@ -149,6 +149,29 @@ button:hover {
   text-align: center;
 }
 
+.safety-warning {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  margin: 12px 0 4px;
+  padding: 12px;
+  border: 1px solid #f59e0b;
+  border-radius: var(--app-radius-sm);
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--app-text);
+  text-align: center;
+}
+
+.safety-warning strong {
+  color: #fbbf24;
+}
+
+.safety-warning span {
+  color: var(--app-muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
 .guidance-card strong {
   font-size: 13px;
   text-align: center;

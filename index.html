@@ -93,6 +93,11 @@
         <h2 id="mainChoiceTitle">Choose what you want to do</h2>
         <p>Start with a new tree, view an existing folder tree on this PC, archive a file, or archive a whole folder.</p>
 
+        <div class="safety-warning main-safety-warning" role="note" aria-label="Important backup and liability warning">
+          <strong>Important: Back up all important files and data before using this app.</strong>
+          <span>The app copies files and folders without deleting the originals, but all file operations are performed at your own risk. See the Disclaimer for details.</span>
+        </div>
+
         <div class="choice-grid">
           <button type="button" id="openFolderTreeModeButton" class="choice-card">
             <strong>Build New Folder Tree on this PC</strong>
@@ -223,6 +228,11 @@
           <button type="button" id="archiveFileButton" class="button button-success">Archive the File</button>
         </div>
 
+        <div class="safety-warning" role="note" aria-label="Important backup warning">
+          <strong>Back up important data before archiving.</strong>
+          <span>The app copies files and does not delete the originals, but you use all file operations at your own risk.</span>
+        </div>
+
         <p class="small-note">Create or choose a folder tree before archiving</p>
 
         <div id="archiveTreeChoicePanel" class="action-row" hidden>
@@ -279,6 +289,11 @@
           <button type="button" id="chooseFolderArchiveTreeButton" class="button button-secondary">Choose Folder Tree</button>
           <button type="button" id="chooseFolderToArchiveButton" class="button">Choose Folder to Archive</button>
           <button type="button" id="archiveFolderButton" class="button button-success">Archive the Folder</button>
+        </div>
+
+        <div class="safety-warning" role="note" aria-label="Important backup warning">
+          <strong>Back up important data before archiving.</strong>
+          <span>The app copies folders and does not delete the originals, but you use all file operations at your own risk.</span>
         </div>
 
         <p class="small-note">This copies the selected folder and its contents. It does not delete or move the original folder.</p>
@@ -356,6 +371,8 @@
         <p>Organize Your PC is a personal memory-based file and folder organizing and archiving app.</p>
         <p>It does not delete, upload, rename, modify, or automatically move files or folders.</p>
         <p>The app can archive a loaded file or chosen folder only after the user chooses a destination folder and gives browser permission.</p>
+        <p><strong>Important:</strong> Before using any feature that writes files or creates folders, make a separate backup of all important files and data.</p>
+        <p>All file and folder operations are performed at the user's own risk. To the fullest extent permitted by applicable law, the developer and contributors are not responsible for file loss, data loss, corruption, incomplete copies, or other damage resulting from use of the app.</p>
       </div>
 
       <div class="modal-actions">
