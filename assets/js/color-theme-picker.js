@@ -364,15 +364,14 @@ window.ColorThemePicker = (() => {
   }
 
   function initialize() {
+    const openButton = document.getElementById("openColorThemePickerButton");
+    if (openButton && openButton.dataset.settingsBound !== "true") {
+      openButton.dataset.settingsBound = "true";
+      openButton.addEventListener("click", openPicker);
+    }
+
     if (document.getElementById("colorThemePickerModal")) return;
     injectStyles();
-
-    const headerActions = document.querySelector(".header-actions");
-    if (headerActions && !document.getElementById("openColorThemePickerButton")) {
-      const button = action("Settings", "button button-secondary", openPicker);
-      button.id = "openColorThemePickerButton";
-      headerActions.appendChild(button);
-    }
 
     const modal = element("div");
     modal.id = "colorThemePickerModal";
