@@ -36,10 +36,13 @@ window.FileArchive = (() => {
   }
 
   async function archiveLoadedFile() {
+    const resultSelector = "#archiveResultBox";
+    if (window.ArchiveOperation.reportIfBusy(resultSelector)) return;
+
     const file = window.AppState.state.loadedFile;
 
     if (!file) {
-      window.AppUtils.setText("#archiveResultBox", window.AppMessages.noFileLoaded);
+      window.AppUtils.setText(resultSelector, window.AppMessages.noFileLoaded);
       return;
     }
 
@@ -47,61 +50,63 @@ window.FileArchive = (() => {
     const selectedNode = selectedNodeId ? window.FolderTree.findNodeById(selectedNodeId) : null;
 
     if (!selectedNode) {
-      window.AppUtils.setText("#archiveResultBox", window.AppMessages.noArchiveDestination);
+      window.AppUtils.setText(resultSelector, window.AppMessages.noArchiveDestination);
       return;
     }
 
     if (!window.BrowserSupport.supportsDirectoryPicker()) {
-      window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveUnsupported);
+      window.AppUtils.setText(resultSelector, window.AppMessages.archiveUnsupported);
       return;
     }
 
-    let destinationReady = false;
-
-    try {
-      const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
-      window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveRootPrompt);
-
-      const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
-      destinationReady = true;
-      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
-      const safeName = await getAvailableFileName(destinationHandle, file.name);
-      const fileHandle = await destinationHandle.getFileHandle(safeName, { create: true });
-      const writable = await fileHandle.createWritable();
+    return window.ArchiveOperation.runExclusive(resultSelector, async () => {
+      let destinationReady = false;
 
       try {
-        await writable.write(file);
-      } finally {
-        await writable.close();
-      }
+        const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
+        window.AppUtils.setText(resultSelector, window.AppMessages.archiveRootPrompt);
 
-      window.AppUtils.setText(
-        "#archiveResultBox",
-        `${window.AppMessages.archiveComplete} Saved to: ${[destination.displayPath, safeName].filter(Boolean).join("/")}`
-      );
-    } catch (error) {
-      if (window.FolderCreation.isStaleAfterWriteError(error)) {
-        window.AppUtils.setText("#archiveResultBox", window.FolderCreation.staleAfterWriteMessage);
-        return;
-      }
+        const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
+        destinationReady = true;
+        const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
+        const safeName = await getAvailableFileName(destinationHandle, file.name);
+        const fileHandle = await destinationHandle.getFileHandle(safeName, { create: true });
+        const writable = await fileHandle.createWritable();
 
-      if (error && error.name === "AbortError") {
+        try {
+          await writable.write(file);
+        } finally {
+          await writable.close();
+        }
+
         window.AppUtils.setText(
-          "#archiveResultBox",
-          destinationReady
-            ? window.AppMessages.archiveCancelled
-            : window.FolderCreation.writeAccessCancelledMessage
+          resultSelector,
+          `${window.AppMessages.archiveComplete} Saved to: ${[destination.displayPath, safeName].filter(Boolean).join("/")}`
         );
-        return;
-      }
+      } catch (error) {
+        if (window.FolderCreation.isStaleAfterWriteError(error)) {
+          window.AppUtils.setText(resultSelector, window.FolderCreation.staleAfterWriteMessage);
+          return;
+        }
 
-      if (window.FolderCreation.isPermissionDeniedError(error)) {
-        window.AppUtils.setText("#archiveResultBox", window.FolderCreation.permissionDeniedMessage);
-        return;
-      }
+        if (error && error.name === "AbortError") {
+          window.AppUtils.setText(
+            resultSelector,
+            destinationReady
+              ? window.AppMessages.archiveCancelled
+              : window.FolderCreation.writeAccessCancelledMessage
+          );
+          return;
+        }
 
-      window.AppUtils.setText("#archiveResultBox", window.AppMessages.archiveFailed);
-    }
+        if (window.FolderCreation.isPermissionDeniedError(error)) {
+          window.AppUtils.setText(resultSelector, window.FolderCreation.permissionDeniedMessage);
+          return;
+        }
+
+        window.AppUtils.setText(resultSelector, window.AppMessages.archiveFailed);
+      }
+    });
   }
 
   return {

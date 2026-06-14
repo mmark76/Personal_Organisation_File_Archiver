@@ -71,6 +71,8 @@
     <div id="folderArchiveTreePreview"></div>
     <div id="folderArchiveResultBox"></div>
     <div id="folderArchiveStatusBox"></div>
+    <button type="button" id="archiveFileButton">Archive the File</button>
+    <button type="button" id="archiveFolderButton">Archive the Folder</button>
     <select id="archiveTreeDepthSelect">
       <option value="2" selected>2 levels</option>
     </select>
@@ -96,6 +98,7 @@
   <script src="../assets/js/folder-tree-render.js"></script>
   <script src="../assets/js/folder-tree-existing.js"></script>
   <script src="../assets/js/folder-creation.js"></script>
+  <script src="../assets/js/archive-operation.js"></script>
   <script src="../assets/js/file-archive.js"></script>
   <script src="../assets/js/folder-archive.js"></script>
 
@@ -399,6 +402,62 @@
       const duplicateFile = await destination.getFileHandle("sample_copy_1.txt");
       assert(duplicateFile.content === "second version", "The duplicate file did not receive a safe copy name.");
       assert(firstFile.content === "first version", "The original archived file was overwritten.");
+    });
+
+    test("Concurrent file and folder archive attempts are blocked until the active archive finishes", async () => {
+      resetArchiveMode();
+
+      const rootHandle = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+      const permissionStarted = createDeferred();
+      const permissionGate = createDeferred();
+      let permissionQueryCount = 0;
+
+      rootHandle.queryPermission = async options => {
+        rootHandle.events.push({ type: "query-permission", mode: options.mode, handle: rootHandle.name });
+        permissionQueryCount += 1;
+        if (permissionQueryCount === 1) {
+          permissionStarted.resolve();
+          await permissionGate.promise;
+        }
+        return "granted";
+      };
+
+      window.FolderCreation.rememberRootHandle(rootHandle);
+      window.FolderTree.selectArchiveFolder("cvs");
+      window.AppState.setLoadedFile(new File(["single archive"], "single.txt", { type: "text/plain" }));
+
+      const archiveFileButton = document.getElementById("archiveFileButton");
+      const archiveFolderButton = document.getElementById("archiveFolderButton");
+      archiveFileButton.disabled = false;
+      archiveFolderButton.disabled = false;
+
+      const firstArchive = window.FileArchive.archiveLoadedFile();
+      await permissionStarted.promise;
+
+      assert(archiveFileButton.disabled, "The file archive button should be disabled while an archive is active.");
+      assert(archiveFolderButton.disabled, "The folder archive button should be disabled while an archive is active.");
+
+      await window.FileArchive.archiveLoadedFile();
+      assert(
+        document.getElementById("archiveResultBox").textContent === window.AppMessages.archiveAlreadyInProgress,
+        "A second file archive attempt should display the active-operation message."
+      );
+
+      await window.FolderArchive.archiveLoadedFolder();
+      assert(
+        document.getElementById("folderArchiveResultBox").textContent === window.AppMessages.archiveAlreadyInProgress,
+        "A folder archive attempt should be blocked by an active file archive."
+      );
+      assert(!rootHandle.events.some(event => event.type === "create-file"), "No file should be created before the active archive resumes.");
+
+      permissionGate.resolve();
+      await firstArchive;
+
+      const destination = await getDirectoryByPath(rootHandle, "01_PROFILE/CVS");
+      assert(destination.files.has("single.txt"), "The original archive should finish successfully after the delay.");
+      assert(!destination.files.has("single_copy_1.txt"), "The blocked archive attempt should not create a duplicate file.");
+      assert(!archiveFileButton.disabled, "The file archive button should be restored after completion.");
+      assert(!archiveFolderButton.disabled, "The folder archive button should be restored after completion.");
     });
 
     test("Folder creation creates expected paths and respects naming and duplicate rules", async () => {

@@ -241,6 +241,8 @@ window.FolderArchive = (() => {
   }
 
   async function archiveLoadedFolder() {
+    if (window.ArchiveOperation.reportIfBusy(resultSelector)) return;
+
     const folderHandle = window.AppState.state.loadedFolderHandle;
 
     if (!folderHandle) {
@@ -261,81 +263,83 @@ window.FolderArchive = (() => {
       return;
     }
 
-    let destinationReady = false;
-    let archiveTarget = null;
+    return window.ArchiveOperation.runExclusive(resultSelector, async () => {
+      let destinationReady = false;
+      let archiveTarget = null;
 
-    try {
-      setResult("Checking folder size before archiving. No files or folders have been created yet.");
-      const inspection = await inspectFolderForArchive(folderHandle);
-      if (!inspection.allowed) {
-        setResult(inspection.message);
-        return;
-      }
-
-      const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
-      setResult(window.AppMessages.archiveRootPrompt);
-
-      const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle(
-        candidateHandle => requireDestinationOutsideSource(folderHandle, candidateHandle)
-      );
-      destinationReady = true;
-
-      const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
-      if (typeof destinationHandle.removeEntry !== "function") {
-        setResult(rollbackUnsupportedMessage);
-        return;
-      }
-
-      const safeFolderName = await getAvailableDirectoryName(destinationHandle, folderHandle.name);
-      const targetFolderHandle = await destinationHandle.getDirectoryHandle(safeFolderName, { create: true });
-      archiveTarget = {
-        parentHandle: destinationHandle,
-        name: safeFolderName,
-        displayPath: [destination.displayPath, safeFolderName].filter(Boolean).join("/")
-      };
-      const stats = { files: 0, folders: 1, bytes: 0 };
-
-      await copyDirectoryContents(folderHandle, targetFolderHandle, stats);
-
-      setResult(
-        `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
-      );
-    } catch (error) {
-      if (archiveTarget) {
-        if (await rollbackArchiveTarget(archiveTarget)) {
-          setResult(archiveRolledBackMessage);
-        } else {
-          setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before trying again.`);
+      try {
+        setResult("Checking folder size before archiving. No files or folders have been created yet.");
+        const inspection = await inspectFolderForArchive(folderHandle);
+        if (!inspection.allowed) {
+          setResult(inspection.message);
+          return;
         }
-        return;
-      }
 
-      if (error?.code === "DESTINATION_INSIDE_SOURCE" || error?.code === "DESTINATION_RELATIONSHIP_UNVERIFIED") {
-        setResult(error.message);
-        return;
-      }
+        const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
+        setResult(window.AppMessages.archiveRootPrompt);
 
-      if (window.FolderCreation.isStaleAfterWriteError(error)) {
-        setResult(window.FolderCreation.staleAfterWriteMessage);
-        return;
-      }
-
-      if (error && error.name === "AbortError") {
-        setResult(
-          destinationReady
-            ? window.AppMessages.archiveCancelled
-            : window.FolderCreation.writeAccessCancelledMessage
+        const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle(
+          candidateHandle => requireDestinationOutsideSource(folderHandle, candidateHandle)
         );
-        return;
-      }
+        destinationReady = true;
 
-      if (window.FolderCreation.isPermissionDeniedError(error)) {
-        setResult(window.FolderCreation.permissionDeniedMessage);
-        return;
-      }
+        const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
+        if (typeof destinationHandle.removeEntry !== "function") {
+          setResult(rollbackUnsupportedMessage);
+          return;
+        }
 
-      setResult(window.AppMessages.folderArchiveFailed);
-    }
+        const safeFolderName = await getAvailableDirectoryName(destinationHandle, folderHandle.name);
+        const targetFolderHandle = await destinationHandle.getDirectoryHandle(safeFolderName, { create: true });
+        archiveTarget = {
+          parentHandle: destinationHandle,
+          name: safeFolderName,
+          displayPath: [destination.displayPath, safeFolderName].filter(Boolean).join("/")
+        };
+        const stats = { files: 0, folders: 1, bytes: 0 };
+
+        await copyDirectoryContents(folderHandle, targetFolderHandle, stats);
+
+        setResult(
+          `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
+        );
+      } catch (error) {
+        if (archiveTarget) {
+          if (await rollbackArchiveTarget(archiveTarget)) {
+            setResult(archiveRolledBackMessage);
+          } else {
+            setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before trying again.`);
+          }
+          return;
+        }
+
+        if (error?.code === "DESTINATION_INSIDE_SOURCE" || error?.code === "DESTINATION_RELATIONSHIP_UNVERIFIED") {
+          setResult(error.message);
+          return;
+        }
+
+        if (window.FolderCreation.isStaleAfterWriteError(error)) {
+          setResult(window.FolderCreation.staleAfterWriteMessage);
+          return;
+        }
+
+        if (error && error.name === "AbortError") {
+          setResult(
+            destinationReady
+              ? window.AppMessages.archiveCancelled
+              : window.FolderCreation.writeAccessCancelledMessage
+          );
+          return;
+        }
+
+        if (window.FolderCreation.isPermissionDeniedError(error)) {
+          setResult(window.FolderCreation.permissionDeniedMessage);
+          return;
+        }
+
+        setResult(window.AppMessages.folderArchiveFailed);
+      }
+    }, window.AppMessages.folderArchiveFailed);
   }
 
   return {

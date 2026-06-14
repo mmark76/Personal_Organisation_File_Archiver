@@ -15,6 +15,8 @@ window.AppMessages = {
   folderLoaded: "Folder loaded successfully.",
   noArchiveDestination: "Please select a destination folder from the folder tree preview first.",
   archiveDestinationSelected: "Archive destination selected:",
+  archiveInProgress: "Archiving is in progress. Please wait.",
+  archiveAlreadyInProgress: "Another archive operation is already in progress. Please wait for it to finish.",
   archiveRootPrompt: "Choose the Organize Your PC root folder or its parent folder when the browser asks.",
   archiveUnsupported: "File archiving requires a browser that supports direct folder access, such as Chrome or Edge.",
   folderArchiveUnsupported: "Folder archiving requires a browser that supports direct folder access, such as Chrome or Edge.",
