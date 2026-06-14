@@ -809,6 +809,79 @@
       }
     });
 
+    test("Folder archiving fails closed when destination containment cannot be verified", async () => {
+      const scenarios = [
+        {
+          name: "missing resolve",
+          configureSource(source) {
+            source.resolve = undefined;
+          }
+        },
+        {
+          name: "throwing resolve",
+          configureSource(source) {
+            source.resolve = async () => {
+              throw new DOMException("Relationship check failed", "InvalidStateError");
+            };
+          }
+        }
+      ];
+
+      for (const scenario of scenarios) {
+        resetFolderArchiveMode();
+        window.AppState.setTree(createTestTree());
+        window.FolderTree.selectArchiveFolder("cvs");
+
+        const source = new FakeDirectoryHandle(`Source ${scenario.name}`);
+        scenario.configureSource(source);
+        window.AppState.setLoadedFolder(source);
+
+        const selectedParent = new FakeDirectoryHandle(`Destination ${scenario.name}`);
+        window.showDirectoryPicker = async () => selectedParent;
+
+        await window.FolderArchive.archiveLoadedFolder();
+
+        const result = document.getElementById("folderArchiveResultBox").textContent;
+        assert(
+          result.includes("could not safely verify that the destination is outside the source folder"),
+          `${scenario.name}: the user should receive a clear containment verification error.`
+        );
+        assert(result.includes("No files or folders were created"), `${scenario.name}: the message should confirm that no output exists.`);
+        assert(
+          !selectedParent.directories.has(window.FolderCreation.appRootFolderName),
+          `${scenario.name}: the app root must not be created before containment is verified.`
+        );
+      }
+    });
+
+    test("Folder archiving rejects a destination inside the source before writes", async () => {
+      resetFolderArchiveMode();
+      window.AppState.setTree(createTestTree());
+      window.FolderTree.selectArchiveFolder("cvs");
+
+      const source = new FakeDirectoryHandle("Source With Nested Destination");
+      const nestedDestination = await source.getDirectoryHandle("Nested Destination", { create: true });
+      source.events.length = 0;
+      window.AppState.setLoadedFolder(source);
+      window.showDirectoryPicker = async () => nestedDestination;
+
+      await window.FolderArchive.archiveLoadedFolder();
+
+      assert(
+        document.getElementById("folderArchiveResultBox").textContent ===
+          "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.",
+        "A nested destination should be rejected with the existing clear message."
+      );
+      assert(
+        !nestedDestination.directories.has(window.FolderCreation.appRootFolderName),
+        "The app root must not be created inside the source folder."
+      );
+      assert(
+        !source.events.some(event => event.type === "create-directory" || event.type === "create-file"),
+        "Containment rejection should not create files or folders."
+      );
+    });
+
     test("App-root selection cannot follow a later active mode", async () => {
       resetArchiveMode();
 

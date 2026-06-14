@@ -111,9 +111,16 @@ window.FolderCreation = (() => {
     return currentHandle;
   }
 
-  async function resolveAppRootHandle(selectedHandle, modeContext) {
+  async function runBeforeWriteValidation(directoryHandle, modeContext, beforeWriteValidation) {
+    if (typeof beforeWriteValidation !== "function") return;
+    await beforeWriteValidation(directoryHandle);
+    requireCurrentModeContext(modeContext);
+  }
+
+  async function resolveAppRootHandle(selectedHandle, modeContext, beforeWriteValidation) {
     await requireReadWritePermission(selectedHandle);
     requireCurrentModeContext(modeContext);
+    await runBeforeWriteValidation(selectedHandle, modeContext, beforeWriteValidation);
 
     if (selectedHandle.name === appRootFolderName) {
       rememberRootHandleInState(modeContext.modeState, selectedHandle);
@@ -126,19 +133,20 @@ window.FolderCreation = (() => {
     return appRootHandle;
   }
 
-  async function chooseAppRootHandle(modeContext = captureModeContext()) {
+  async function chooseAppRootHandle(modeContext = captureModeContext(), beforeWriteValidation) {
     const selectedHandle = await window.showDirectoryPicker({ mode: "readwrite" });
     requireCurrentModeContext(modeContext);
-    return resolveAppRootHandle(selectedHandle, modeContext);
+    return resolveAppRootHandle(selectedHandle, modeContext, beforeWriteValidation);
   }
 
-  async function getOrChooseAppRootHandle() {
+  async function getOrChooseAppRootHandle(beforeWriteValidation) {
     const modeContext = captureModeContext();
     const rootHandle = modeContext.modeState.appRootHandle;
 
     if (rootHandle && modeContext.modeState.appRootTree === modeContext.tree) {
       await requireReadWritePermission(rootHandle);
       requireCurrentModeContext(modeContext);
+      await runBeforeWriteValidation(rootHandle, modeContext, beforeWriteValidation);
 
       if (
         modeContext.modeState.appRootHandle !== rootHandle ||
@@ -150,7 +158,7 @@ window.FolderCreation = (() => {
       return rootHandle;
     }
 
-    return chooseAppRootHandle(modeContext);
+    return chooseAppRootHandle(modeContext, beforeWriteValidation);
   }
 
   async function createFoldersOnComputer() {

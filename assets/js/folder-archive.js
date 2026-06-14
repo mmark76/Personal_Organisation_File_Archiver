@@ -3,6 +3,7 @@
 window.FolderArchive = (() => {
   const resultSelector = "#folderArchiveResultBox";
   const destinationInsideSourceMessage = "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.";
+  const destinationRelationshipUnknownMessage = "The app could not safely verify that the destination is outside the source folder. No files or folders were created. Please choose a different destination or copy the folder manually using File Explorer.";
   const archiveLimits = Object.freeze({
     maxFiles: 2000,
     maxTotalBytes: 1024 * 1024 * 1024,
@@ -29,28 +30,35 @@ window.FolderArchive = (() => {
     }
   }
 
-  async function isSameDirectory(firstHandle, secondHandle) {
-    if (!firstHandle || !secondHandle || typeof firstHandle.isSameEntry !== "function") {
-      return false;
-    }
-
-    try {
-      return await firstHandle.isSameEntry(secondHandle);
-    } catch (error) {
-      return false;
-    }
+  function createDestinationRelationshipError(code, message) {
+    const error = new Error(message);
+    error.code = code;
+    return error;
   }
 
-  async function isSameOrDescendantDirectory(parentDirectoryHandle, possibleChildDirectoryHandle) {
-    if (!parentDirectoryHandle || !possibleChildDirectoryHandle || typeof parentDirectoryHandle.resolve !== "function") {
-      return false;
+  async function requireDestinationOutsideSource(sourceDirectoryHandle, destinationDirectoryHandle) {
+    if (!sourceDirectoryHandle || !destinationDirectoryHandle || typeof sourceDirectoryHandle.resolve !== "function") {
+      throw createDestinationRelationshipError(
+        "DESTINATION_RELATIONSHIP_UNVERIFIED",
+        destinationRelationshipUnknownMessage
+      );
     }
 
+    let relativePath;
     try {
-      const relativePath = await parentDirectoryHandle.resolve(possibleChildDirectoryHandle);
-      return Array.isArray(relativePath);
+      relativePath = await sourceDirectoryHandle.resolve(destinationDirectoryHandle);
     } catch (error) {
-      return false;
+      throw createDestinationRelationshipError(
+        "DESTINATION_RELATIONSHIP_UNVERIFIED",
+        destinationRelationshipUnknownMessage
+      );
+    }
+
+    if (Array.isArray(relativePath)) {
+      throw createDestinationRelationshipError(
+        "DESTINATION_INSIDE_SOURCE",
+        destinationInsideSourceMessage
+      );
     }
   }
 
@@ -165,7 +173,7 @@ window.FolderArchive = (() => {
     stats.bytes += file.size || 0;
   }
 
-  async function copyDirectoryContents(sourceDirectoryHandle, targetDirectoryHandle, stats, rootTargetDirectoryHandle) {
+  async function copyDirectoryContents(sourceDirectoryHandle, targetDirectoryHandle, stats) {
     for await (const [name, handle] of sourceDirectoryHandle.entries()) {
       if (handle.kind === "file") {
         await copyFileToDirectory(handle, targetDirectoryHandle, stats);
@@ -173,14 +181,10 @@ window.FolderArchive = (() => {
       }
 
       if (handle.kind === "directory") {
-        if (await isSameDirectory(handle, rootTargetDirectoryHandle)) {
-          continue;
-        }
-
         const safeDirectoryName = await getAvailableDirectoryName(targetDirectoryHandle, name);
         const childTargetHandle = await targetDirectoryHandle.getDirectoryHandle(safeDirectoryName, { create: true });
         stats.folders += 1;
-        await copyDirectoryContents(handle, childTargetHandle, stats, rootTargetDirectoryHandle);
+        await copyDirectoryContents(handle, childTargetHandle, stats);
       }
     }
   }
@@ -250,29 +254,27 @@ window.FolderArchive = (() => {
       const destination = window.FolderTreeExisting.getArchiveDestination(selectedNode.id);
       setResult(window.AppMessages.archiveRootPrompt);
 
-      const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle();
+      const appRootHandle = await window.FolderCreation.getOrChooseAppRootHandle(
+        candidateHandle => requireDestinationOutsideSource(folderHandle, candidateHandle)
+      );
       destinationReady = true;
-      if (await isSameOrDescendantDirectory(folderHandle, appRootHandle)) {
-        setResult(destinationInsideSourceMessage);
-        return;
-      }
 
       const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
-      if (await isSameOrDescendantDirectory(folderHandle, destinationHandle)) {
-        setResult(destinationInsideSourceMessage);
-        return;
-      }
-
       const safeFolderName = await getAvailableDirectoryName(destinationHandle, folderHandle.name);
       const targetFolderHandle = await destinationHandle.getDirectoryHandle(safeFolderName, { create: true });
       const stats = { files: 0, folders: 1, bytes: 0 };
 
-      await copyDirectoryContents(folderHandle, targetFolderHandle, stats, targetFolderHandle);
+      await copyDirectoryContents(folderHandle, targetFolderHandle, stats);
 
       setResult(
         `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
       );
     } catch (error) {
+      if (error?.code === "DESTINATION_INSIDE_SOURCE" || error?.code === "DESTINATION_RELATIONSHIP_UNVERIFIED") {
+        setResult(error.message);
+        return;
+      }
+
       if (window.FolderCreation.isStaleAfterWriteError(error)) {
         setResult(window.FolderCreation.staleAfterWriteMessage);
         return;
