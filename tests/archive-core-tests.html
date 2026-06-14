@@ -479,6 +479,56 @@
       assert(firstFile.content === "first version", "The original archived file was overwritten.");
     });
 
+    test("A failed file write is aborted and the incomplete archive is removed", async () => {
+      resetArchiveMode();
+
+      const rootHandle = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+      const destination = await window.FolderCreation.createDirectoryPath(rootHandle, "01_PROFILE/CVS");
+      rootHandle.events.length = 0;
+      window.FolderCreation.rememberRootHandle(rootHandle);
+      window.FolderTree.selectArchiveFolder("cvs");
+      window.AppState.setLoadedFile(new File(["complete source"], "partial.txt", { type: "text/plain" }));
+
+      const originalCreateWritable = FakeFileHandle.prototype.createWritable;
+      let abortCalled = false;
+      let closeCalled = false;
+      FakeFileHandle.prototype.createWritable = async function() {
+        const handle = this;
+        return {
+          async write() {
+            handle.content = "partial output";
+            throw new DOMException("Injected write failure", "QuotaExceededError");
+          },
+          async close() {
+            closeCalled = true;
+          },
+          async abort() {
+            abortCalled = true;
+          }
+        };
+      };
+
+      try {
+        await window.FileArchive.archiveLoadedFile();
+      } finally {
+        FakeFileHandle.prototype.createWritable = originalCreateWritable;
+      }
+
+      assert(abortCalled, "A failed file write should abort its writable stream.");
+      assert(!closeCalled, "A failed file write should not close and commit the writable stream.");
+      assert(!destination.files.has("partial.txt"), "The incomplete archived file should be removed.");
+      assert(window.AppState.state.loadedFile.name === "partial.txt", "The original selected file should remain unchanged.");
+      assert(
+        document.getElementById("archiveResultBox").textContent ===
+          "File archiving failed and was cancelled completely. The incomplete archived file was removed, so no partial copy remains.",
+        "The user should be told that the incomplete file was removed."
+      );
+      assert(
+        rootHandle.events.some(event => event.type === "remove-file" && event.name === "partial.txt"),
+        "The rollback should remove the incomplete file entry."
+      );
+    });
+
     test("Concurrent file and folder archive attempts are blocked until the active archive finishes", async () => {
       resetArchiveMode();
 
@@ -1036,6 +1086,40 @@
       assert(
         !source.events.some(event => event.type === "create-directory" || event.type === "create-file"),
         "Containment rejection should not create files or folders."
+      );
+    });
+
+    test("Folder archiving rejects a retained-root path that points inside the source", async () => {
+      resetFolderArchiveMode();
+
+      const selectedRoot = new FakeDirectoryHandle("Existing Root");
+      const source = await selectedRoot.getDirectoryHandle("SOURCE", { create: true });
+      const nestedDestination = await source.getDirectoryHandle("NESTED", { create: true });
+      const sourceFile = await source.getFileHandle("source.txt", { create: true });
+      sourceFile.content = "source content";
+      selectedRoot.events.length = 0;
+      window.showDirectoryPicker = async () => selectedRoot;
+
+      await window.FolderTreeExisting.chooseExistingFolderTreeForFolderArchive();
+      const nestedNode = findNodeByName(window.AppState.state.tree, "NESTED");
+      window.FolderTree.selectArchiveFolder(nestedNode.id);
+      window.AppState.setLoadedFolder(source);
+      selectedRoot.events.length = 0;
+
+      await window.FolderArchive.archiveLoadedFolder();
+
+      assert(
+        document.getElementById("folderArchiveResultBox").textContent ===
+          "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.",
+        "A retained root with a relative destination inside the source should be rejected."
+      );
+      assert(
+        !nestedDestination.directories.has("SOURCE") && !nestedDestination.directories.has("SOURCE_copy_1"),
+        "No archive target should be created inside the source folder."
+      );
+      assert(
+        !selectedRoot.events.some(event => event.type === "create-directory" || event.type === "create-file"),
+        "The final destination containment check should run before any filesystem writes."
       );
     });
 

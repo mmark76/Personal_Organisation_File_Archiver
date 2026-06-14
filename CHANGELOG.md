@@ -10,7 +10,8 @@
 - Permission denial and picker cancellation stop the operation with a clear message and no intentional archive output.
 - Stale asynchronous existing-tree loads cannot update another mode or overwrite newer tree state.
 - Folder archives are checked before copying and stop when they exceed the documented browser safety limits.
-- Folder destinations inside the source folder are rejected.
+- Folder destinations inside the source folder are rejected, including relative paths below a retained existing-tree root.
+- Failed file writes are aborted and incomplete archived files are removed when the browser provides safe removal support.
 - Incomplete folder archives are rolled back after a mid-copy failure when the browser supports safe recursive removal.
 - Folder archiving does not start when the browser cannot provide the removal capability required for safe rollback.
 - Simultaneous file and folder archive operations are blocked in the page and, where supported, across tabs on the same origin.
@@ -22,5 +23,5 @@
 - Added clear messages for permission, cancellation, oversized folders, blocked operations, rollback, and successful archives.
 - Added a discreet backup recommendation to the main page and Disclaimer while clarifying that the app copies files and does not delete originals.
 - Moved the Settings control into the initial HTML so the main-page control is available without being created dynamically.
-- Expanded the in-browser core suite to 23 focused tests.
+- Expanded the in-browser core suite to 25 focused tests.
 - Updated the README, privacy notice, testing guidance, project philosophy, metadata, web manifest, and sitemap to describe the current behavior.

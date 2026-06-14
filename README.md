@@ -21,8 +21,8 @@ Recent safety improvements include:
 - use of the selected existing folder-tree root as the actual archive destination, without creating a duplicate `Organize Your PC` wrapper;
 - prevention of simultaneous file or folder archive operations in the same page and, where supported, across browser tabs;
 - preflight limits that stop unusually large folder archives before any destination output is created;
-- rejection of folder destinations that cannot be verified as safely outside the source folder;
-- an automatic rollback attempt that removes an incomplete folder archive if recursive copying fails;
+- rejection of both direct and retained-root folder destinations that point inside the source folder;
+- automatic rollback attempts that remove incomplete file or folder archives if copying fails;
 - clear user-facing messages for permission denial, cancellation, blocked concurrent operations, oversized folders, rollback, and success.
 
 ## Current App Structure
@@ -346,7 +346,7 @@ As a general good practice, users should keep a separate backup of important fil
 
 ## Tests
 
-The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 23 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, optional analytics consent and event filtering, and the unchanged normal new-folder-structure workflow.
+The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 25 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, final destination containment, file and folder rollback, concurrent archive prevention, optional analytics consent and event filtering, and the unchanged normal new-folder-structure workflow.
 
 ## Local Copyright Badge
 
@@ -361,7 +361,7 @@ The badge links only to the local `LICENSE.md` file. It does not load images, sc
 - Existing folder tree reading is limited to 1, 2, or 3 folder levels, selected by the user.
 - Folder archiving copies recursively, but it does not inspect file content or classify files inside the chosen folder.
 - Folder archiving intentionally stops at the documented safety limits; larger folders should be copied manually with File Explorer.
-- Safe rollback depends on browser support for recursive destination removal. If that support is unavailable, folder archiving does not start.
+- Safe rollback depends on browser support for destination removal. If that support is unavailable, file or folder archiving does not start.
 - Cross-tab archive locking uses the Web Locks API where the browser supports it; the same-page lock remains available as a fallback.
 - The advisor is rule-based and depends mostly on filename quality and folder-tree names.
 - The advisor does not read file content, perform OCR, or use AI.

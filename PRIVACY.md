@@ -56,7 +56,7 @@ If permission is denied, unavailable, or cancelled, the operation stops and disp
 
 Folder archiving applies preflight limits to avoid attempting unusually large browser-based copies. It stops before destination output is created when the selected folder exceeds the supported file count, scanned-entry count, total size, individual-file size, or folder-depth limits. In that case, the app recommends using the operating system's normal copy-and-paste tools.
 
-The app also prevents archiving a folder inside itself. If a recursive folder copy fails after it starts, the app attempts to remove the incomplete archive. It does not begin the copy when the browser cannot provide the removal capability required for safe rollback.
+The app also prevents archiving a folder inside itself, including when a retained existing-tree root would resolve the selected relative destination back into the source. If a file write or recursive folder copy fails after it starts, the app attempts to remove the incomplete archive. It does not begin the copy when the browser cannot provide the removal capability required for safe rollback.
 
 Only one archive operation is allowed at a time in the page. Where the browser supports Web Locks, the app also prevents simultaneous archive operations from other tabs on the same origin.
 

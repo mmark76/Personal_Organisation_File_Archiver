@@ -4,15 +4,15 @@ After every code change, modification, or repository update, all necessary check
 
 ## Automated Browser Tests
 
-Open `tests/archive-core-tests.html` in a modern browser. The current suite contains 23 focused in-memory tests covering the core archive behavior, including:
+Open `tests/archive-core-tests.html` in a modern browser. The current suite contains 25 focused in-memory tests covering the core archive behavior, including:
 
 - duplicate-safe file and folder naming;
 - existing-tree destination paths relative to the selected root;
 - explicit read/write permission handling and denial messages;
 - stale asynchronous folder-tree load protection;
 - oversized-folder safeguards;
-- rejection of destinations inside the source folder;
-- rollback of incomplete folder archives after a copy failure;
+- rejection of direct and retained-root destinations inside the source folder;
+- rollback of incomplete file and folder archives after a copy failure;
 - safe refusal when rollback support is unavailable;
 - prevention of simultaneous archive operations;
 - rejection of analytics before consent and filtering of analytics events after consent; and
@@ -36,6 +36,7 @@ These checks include, as applicable:
 - Confirming that an existing selected folder remains the actual archive root and is not duplicated in generated paths.
 - Confirming that oversized folders are stopped before destination creation and that the user receives clear manual copy guidance.
 - Confirming that a failed folder copy either rolls back completely or clearly reports any output that could not be removed.
+- Confirming that a failed file write is aborted and its incomplete output is removed or clearly reported.
 - Confirming that a second archive action cannot run while another archive operation is active.
 - Confirming that temporarily hidden or disabled interface elements remain hidden or disabled when required.
 - Confirming that rejecting analytics sends no GA4 request and that allowing analytics sends only approved non-sensitive events on the deployed production origin.
