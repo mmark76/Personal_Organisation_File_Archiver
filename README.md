@@ -67,6 +67,7 @@ assets/js/folder-archive.js
 
 assets/js/modals.js
 assets/js/feedback.js
+assets/js/analytics.js
 assets/js/privacy-notice.js
 assets/js/app-init.js
 assets/js/color-theme-picker.js
@@ -337,7 +338,7 @@ It does not upload imported files, chosen folders, or file data to a server. It 
 
 When reading an existing folder tree, it reads only folder names from the user-selected root folder up to the selected depth.
 
-The app may use local browser storage only for simple preferences, such as whether the privacy notice has been accepted.
+The deployed website offers optional Google Analytics usage measurement only after the user explicitly allows it. Rejecting analytics does not restrict the app. The fixed analytics events contain no file names, folder names, paths, file contents, imported metadata, destination names, feedback text, or email addresses. The choice is stored locally and can be changed from the footer.
 
 When folder creation, existing folder tree reading, file archiving, or folder archiving is used, the user must manually choose a folder and give permission through the browser.
 
@@ -345,13 +346,13 @@ As a general good practice, users should keep a separate backup of important fil
 
 ## Tests
 
-The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 21 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, and the unchanged normal new-folder-structure workflow.
+The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 23 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, optional analytics consent and event filtering, and the unchanged normal new-folder-structure workflow.
 
 ## Local Copyright Badge
 
 The footer displays a local SVG copyright badge stored at `assets/images/local-copyright-protected-badge.svg`.
 
-The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains.
+The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains. The separate optional Google Analytics tag is loaded only after explicit consent on the deployed production website.
 
 ## Known Limitations
 

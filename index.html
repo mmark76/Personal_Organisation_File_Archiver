@@ -369,6 +369,7 @@
       <div class="modal-content">
         <p>Organize Your PC is a personal memory-based file and folder organizing and archiving app.</p>
         <p>It does not delete, upload, rename, modify, or automatically move files or folders.</p>
+        <p>Optional Google Analytics usage statistics are loaded only after the user allows them. File names, folder names, paths, and file contents are never included in the app's analytics events.</p>
         <p>The app can archive a loaded file or chosen folder only after the user chooses a destination folder and gives browser permission.</p>
         <p>As a good practice, we recommend that you always keep a backup of your important files. Note that this app creates copies and does not delete original files or folders.</p>
         <p>All file and folder operations are performed at the user's own risk. To the fullest extent permitted by applicable law, the developer and contributors are not responsible for file loss, data loss, corruption, incomplete copies, or other damage resulting from use of the app.</p>
@@ -429,15 +430,16 @@
     </div>
   </div>
 
-  <section id="privacyNotice" class="privacy-notice" role="region" aria-label="Privacy notice" hidden>
+  <section id="privacyNotice" class="privacy-notice" role="region" aria-labelledby="analyticsConsentTitle" hidden>
     <div class="privacy-content">
-      <strong>Privacy notice</strong>
-      <p>This app runs locally in your browser. It does not upload, delete, rename, or automatically move your files or folders.</p>
+      <strong id="analyticsConsentTitle">Optional analytics</strong>
+      <p>With your permission, Google Analytics helps us understand visits and which app features are used. File names, folder names, paths, and file contents are never sent. The app works fully if you reject. <a href="PRIVACY.md">Privacy details</a></p>
+      <p id="analyticsConsentStatus" class="analytics-consent-status"></p>
     </div>
 
     <div class="privacy-actions">
-      <button type="button" id="acceptPrivacyNoticeButton" class="button">Accept</button>
-      <button type="button" id="hidePrivacyNoticeButton" class="button button-secondary">Later</button>
+      <button type="button" id="allowAnalyticsButton" class="button">Allow analytics</button>
+      <button type="button" id="rejectAnalyticsButton" class="button button-secondary">Reject analytics</button>
     </div>
   </section>
 
@@ -446,6 +448,7 @@
       © 2026 Markellos Markides. All rights reserved.
       <a href="LICENSE.md">License</a>
       <a href="PRIVACY.md">Privacy</a>
+      <button type="button" id="openAnalyticsPreferencesButton" class="footer-link-button">Analytics choices</button>
       <a class="copyrighted-badge" title="Copyright protected" href="LICENSE.md"><img alt="Copyright protected" width="125" height="25" src="assets/images/local-copyright-protected-badge.svg" /></a>
     </p>
   </footer>
@@ -474,6 +477,7 @@
 
   <script src="assets/js/modals.js" defer></script>
   <script src="assets/js/feedback.js" defer></script>
+  <script src="assets/js/analytics.js" defer></script>
   <script src="assets/js/privacy-notice.js" defer></script>
   <script src="assets/js/app-init.js" defer></script>
   <script src="assets/js/color-theme-picker.js" defer></script>

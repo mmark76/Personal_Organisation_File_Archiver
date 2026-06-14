@@ -87,12 +87,19 @@
     </select>
     <input id="folderNameInput" />
     <div id="examplesBox"></div>
+    <section id="privacyNotice" hidden>
+      <p id="analyticsConsentStatus"></p>
+      <button type="button" id="allowAnalyticsButton">Allow analytics</button>
+      <button type="button" id="rejectAnalyticsButton">Reject analytics</button>
+    </section>
   </div>
 
   <script src="../assets/js/app-state.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/error-messages.js"></script>
   <script src="../assets/js/browser-support.js"></script>
+  <script src="../assets/js/analytics.js"></script>
+  <script src="../assets/js/privacy-notice.js"></script>
   <script src="../assets/js/folder-tree-codes.js"></script>
   <script src="../assets/js/folder-tree.js"></script>
   <script src="../assets/js/folder-tree-render.js"></script>
@@ -276,6 +283,74 @@
         throw new Error(message);
       }
     }
+
+    test("Analytics remains disabled after rejection and never loads Google on local test pages", async () => {
+      const storageKey = "organizeYourPcAnalyticsConsent";
+      const previousConsent = localStorage.getItem(storageKey);
+
+      try {
+        localStorage.removeItem(storageKey);
+        window.dataLayer = [];
+        window.gtag = undefined;
+        window.AppAnalytics.initialize();
+        window.AppAnalytics.denyConsent();
+
+        const tracked = window.AppAnalytics.trackEvent("file_archive_completed");
+        assert(tracked === false, "Rejected analytics consent should block app events.");
+        assert(
+          !document.querySelector('script[data-optional-analytics="true"]'),
+          "The Google Analytics script should not load on a local test page."
+        );
+        assert(
+          !window.dataLayer.some(entry => entry[0] === "event"),
+          "No analytics event should be queued after rejection."
+        );
+      } finally {
+        if (previousConsent === null) localStorage.removeItem(storageKey);
+        else localStorage.setItem(storageKey, previousConsent);
+      }
+    });
+
+    test("Analytics consent records only approved non-sensitive events and can be changed", async () => {
+      const storageKey = "organizeYourPcAnalyticsConsent";
+      const previousConsent = localStorage.getItem(storageKey);
+
+      try {
+        localStorage.removeItem(storageKey);
+        window.dataLayer = [];
+        window.gtag = undefined;
+        window.AppPrivacyNotice.showNoticeIfNeeded();
+        assert(!document.getElementById("privacyNotice").hidden, "A new visitor should be shown the analytics choice.");
+
+        window.AppPrivacyNotice.allowAnalytics();
+        assert(window.AppAnalytics.getConsent() === "granted", "Allow should store granted analytics consent.");
+        assert(document.getElementById("privacyNotice").hidden, "The notice should close after a choice.");
+
+        const tracked = window.AppAnalytics.trackEvent("archive_failed", {
+          archive_type: "file",
+          file_name: "private-name.txt",
+          file_path: "C:/private/path"
+        });
+        const eventEntry = [...window.dataLayer].reverse().find(entry => entry[0] === "event");
+
+        assert(tracked === true, "An approved event should be queued after consent.");
+        assert(eventEntry?.[1] === "archive_failed", "The approved event name should be retained.");
+        assert(eventEntry?.[2]?.archive_type === "file", "The non-sensitive archive type should be retained.");
+        assert(!("file_name" in eventEntry[2]), "File names must never be included in analytics events.");
+        assert(!("file_path" in eventEntry[2]), "File paths must never be included in analytics events.");
+        assert(
+          window.AppAnalytics.trackEvent("unapproved_event", { file_name: "private-name.txt" }) === false,
+          "Events outside the fixed allowlist should be rejected."
+        );
+
+        window.AppPrivacyNotice.showNotice();
+        window.AppPrivacyNotice.rejectAnalytics();
+        assert(window.AppAnalytics.getConsent() === "denied", "Reject should replace a previous granted choice.");
+      } finally {
+        if (previousConsent === null) localStorage.removeItem(storageKey);
+        else localStorage.setItem(storageKey, previousConsent);
+      }
+    });
 
     function createDeferred() {
       let resolve;

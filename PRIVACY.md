@@ -68,7 +68,7 @@ These codes are generated locally from the visible folder tree order. They are v
 
 ## Local Browser Storage
 
-The app may use local browser storage for simple preferences, such as remembering whether the privacy notice has been accepted.
+The app may use local browser storage for simple preferences, including the user's optional analytics choice.
 
 This information stays in the user's browser unless the user clears browser data.
 
@@ -84,9 +84,24 @@ The footer displays a local SVG copyright badge stored inside the app files.
 
 The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains.
 
-## No Analytics or Advertising Tracking
+## Optional Analytics
 
-The app does not include analytics scripts, advertising trackers, or advertising features.
+The deployed website offers optional Google Analytics 4 usage measurement. The Google Analytics tag is not loaded unless the user explicitly chooses **Allow analytics**. Rejecting analytics does not restrict any app feature.
+
+When analytics is allowed, Google Analytics may receive standard website usage information such as page views, session and engagement information, browser or device information, and approximate geographic information. The app also sends only these fixed feature events:
+
+- opening Archive File mode;
+- opening Archive Folder mode;
+- successful file archiving;
+- successful folder archiving;
+- successful folder-tree creation; and
+- an archive failure, identified only as file or folder archiving.
+
+The app's analytics events do not include file names, folder names, paths, file contents, imported metadata, destination names, folder-tree labels, feedback text, or email addresses. Advertising storage, advertising user data, advertising personalization, Google Signals, and ad-personalization signals remain disabled by the app's Google tag configuration.
+
+The analytics choice can be changed at any time through **Analytics choices** in the footer. Google Analytics is not loaded on local `file://`, `localhost`, or `127.0.0.1` test pages.
+
+Google processes analytics information under the [Google Privacy Policy](https://policies.google.com/privacy).
 
 ## Backup Recommendation
 

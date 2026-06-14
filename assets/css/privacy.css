@@ -35,6 +35,11 @@
   line-height: 1.4;
 }
 
+.privacy-content .analytics-consent-status {
+  color: #374151;
+  font-size: 12px;
+}
+
 .privacy-actions {
   display: flex;
   flex-wrap: wrap;
@@ -45,4 +50,15 @@
   background: #f3f4f6;
   color: #111827;
   border-color: #d1d5db;
+}
+
+.footer-link-button {
+  margin-left: 10px;
+  padding: 0;
+  background: transparent;
+  color: #111827;
+  border: 0;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }

@@ -160,8 +160,9 @@ window.AppInit = (() => {
   }
 
   function bindPrivacyActions() {
-    qs("#acceptPrivacyNoticeButton")?.addEventListener("click", window.AppPrivacyNotice.acceptNotice);
-    qs("#hidePrivacyNoticeButton")?.addEventListener("click", window.AppPrivacyNotice.hideNotice);
+    qs("#allowAnalyticsButton")?.addEventListener("click", window.AppPrivacyNotice.allowAnalytics);
+    qs("#rejectAnalyticsButton")?.addEventListener("click", window.AppPrivacyNotice.rejectAnalytics);
+    qs("#openAnalyticsPreferencesButton")?.addEventListener("click", window.AppPrivacyNotice.showNotice);
   }
 
   function renderInitialModeState() {
@@ -220,6 +221,7 @@ window.AppInit = (() => {
     window.AppModals.bindModalEvents();
     window.AppAccessibility.bindKeyboardHandlers();
     renderInitialModeState();
+    window.AppAnalytics.initialize();
     window.AppPrivacyNotice.showNoticeIfNeeded();
   }
 

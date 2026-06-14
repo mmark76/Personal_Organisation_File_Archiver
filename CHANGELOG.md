@@ -17,8 +17,10 @@
 
 ### User Experience and Documentation
 
+- Added optional, explicit Google Analytics consent with a persistent reject option and footer control for changing the choice.
+- Restricted analytics to a fixed set of non-sensitive usage events and prevented the Google tag from loading on local test pages or before consent.
 - Added clear messages for permission, cancellation, oversized folders, blocked operations, rollback, and successful archives.
 - Added a discreet backup recommendation to the main page and Disclaimer while clarifying that the app copies files and does not delete originals.
 - Moved the Settings control into the initial HTML so the main-page control is available without being created dynamically.
-- Expanded the in-browser core suite to 21 focused tests.
+- Expanded the in-browser core suite to 23 focused tests.
 - Updated the README, privacy notice, testing guidance, project philosophy, metadata, web manifest, and sitemap to describe the current behavior.
