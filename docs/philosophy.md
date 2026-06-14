@@ -78,11 +78,12 @@ The word **Archiver** is important.
 
 The current app is not an automatic classifier, background file manager, or AI document sorter. It is a user-controlled local browser app that helps me build a memory-based folder tree and copy files manually into folders I choose.
 
-The current visible app has three main choices:
+The current visible app has four main choices:
 
 1. **Build New Folder Tree** — build and review the fixed memory-based folder structure and optionally create it locally on the computer. The copy, export, import, and official template download buttons for this mode exist in the codebase but are temporarily disabled and hidden in the visible app interface.
-2. **Build Existing Folder Tree on this PC** — choose a local folder and read folder names up to the selected depth as a working folder tree.
+2. **View Existing Folder Tree on this PC** — choose a local folder and read folder names up to the selected depth as a working folder tree.
 3. **Archive File** — load or import a folder tree, load one file, review basic file information, receive a simple offline folder suggestion, and manually choose a destination folder for copying.
+4. **Archive Folder** — choose a source folder, select a destination from the current tree, and create a recursive copy after permission and safety checks.
 
 The app does not replace my judgement. It supports it.
 
@@ -302,11 +303,11 @@ This preserves the memory logic of the system.
 
 The folder tree is not only a storage structure. It is a retrieval map.
 
-## 11. Current File Archiving Workflow
+## 11. Current Archiving Workflows
 
-The current app supports manual copy archiving.
+The current app supports user-controlled copy archiving for individual files and folders.
 
-The workflow is:
+### 11.1 Archive a File
 
 1. Load or import the folder tree.
 2. Load one file through the browser file input.
@@ -316,11 +317,25 @@ The workflow is:
 6. Optionally click **Use suggested destination** to select the suggested folder.
 7. Confirm or manually choose the final destination folder from the folder tree.
 8. Click **Archive the File**.
-9. Choose the app root folder or its parent folder through the browser folder picker.
-10. Give browser permission.
-11. Let the app write a copy of the file into that selected folder.
+9. For a normal new-structure or default-template workflow, choose the destination through the browser folder picker and grant read/write permission.
+10. For an existing-tree workflow, reuse the selected existing root as the actual write destination.
+11. Let the app write a duplicate-safe copy into the selected relative folder path.
 
 The app can suggest a destination, but it does not archive anything automatically. The final decision remains mine.
+
+### 11.2 Archive a Folder
+
+1. Load or import the destination folder tree.
+2. Choose one source folder through the browser picker.
+3. Let the app inspect the folder against its browser-copy safety limits.
+4. Select the final destination folder from the tree.
+5. Click **Archive the Folder**.
+6. Grant read/write permission when requested.
+7. Let the app create a recursive, duplicate-safe copy.
+
+The app rejects destinations inside the source folder. If the source is unusually large, it stops before creating output and recommends manual copy and paste through the operating system. If recursive copying fails after it starts, the app attempts to remove the incomplete archive and reports the result clearly.
+
+Only one archive operation can run at a time. Where supported, a browser Web Lock also prevents another tab on the same origin from starting a simultaneous archive.
 
 The decisive question remains:
 
@@ -362,6 +377,8 @@ The current version does **not** yet include:
 - cloud sync;
 - user accounts.
 
+Browser-based folder archiving is intentionally limited. The current preflight limits are 2,000 files, 5,000 scanned entries, 1 GB total size, 500 MB for one file, and 20 folder levels. Larger transfers are better handled with the operating system's normal file-copy tools.
+
 This distinction matters because the present philosophy must describe the actual working app, not a future imagined version.
 
 ## 13. One File, One Canonical Destination
@@ -385,19 +402,25 @@ The app is local and browser-based.
 It does not:
 
 - Upload files
-- Delete files
-- Move files automatically
-- Rename files
-- Modify documents
+- Delete original files or folders
+- Move original files or folders automatically
+- Rename original files or folders
+- Modify original documents
 - Read the user's file system automatically
 - Monitor folders in the background
 - Replace the user's final decision
 
-A file is used only when the user imports it through the file input.
+A file or folder is accessed only after the user selects it through a browser picker.
 
 Copy archiving can copy the currently imported file only after the user explicitly clicks the archive action, chooses a destination folder, and grants browser permission.
 
+Folder archiving can recursively read and copy a selected folder only after the user explicitly chooses the source, selects the destination, and grants browser permission. The original source is not deleted or moved.
+
 Folder creation is optional and controlled by the user. If direct folder creation is used, the user must choose a destination folder and give browser permission.
+
+Existing-tree archive paths are written relative to the selected existing root. The root is retained as the actual destination, without adding or duplicating an `Organize Your PC` wrapper.
+
+The app requests read/write permission before writes, prevents unsafe source-inside-destination recursion, limits unusually large folder copies, and attempts rollback if a folder copy fails after starting. As a good practice, users should still keep a backup of important files.
 
 The simple offline advisor runs locally in the browser. It uses only basic browser-available file information and the current folder tree. It does not read file content, use OCR, call cloud AI, or send file data to a server.
 
@@ -477,7 +500,13 @@ The current app already includes:
 - built-in keyword and folder-tree matching;
 - simple confidence labels and reasons for suggestions;
 - one-file manual copy archiving;
+- recursive folder copy archiving with preflight size and depth limits;
 - duplicate-safe copy naming;
+- explicit read/write permission checks;
+- existing-root relative destination handling;
+- rollback attempts for incomplete folder copies;
+- prevention of simultaneous archive operations;
+- a focused in-memory browser test suite;
 - privacy notice preference stored locally.
 
 The objective is not only to store files efficiently, but also to retrieve information quickly and naturally.

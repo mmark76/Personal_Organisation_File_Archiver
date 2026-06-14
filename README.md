@@ -13,6 +13,18 @@ The current app has four main choices:
 
 The app does not delete, upload, rename, modify, automatically scan, or automatically move files or folders. Archive actions leave the original file or source folder untouched.
 
+As a good practice, users are encouraged to keep a backup of important files. The app displays this recommendation in a small panel on the main screen and explains in the Disclaimer that archive actions create copies without deleting the originals.
+
+Recent safety improvements include:
+
+- explicit read/write permission checks before filesystem writes;
+- use of the selected existing folder-tree root as the actual archive destination, without creating a duplicate `Organize Your PC` wrapper;
+- prevention of simultaneous file or folder archive operations in the same page and, where supported, across browser tabs;
+- preflight limits that stop unusually large folder archives before any destination output is created;
+- rejection of folder destinations that cannot be verified as safely outside the source folder;
+- an automatic rollback attempt that removes an incomplete folder archive if recursive copying fails;
+- clear user-facing messages for permission denial, cancellation, blocked concurrent operations, oversized folders, rollback, and success.
+
 ## Current App Structure
 
 ```text
@@ -49,6 +61,7 @@ assets/js/folder-creation.js
 
 assets/js/file-advisor.js
 assets/js/file-import.js
+assets/js/archive-operation.js
 assets/js/file-archive.js
 assets/js/folder-archive.js
 
@@ -61,6 +74,8 @@ assets/js/color-theme-picker.js
 assets/images/organize-your-pc-logo.svg
 assets/images/organize-your-pc-social-preview.png
 assets/images/local-copyright-protected-badge.svg
+
+tests/archive-core-tests.html
 ```
 
 The visible app interface is English-only.
@@ -167,7 +182,9 @@ Archive File Mode lets the user:
 - select the folder where the loaded file should be archived;
 - archive the loaded file to the selected folder-tree destination.
 
-The archive action uses the browser directory picker. The user selects a folder from the app's folder tree first, then chooses the `Organize Your PC Root Folder` or its parent folder when the browser asks for folder access. The app creates or reuses the corresponding subfolder path and archives the loaded file into that destination.
+The archive action uses the browser directory picker with read/write permission. The user selects a folder from the app's folder tree first, then chooses the `Organize Your PC` folder or its parent folder when the browser asks for folder access. The app verifies permission before creating the corresponding subfolder path and copying the loaded file into that destination.
+
+When the archive tree was loaded from an existing folder on this PC, that selected root folder is retained as the real destination. Archive paths are treated as relative to that root, so the app does not add another `Organize Your PC` wrapper or repeat the selected root name.
 
 If a file with the same name already exists in the selected destination folder, the app creates a safe archive name such as:
 
@@ -177,6 +194,8 @@ filename_copy_2.ext
 ```
 
 The existing file is not overwritten.
+
+Only one archive operation may run at a time. A second file or folder archive request is stopped with a clear message until the active operation finishes.
 
 ## Archive Folder Mode
 
@@ -190,6 +209,18 @@ Archive Folder Mode lets the user:
 - archive a recursive copy of the chosen folder and its contents to that destination.
 
 The folder archive action copies the selected folder. It does not delete, move, rename, upload, or modify the original folder.
+
+Before writing anything, the app scans the selected source folder and stops if it exceeds any current safety limit:
+
+- more than 2,000 files;
+- more than 5,000 combined scanned files and folders;
+- more than 1 GB total file size;
+- any individual file larger than 500 MB;
+- folder nesting deeper than 20 levels.
+
+When a folder exceeds a limit, the app creates no destination output and recommends using File Explorer copy and paste instead.
+
+The app also verifies that the destination is outside the source folder. If that relationship cannot be verified safely, folder archiving does not start. Before recursive copying begins, the app checks that the browser can remove an incomplete destination. If copying then fails partway through, the app attempts to remove the entire incomplete archived folder and reports the result clearly to the user.
 
 If a folder with the same name already exists in the selected destination folder, the app creates a safe archive folder name such as:
 
@@ -257,7 +288,7 @@ Folder creation works only when all of the following are true:
 3. The user chooses a root folder.
 4. The user grants browser permission.
 
-The app creates an application root folder named `Organize Your PC Root Folder` and then creates the visible folder tree below it. It does not inspect, delete, move, rename, or modify existing files.
+The app creates an application root folder named `Organize Your PC` and then creates the visible folder tree below it. It does not inspect, delete, move, rename, or modify existing files.
 
 ## Existing Folder Tree Reading
 
@@ -280,9 +311,13 @@ Archiving works only when all of the following are true:
 3. A destination folder has been selected from the archive folder tree preview.
 4. The browser supports direct folder access.
 5. The user clicks **Archive the File** or **Archive the Folder**.
-6. The user chooses the app root folder or its parent folder and grants browser permission.
+6. The app either uses the retained existing-tree root or asks the user to choose the `Organize Your PC` folder or its parent folder, with read/write permission.
 
 The archive action sends the file or recursive folder copy to the selected folder-tree destination. It does not delete, move, rename, upload, or modify the original file or source folder.
+
+Read/write permission is queried and, where supported, requested explicitly before writes. Permission denial or cancellation stops the operation before archive output is created. Archive buttons are temporarily disabled while an operation is active, and a shared lock prevents another archive operation from starting at the same time.
+
+For an archive tree loaded from an existing local root, the selected handle remains the destination root and all generated paths are relative to it. For the normal new-structure or default-template workflow, the existing `Organize Your PC` application-root behavior remains unchanged.
 
 ## One File, One Canonical Destination
 
@@ -306,6 +341,12 @@ The app may use local browser storage only for simple preferences, such as wheth
 
 When folder creation, existing folder tree reading, file archiving, or folder archiving is used, the user must manually choose a folder and give permission through the browser.
 
+As a general good practice, users should keep a separate backup of important files and data. The app creates archive copies and does not delete original files or folders.
+
+## Tests
+
+The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 21 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, and the unchanged normal new-folder-structure workflow.
+
 ## Local Copyright Badge
 
 The footer displays a local SVG copyright badge stored at `assets/images/local-copyright-protected-badge.svg`.
@@ -318,6 +359,9 @@ The badge links only to the local `LICENSE.md` file. It does not load images, sc
 - In Build New Folder Tree Mode, the copy, import, export, and official template download buttons are temporarily disabled and hidden in the visible app interface.
 - Existing folder tree reading is limited to 1, 2, or 3 folder levels, selected by the user.
 - Folder archiving copies recursively, but it does not inspect file content or classify files inside the chosen folder.
+- Folder archiving intentionally stops at the documented safety limits; larger folders should be copied manually with File Explorer.
+- Safe rollback depends on browser support for recursive destination removal. If that support is unavailable, folder archiving does not start.
+- Cross-tab archive locking uses the Web Locks API where the browser supports it; the same-page lock remains available as a fallback.
 - The advisor is rule-based and depends mostly on filename quality and folder-tree names.
 - The advisor does not read file content, perform OCR, or use AI.
 - The current version does not deeply parse PDF, DOCX, XLSX, PPTX, scanned documents, images, or other rich document formats.
