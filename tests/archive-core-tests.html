@@ -130,6 +130,9 @@
             }
 
             handle.content = content;
+          },
+          async abort() {
+            chunks.length = 0;
           }
         };
       }
@@ -217,6 +220,26 @@
         const file = new FakeFileHandle(name);
         this.files.set(name, file);
         return file;
+      }
+
+      async removeEntry(name, options = {}) {
+        if (this.files.has(name)) {
+          this.events.push({ type: "remove-file", name, handle: this.name });
+          this.files.delete(name);
+          return;
+        }
+
+        const directory = this.directories.get(name);
+        if (!directory) {
+          throw new DOMException("Entry not found", "NotFoundError");
+        }
+
+        if (!options.recursive && (directory.files.size > 0 || directory.directories.size > 0)) {
+          throw new DOMException("Directory is not empty", "InvalidModificationError");
+        }
+
+        this.events.push({ type: "remove-directory", name, handle: this.name, recursive: Boolean(options.recursive) });
+        this.directories.delete(name);
       }
 
       async *entries() {
@@ -879,6 +902,91 @@
       assert(
         !source.events.some(event => event.type === "create-directory" || event.type === "create-file"),
         "Containment rejection should not create files or folders."
+      );
+    });
+
+    test("A mid-copy folder failure removes the incomplete archive completely", async () => {
+      resetFolderArchiveMode();
+      window.AppState.setTree(createTestTree());
+      window.FolderTree.selectArchiveFolder("cvs");
+
+      const destinationRoot = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+      window.AppState.state.appRootHandle = destinationRoot;
+      window.AppState.state.appRootTree = window.AppState.state.tree;
+
+      const source = new FakeDirectoryHandle("Rollback Source");
+      for (const name of ["first.txt", "second.txt", "third.txt"]) {
+        const file = await source.getFileHandle(name, { create: true });
+        file.content = name;
+      }
+      window.AppState.setLoadedFolder(source);
+
+      const originalCreateWritable = FakeFileHandle.prototype.createWritable;
+      let writeCount = 0;
+      FakeFileHandle.prototype.createWritable = async function() {
+        const writable = await originalCreateWritable.call(this);
+        const originalWrite = writable.write.bind(writable);
+        writable.write = async chunk => {
+          writeCount += 1;
+          if (writeCount === 2) throw new DOMException("Injected write failure", "QuotaExceededError");
+          return originalWrite(chunk);
+        };
+        return writable;
+      };
+
+      try {
+        await window.FolderArchive.archiveLoadedFolder();
+      } finally {
+        FakeFileHandle.prototype.createWritable = originalCreateWritable;
+      }
+
+      const destination = await getDirectoryByPath(destinationRoot, "01_PROFILE/CVS");
+      assert(
+        !destination.directories.has("Rollback Source"),
+        "The incomplete archived folder should be removed after a write failure."
+      );
+      assert(
+        document.getElementById("folderArchiveResultBox").textContent ===
+          "Folder archiving failed and was cancelled completely. The incomplete archived folder was removed, so no copied files or folders remain.",
+        "The user should be told that the failed archive was fully cancelled and removed."
+      );
+      assert(
+        destinationRoot.events.some(event => event.type === "remove-directory" && event.name === "Rollback Source"),
+        "The rollback should recursively remove the archive target."
+      );
+    });
+
+    test("Folder archiving does not start when safe rollback is unavailable", async () => {
+      resetFolderArchiveMode();
+      window.AppState.setTree(createTestTree());
+      window.FolderTree.selectArchiveFolder("cvs");
+
+      const destinationRoot = new FakeDirectoryHandle(window.FolderCreation.appRootFolderName);
+      const destination = await window.FolderCreation.createDirectoryPath(destinationRoot, "01_PROFILE/CVS");
+      destination.removeEntry = undefined;
+      destinationRoot.events.length = 0;
+      window.AppState.state.appRootHandle = destinationRoot;
+      window.AppState.state.appRootTree = window.AppState.state.tree;
+
+      const source = new FakeDirectoryHandle("Unsupported Rollback Source");
+      const file = await source.getFileHandle("note.txt", { create: true });
+      file.content = "not copied";
+      window.AppState.setLoadedFolder(source);
+
+      await window.FolderArchive.archiveLoadedFolder();
+
+      assert(
+        !destination.directories.has("Unsupported Rollback Source"),
+        "No archive folder should be created when rollback is unavailable."
+      );
+      assert(
+        document.getElementById("folderArchiveResultBox").textContent ===
+          "This browser cannot safely remove an incomplete folder archive. The archive was not started. Please copy the folder manually using File Explorer.",
+        "The user should receive a clear safe fallback message."
+      );
+      assert(
+        !destinationRoot.events.some(event => event.type === "create-file"),
+        "No file should be written when rollback support is unavailable."
       );
     });
 

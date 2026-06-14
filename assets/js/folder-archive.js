@@ -4,6 +4,8 @@ window.FolderArchive = (() => {
   const resultSelector = "#folderArchiveResultBox";
   const destinationInsideSourceMessage = "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.";
   const destinationRelationshipUnknownMessage = "The app could not safely verify that the destination is outside the source folder. No files or folders were created. Please choose a different destination or copy the folder manually using File Explorer.";
+  const rollbackUnsupportedMessage = "This browser cannot safely remove an incomplete folder archive. The archive was not started. Please copy the folder manually using File Explorer.";
+  const archiveRolledBackMessage = "Folder archiving failed and was cancelled completely. The incomplete archived folder was removed, so no copied files or folders remain.";
   const archiveLimits = Object.freeze({
     maxFiles: 2000,
     maxTotalBytes: 1024 * 1024 * 1024,
@@ -165,8 +167,15 @@ window.FolderArchive = (() => {
 
     try {
       await writable.write(file);
-    } finally {
       await writable.close();
+    } catch (error) {
+      try {
+        await writable.abort?.(error);
+      } catch (abortError) {
+        // Preserve the original write or close error.
+      }
+
+      throw error;
     }
 
     stats.files += 1;
@@ -186,6 +195,17 @@ window.FolderArchive = (() => {
         stats.folders += 1;
         await copyDirectoryContents(handle, childTargetHandle, stats);
       }
+    }
+  }
+
+  async function rollbackArchiveTarget(archiveTarget) {
+    if (!archiveTarget) return true;
+
+    try {
+      await archiveTarget.parentHandle.removeEntry(archiveTarget.name, { recursive: true });
+      return !(await handleExists(archiveTarget.parentHandle, archiveTarget.name, "directory"));
+    } catch (error) {
+      return false;
     }
   }
 
@@ -242,6 +262,7 @@ window.FolderArchive = (() => {
     }
 
     let destinationReady = false;
+    let archiveTarget = null;
 
     try {
       setResult("Checking folder size before archiving. No files or folders have been created yet.");
@@ -260,8 +281,18 @@ window.FolderArchive = (() => {
       destinationReady = true;
 
       const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
+      if (typeof destinationHandle.removeEntry !== "function") {
+        setResult(rollbackUnsupportedMessage);
+        return;
+      }
+
       const safeFolderName = await getAvailableDirectoryName(destinationHandle, folderHandle.name);
       const targetFolderHandle = await destinationHandle.getDirectoryHandle(safeFolderName, { create: true });
+      archiveTarget = {
+        parentHandle: destinationHandle,
+        name: safeFolderName,
+        displayPath: [destination.displayPath, safeFolderName].filter(Boolean).join("/")
+      };
       const stats = { files: 0, folders: 1, bytes: 0 };
 
       await copyDirectoryContents(folderHandle, targetFolderHandle, stats);
@@ -270,6 +301,15 @@ window.FolderArchive = (() => {
         `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
       );
     } catch (error) {
+      if (archiveTarget) {
+        if (await rollbackArchiveTarget(archiveTarget)) {
+          setResult(archiveRolledBackMessage);
+        } else {
+          setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before trying again.`);
+        }
+        return;
+      }
+
       if (error?.code === "DESTINATION_INSIDE_SOURCE" || error?.code === "DESTINATION_RELATIONSHIP_UNVERIFIED") {
         setResult(error.message);
         return;
