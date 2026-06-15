@@ -117,7 +117,7 @@ window.FileArchive = (() => {
           resultSelector,
           `${window.AppMessages.archiveComplete} Saved to: ${[destination.displayPath, safeName].filter(Boolean).join("/")}`
         );
-        window.AppAnalytics?.trackEvent("file_archive_completed");
+        window.AppAnalytics?.trackEvent("archive_completed", { archive_type: "file" });
       } catch (error) {
         if (archiveTarget) {
           window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "file" });
@@ -126,7 +126,7 @@ window.FileArchive = (() => {
           } else {
             window.AppUtils.setText(
               resultSelector,
-              `File archiving failed, and the incomplete archived file could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before trying again.`
+              `File archiving failed, and the incomplete archived file could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before retrying.`
             );
           }
           return;
@@ -139,6 +139,7 @@ window.FileArchive = (() => {
         }
 
         if (error && error.name === "AbortError") {
+          window.AppAnalytics?.trackEvent("archive_cancelled", { archive_type: "file" });
           window.AppUtils.setText(
             resultSelector,
             destinationReady
@@ -149,6 +150,7 @@ window.FileArchive = (() => {
         }
 
         if (window.FolderCreation.isPermissionDeniedError(error)) {
+          window.AppAnalytics?.trackEvent("archive_permission_denied", { archive_type: "file" });
           window.AppUtils.setText(resultSelector, window.FolderCreation.permissionDeniedMessage);
           return;
         }
