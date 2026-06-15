@@ -3,7 +3,7 @@
 window.FolderArchive = (() => {
   const resultSelector = "#folderArchiveResultBox";
   const destinationInsideSourceMessage = "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.";
-  const destinationRelationshipUnknownMessage = "The app could not safely verify that the destination is outside the source folder. No files or folders were created. Please choose a different destination or copy the folder manually using File Explorer.";
+  const destinationRelationshipUnknownMessage = "The app could not safely verify that the destination is outside the source folder. No files or folders were created. Please choose a different destination.";
   const rollbackUnsupportedMessage = "This browser cannot safely remove an incomplete folder archive. The archive was not started. Please copy the folder manually using File Explorer.";
   const archiveRolledBackMessage = "Folder archiving failed and was cancelled completely. The incomplete archived folder was removed, so no copied files or folders remain.";
   const archiveLimits = Object.freeze({
@@ -344,14 +344,14 @@ window.FolderArchive = (() => {
         setResult(
           `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
         );
-        window.AppAnalytics?.trackEvent("folder_archive_completed");
+        window.AppAnalytics?.trackEvent("archive_completed", { archive_type: "folder" });
       } catch (error) {
         if (archiveTarget) {
           window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
           if (await rollbackArchiveTarget(archiveTarget)) {
             setResult(archiveRolledBackMessage);
           } else {
-            setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before trying again.`);
+            setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before retrying.`);
           }
           return;
         }
@@ -362,11 +362,13 @@ window.FolderArchive = (() => {
         }
 
         if (window.FolderCreation.isStaleAfterWriteError(error)) {
+          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
           setResult(window.FolderCreation.staleAfterWriteMessage);
           return;
         }
 
         if (error && error.name === "AbortError") {
+          window.AppAnalytics?.trackEvent("archive_cancelled", { archive_type: "folder" });
           setResult(
             destinationReady
               ? window.AppMessages.archiveCancelled
@@ -376,6 +378,7 @@ window.FolderArchive = (() => {
         }
 
         if (window.FolderCreation.isPermissionDeniedError(error)) {
+          window.AppAnalytics?.trackEvent("archive_permission_denied", { archive_type: "folder" });
           setResult(window.FolderCreation.permissionDeniedMessage);
           return;
         }
