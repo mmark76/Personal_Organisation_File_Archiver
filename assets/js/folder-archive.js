@@ -64,6 +64,41 @@ window.FolderArchive = (() => {
     }
   }
 
+  async function requirePlannedDestinationOutsideSource(sourceDirectoryHandle, rootDirectoryHandle, relativePath) {
+    if (!rootDirectoryHandle || typeof rootDirectoryHandle.resolve !== "function") {
+      throw createDestinationRelationshipError(
+        "DESTINATION_RELATIONSHIP_UNVERIFIED",
+        destinationRelationshipUnknownMessage
+      );
+    }
+
+    let sourcePath;
+    try {
+      sourcePath = await rootDirectoryHandle.resolve(sourceDirectoryHandle);
+    } catch (error) {
+      throw createDestinationRelationshipError(
+        "DESTINATION_RELATIONSHIP_UNVERIFIED",
+        destinationRelationshipUnknownMessage
+      );
+    }
+
+    if (!Array.isArray(sourcePath)) return;
+
+    const destinationPath = String(relativePath || "")
+      .split("/")
+      .filter(Boolean);
+    const destinationIsSourceOrDescendant =
+      destinationPath.length >= sourcePath.length &&
+      sourcePath.every((part, index) => destinationPath[index] === part);
+
+    if (destinationIsSourceOrDescendant) {
+      throw createDestinationRelationshipError(
+        "DESTINATION_INSIDE_SOURCE",
+        destinationInsideSourceMessage
+      );
+    }
+  }
+
   function splitFileName(filename) {
     const dotIndex = filename.lastIndexOf(".");
     if (dotIndex <= 0) return { base: filename, extension: "" };
@@ -283,6 +318,12 @@ window.FolderArchive = (() => {
         );
         destinationReady = true;
 
+        await requirePlannedDestinationOutsideSource(
+          folderHandle,
+          appRootHandle,
+          destination.relativePath
+        );
+
         const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
         if (typeof destinationHandle.removeEntry !== "function") {
           setResult(rollbackUnsupportedMessage);
@@ -303,8 +344,10 @@ window.FolderArchive = (() => {
         setResult(
           `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
         );
+        window.AppAnalytics?.trackEvent("folder_archive_completed");
       } catch (error) {
         if (archiveTarget) {
+          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
           if (await rollbackArchiveTarget(archiveTarget)) {
             setResult(archiveRolledBackMessage);
           } else {
@@ -337,6 +380,7 @@ window.FolderArchive = (() => {
           return;
         }
 
+        window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
         setResult(window.AppMessages.folderArchiveFailed);
       }
     }, window.AppMessages.folderArchiveFailed);
