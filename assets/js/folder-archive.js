@@ -3,7 +3,7 @@
 window.FolderArchive = (() => {
   const resultSelector = "#folderArchiveResultBox";
   const destinationInsideSourceMessage = "Archive destination cannot be inside the source folder. Please choose a destination outside the folder you are archiving.";
-  const destinationRelationshipUnknownMessage = "The app could not safely verify that the destination is outside the source folder. No files or folders were created. Please choose a different destination.";
+  const destinationRelationshipUnknownMessage = "The app could not safely verify that the destination is outside the source folder. No files or folders were created. Please choose a different destination or copy the folder manually using File Explorer.";
   const rollbackUnsupportedMessage = "This browser cannot safely remove an incomplete folder archive. The archive was not started. Please copy the folder manually using File Explorer.";
   const archiveRolledBackMessage = "Folder archiving failed and was cancelled completely. The incomplete archived folder was removed, so no copied files or folders remain.";
   const archiveLimits = Object.freeze({
@@ -57,41 +57,6 @@ window.FolderArchive = (() => {
     }
 
     if (Array.isArray(relativePath)) {
-      throw createDestinationRelationshipError(
-        "DESTINATION_INSIDE_SOURCE",
-        destinationInsideSourceMessage
-      );
-    }
-  }
-
-  async function requirePlannedDestinationOutsideSource(sourceDirectoryHandle, rootDirectoryHandle, relativePath) {
-    if (!rootDirectoryHandle || typeof rootDirectoryHandle.resolve !== "function") {
-      throw createDestinationRelationshipError(
-        "DESTINATION_RELATIONSHIP_UNVERIFIED",
-        destinationRelationshipUnknownMessage
-      );
-    }
-
-    let sourcePath;
-    try {
-      sourcePath = await rootDirectoryHandle.resolve(sourceDirectoryHandle);
-    } catch (error) {
-      throw createDestinationRelationshipError(
-        "DESTINATION_RELATIONSHIP_UNVERIFIED",
-        destinationRelationshipUnknownMessage
-      );
-    }
-
-    if (!Array.isArray(sourcePath)) return;
-
-    const destinationPath = String(relativePath || "")
-      .split("/")
-      .filter(Boolean);
-    const destinationIsSourceOrDescendant =
-      destinationPath.length >= sourcePath.length &&
-      sourcePath.every((part, index) => destinationPath[index] === part);
-
-    if (destinationIsSourceOrDescendant) {
       throw createDestinationRelationshipError(
         "DESTINATION_INSIDE_SOURCE",
         destinationInsideSourceMessage
@@ -318,12 +283,6 @@ window.FolderArchive = (() => {
         );
         destinationReady = true;
 
-        await requirePlannedDestinationOutsideSource(
-          folderHandle,
-          appRootHandle,
-          destination.relativePath
-        );
-
         const destinationHandle = await window.FolderCreation.createDirectoryPath(appRootHandle, destination.relativePath);
         if (typeof destinationHandle.removeEntry !== "function") {
           setResult(rollbackUnsupportedMessage);
@@ -344,14 +303,12 @@ window.FolderArchive = (() => {
         setResult(
           `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
         );
-        window.AppAnalytics?.trackEvent("archive_completed", { archive_type: "folder" });
       } catch (error) {
         if (archiveTarget) {
-          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
           if (await rollbackArchiveTarget(archiveTarget)) {
             setResult(archiveRolledBackMessage);
           } else {
-            setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before retrying.`);
+            setResult(`Folder archiving failed, and the incomplete archived folder could not be removed automatically. Partial output may remain at: ${archiveTarget.displayPath}. Please remove it manually before trying again.`);
           }
           return;
         }
@@ -362,13 +319,11 @@ window.FolderArchive = (() => {
         }
 
         if (window.FolderCreation.isStaleAfterWriteError(error)) {
-          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
           setResult(window.FolderCreation.staleAfterWriteMessage);
           return;
         }
 
         if (error && error.name === "AbortError") {
-          window.AppAnalytics?.trackEvent("archive_cancelled", { archive_type: "folder" });
           setResult(
             destinationReady
               ? window.AppMessages.archiveCancelled
@@ -378,12 +333,10 @@ window.FolderArchive = (() => {
         }
 
         if (window.FolderCreation.isPermissionDeniedError(error)) {
-          window.AppAnalytics?.trackEvent("archive_permission_denied", { archive_type: "folder" });
           setResult(window.FolderCreation.permissionDeniedMessage);
           return;
         }
 
-        window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
         setResult(window.AppMessages.folderArchiveFailed);
       }
     }, window.AppMessages.folderArchiveFailed);
