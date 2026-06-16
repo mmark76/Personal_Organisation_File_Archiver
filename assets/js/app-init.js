@@ -33,6 +33,13 @@ window.AppInit = (() => {
     });
   }
 
+  function hideEverythingSearchUi() {
+    qsa(".companion-tip-panel, #everythingSearchPanel").forEach(element => {
+      element.hidden = true;
+      element.setAttribute("aria-hidden", "true");
+    });
+  }
+
   function bindFolderTreeActions() {
     qs("#loadExampleTreeButton")?.addEventListener("click", window.FolderTree.loadExampleTree);
     qs("#createFoldersButton")?.addEventListener("click", window.FolderCreation.createFoldersOnComputer);
@@ -206,6 +213,7 @@ window.AppInit = (() => {
 
   function initialize() {
     removeHiddenBuildModeUtilities();
+    hideEverythingSearchUi();
     bindHeaderActions();
     bindNavigationActions();
     bindFolderTreeActions();
@@ -213,7 +221,6 @@ window.AppInit = (() => {
     bindFolderArchiveActions();
     bindFeedbackActions();
     bindPrivacyActions();
-    window.EverythingSearch?.initialize?.();
 
     applyTemporaryMainChoiceLabels();
     renderHowItWorksDefaultFolderTreePreview();
