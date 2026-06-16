@@ -29,11 +29,13 @@ internal sealed class EverythingSdkBackend : IEverythingSearchBackend
 
     private sealed class EverythingSdkApi
     {
+        [UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         private delegate void SetSearchDelegate(string search);
         private delegate void SetMatchBoolDelegate(bool value);
         private delegate void SetMaxDelegate(uint max);
         private delegate bool QueryDelegate(bool wait);
         private delegate uint GetNumResultsDelegate();
+        [UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         private delegate uint GetResultFullPathNameDelegate(uint index, StringBuilder builder, uint size);
         private delegate bool IsFolderResultDelegate(uint index);
 
