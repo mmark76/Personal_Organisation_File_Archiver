@@ -4,7 +4,7 @@ After every code change, modification, or repository update, all necessary check
 
 ## Automated Browser Tests
 
-Open `tests/archive-core-tests.html` in a modern browser. The current suite contains 25 focused in-memory tests covering the core archive behavior, including:
+Open `tests/archive-core-tests.html` in a modern browser. The current suite contains 27 focused in-memory tests covering the core archive behavior, including:
 
 - duplicate-safe file and folder naming;
 - existing-tree destination paths relative to the selected root;
@@ -15,7 +15,8 @@ Open `tests/archive-core-tests.html` in a modern browser. The current suite cont
 - rollback of incomplete file and folder archives after a copy failure;
 - safe refusal when rollback support is unavailable;
 - prevention of simultaneous archive operations;
-- rejection of analytics before consent and filtering of analytics events after consent; and
+- rejection of analytics before consent and filtering of analytics events after consent;
+- the optional Everything companion panel, its localhost request handling, and its local-only error states; and
 - preservation of the normal new-folder-structure workflow.
 
 All tests must pass before a related change is considered complete.
@@ -29,6 +30,7 @@ Run the applicable JavaScript syntax checks and `git diff --check`. Review the c
 These checks include, as applicable:
 
 - Opening the app in Chrome or Edge through a local or deployed web origin when the File System Access API is involved.
+- Opening the optional Everything companion panel in Chrome or Edge and confirming that it talks only to the local loopback service.
 - Verifying the affected screen or workflow.
 - Checking that the existing main workflows still behave correctly.
 - Confirming that no unintended upload, deletion, automatic move, or file modification behavior has been introduced.

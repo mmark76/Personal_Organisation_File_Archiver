@@ -93,6 +93,51 @@
         <span>This app is for personal use only. As a good practice, we recommend that you always keep a backup of your important files. This app creates copies and does not delete original files or folders.</span>
       </div>
 
+      <div class="companion-tip-panel" role="note" aria-label="Optional file search companion">
+        <span>Optional: Use Everything, a free companion tool, to find files and folders faster before archiving.</span>
+      </div>
+
+      <section id="everythingSearchPanel" class="screen-card everything-search-panel" aria-labelledby="everythingSearchTitle">
+        <h2 id="everythingSearchTitle">Search this PC with Everything</h2>
+        <p class="everything-search-intro">
+          Optional local search companion. Search file and folder names on this PC through a small service that binds only to 127.0.0.1.
+        </p>
+
+        <form id="everythingSearchForm" class="everything-search-form">
+          <label for="everythingSearchInput">Search term</label>
+          <input
+            type="search"
+            id="everythingSearchInput"
+            autocomplete="off"
+            placeholder="Search local file and folder names"
+          />
+
+          <div class="everything-search-controls">
+            <div class="everything-search-control">
+              <label for="everythingSearchTypeSelect">Result type</label>
+              <select id="everythingSearchTypeSelect">
+                <option value="all" selected>All</option>
+                <option value="file">Files only</option>
+                <option value="folder">Folders only</option>
+              </select>
+            </div>
+
+            <div class="everything-search-control">
+              <label for="everythingSearchLimitInput">Limit</label>
+              <input type="number" id="everythingSearchLimitInput" min="1" max="50" step="1" value="20" />
+            </div>
+
+            <div class="everything-search-submit">
+              <label class="sr-only" for="everythingSearchButton">Run Everything search</label>
+              <button type="submit" id="everythingSearchButton" class="button">Search</button>
+            </div>
+          </div>
+        </form>
+
+        <div id="everythingSearchStatus" class="everything-search-status" aria-live="polite">Everything search is not checked yet.</div>
+        <div id="everythingSearchResults" class="everything-search-results" aria-live="polite"></div>
+      </section>
+
       <div class="screen-card">
         <h2 id="mainChoiceTitle">Choose what you want to do</h2>
         <p>Start with a new tree, view an existing folder tree on this PC, archive a file, or archive a whole folder.</p>
@@ -371,6 +416,7 @@
         <p>It does not delete, upload, rename, modify, or automatically move files or folders.</p>
         <p>Optional Google Analytics usage statistics are loaded only after the user allows them. File names, folder names, paths, and file contents are never included in the app's analytics events.</p>
         <p>The app can archive a loaded file or chosen folder only after the user chooses a destination folder and gives browser permission.</p>
+        <p>Optional companion tool: Everything is a free way to find files and folders faster before you archive them.</p>
         <p>As a good practice, we recommend that you always keep a backup of your important files. Note that this app creates copies and does not delete original files or folders.</p>
         <p>All file and folder operations are performed at the user's own risk. To the fullest extent permitted by applicable law, the developer and contributors are not responsible for file loss, data loss, corruption, incomplete copies, or other damage resulting from use of the app.</p>
       </div>
@@ -474,6 +520,7 @@
   <script src="assets/js/archive-operation.js" defer></script>
   <script src="assets/js/file-archive.js" defer></script>
   <script src="assets/js/folder-archive.js" defer></script>
+  <script src="assets/js/everything-search.js" defer></script>
 
   <script src="assets/js/modals.js" defer></script>
   <script src="assets/js/feedback.js" defer></script>

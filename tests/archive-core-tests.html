@@ -71,6 +71,20 @@
     <div id="folderArchiveTreePreview"></div>
     <div id="folderArchiveResultBox"></div>
     <div id="folderArchiveStatusBox"></div>
+    <section id="everythingSearchPanel">
+      <form id="everythingSearchForm">
+        <input id="everythingSearchInput" />
+        <select id="everythingSearchTypeSelect">
+          <option value="all" selected>All</option>
+          <option value="file">Files only</option>
+          <option value="folder">Folders only</option>
+        </select>
+        <input id="everythingSearchLimitInput" value="20" />
+        <button type="submit" id="everythingSearchButton">Search</button>
+      </form>
+      <div id="everythingSearchStatus"></div>
+      <div id="everythingSearchResults"></div>
+    </section>
     <button type="button" id="archiveFileButton">Archive the File</button>
     <button type="button" id="archiveFolderButton">Archive the Folder</button>
     <select id="archiveTreeDepthSelect">
@@ -108,6 +122,7 @@
   <script src="../assets/js/archive-operation.js"></script>
   <script src="../assets/js/file-archive.js"></script>
   <script src="../assets/js/folder-archive.js"></script>
+  <script src="../assets/js/everything-search.js"></script>
 
   <script>
     "use strict";
@@ -359,6 +374,13 @@
       });
 
       return { promise, resolve };
+    }
+
+    function createJsonResponse(body, status = 200) {
+      return new Response(JSON.stringify(body), {
+        status,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
     function countOccurrences(value, fragment) {
@@ -1345,6 +1367,87 @@
       assert(pickerOptions?.mode === "readwrite", "The normal destination picker should request read/write access.");
       assert(selectedParent.directories.get(window.FolderCreation.appRootFolderName) === appRoot, "The normal workflow should still create the app root below the chosen parent.");
       assert(appRoot.directories.has("PROFILE"), "The normal workflow should still create tree folders inside the app root.");
+    });
+
+    test("Everything search builds a local-only localhost request with validated parameters", async () => {
+      const url = window.EverythingSearch.buildSearchUrl("  Annual Report  ", "folder", 999);
+
+      assert(url.origin === "http://127.0.0.1:51337", "Everything searches must stay on the local companion service.");
+      assert(url.pathname === "/api/search", "Everything searches must use the search endpoint.");
+      assert(url.searchParams.get("q") === "Annual Report", "Search terms should be trimmed before sending the request.");
+      assert(url.searchParams.get("type") === "folder", "The selected result type should be preserved.");
+      assert(url.searchParams.get("limit") === "50", "The result limit should be capped at the service maximum.");
+      assert(window.EverythingSearch.normalizeLimit(0) === 1, "Low result limits should clamp to one result.");
+      assert(window.EverythingSearch.normalizeLimit("not-a-number") === 20, "Invalid result limits should fall back to the default.");
+      assert(window.EverythingSearch.normalizeType("invalid") === "all", "Unknown result types should fall back to all results.");
+    });
+
+    test("Everything search fetches local results and renders the response list", async () => {
+      const originalFetch = window.fetch;
+      const requestedUrls = [];
+      const input = document.getElementById("everythingSearchInput");
+      const typeSelect = document.getElementById("everythingSearchTypeSelect");
+      const limitInput = document.getElementById("everythingSearchLimitInput");
+      const status = document.getElementById("everythingSearchStatus");
+      const resultsBox = document.getElementById("everythingSearchResults");
+
+      try {
+        window.fetch = async url => {
+          requestedUrls.push(String(url));
+
+          if (String(url).includes("/api/health")) {
+            return createJsonResponse({
+              status: "ok",
+              service: "EverythingCompanion",
+              everythingAvailable: true,
+              backend: "sdk",
+              message: "Ready"
+            });
+          }
+
+          if (String(url).includes("/api/search")) {
+            return createJsonResponse({
+              source: "sdk",
+              query: "passport",
+              type: "file",
+              limit: 5,
+              count: 2,
+              results: [
+                { name: "passport.pdf", path: "C:/Users/marke/Documents/passport.pdf", kind: "File" },
+                { name: "passport-notes.txt", path: "C:/Users/marke/Documents/passport-notes.txt", kind: "File" }
+              ]
+            });
+          }
+
+          throw new Error(`Unexpected request: ${String(url)}`);
+        };
+
+        window.EverythingSearch.initialize();
+        await window.EverythingSearch.fetchHealth();
+
+        input.value = " passport ";
+        typeSelect.value = "file";
+        limitInput.value = "5";
+
+        await window.EverythingSearch.search({ preventDefault() {} });
+
+        assert(
+          requestedUrls.some(url => url.startsWith("http://127.0.0.1:51337/api/health")),
+          "The panel should only check the local companion service."
+        );
+        assert(
+          requestedUrls.some(url => url.startsWith("http://127.0.0.1:51337/api/search?q=passport&type=file&limit=5")),
+          "The search request should stay on localhost and include only validated query parameters."
+        );
+        assert(
+          status.textContent === "Everything found 2 local result(s).",
+          "The panel should report the local search result count."
+        );
+        assert(resultsBox.textContent.includes("passport.pdf"), "The result list should render the local search response.");
+        assert(resultsBox.textContent.includes("C:/Users/marke/Documents/passport.pdf"), "The result list should show the local path returned by the companion service.");
+      } finally {
+        window.fetch = originalFetch;
+      }
     });
 
     async function runTests() {

@@ -213,6 +213,7 @@ window.AppInit = (() => {
     bindFolderArchiveActions();
     bindFeedbackActions();
     bindPrivacyActions();
+    window.EverythingSearch?.initialize?.();
 
     applyTemporaryMainChoiceLabels();
     renderHowItWorksDefaultFolderTreePreview();

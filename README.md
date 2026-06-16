@@ -60,6 +60,7 @@ assets/js/folder-tree-existing.js
 assets/js/folder-creation.js
 
 assets/js/file-advisor.js
+assets/js/everything-search.js
 assets/js/file-import.js
 assets/js/archive-operation.js
 assets/js/file-archive.js
@@ -77,6 +78,14 @@ assets/images/organize-your-pc-social-preview.png
 assets/images/local-copyright-protected-badge.svg
 
 tests/archive-core-tests.html
+
+everything-companion/
+  EverythingCompanion.csproj
+  Program.cs
+  SearchCore.cs
+  EverythingSdkBackend.cs
+  EverythingEsExeBackend.cs
+  README.md
 ```
 
 The visible app interface is English-only.
@@ -110,6 +119,24 @@ organize_your_pc_settings.json
 The settings export contains the app name, export type, schema version, export date, storage key, and the saved settings object.
 
 The **Settings** button remains available above ordinary app modals so the user can open the settings panel while a modal dialog is visible.
+
+## Optional Everything Companion Service
+
+The app includes an optional **Search this PC with Everything** panel on the main screen. It connects only to a local Windows companion service bound to `127.0.0.1`.
+
+The companion service is implemented as a small .NET 8 Windows app in `everything-companion/`.
+
+It:
+
+- exposes `GET /api/health`;
+- exposes `GET /api/search?q=&type=all|file|folder&limit=`;
+- prefers the Everything SDK when available;
+- falls back to `es.exe` only when the SDK is unavailable;
+- does not expose file downloads or arbitrary filesystem access; and
+- does not send local file paths to any remote server.
+
+The panel is optional. If the companion service is not running, the rest of the app still works normally.
+See `everything-companion/README.md` for the local run command and companion-file notes.
 
 ## What the App Does
 
@@ -346,7 +373,7 @@ As a general good practice, users should keep a separate backup of important fil
 
 ## Tests
 
-The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 25 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, final destination containment, file and folder rollback, concurrent archive prevention, optional analytics consent and event filtering, and the unchanged normal new-folder-structure workflow.
+The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 27 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, final destination containment, file and folder rollback, concurrent archive prevention, optional analytics consent and event filtering, the Everything companion panel, and the unchanged normal new-folder-structure workflow.
 
 ## Local Copyright Badge
 
@@ -357,6 +384,7 @@ The badge links only to the local `LICENSE.md` file. It does not load images, sc
 ## Known Limitations
 
 - The app is a user-controlled folder tree builder and archiver, not a background automatic file manager.
+- The Everything companion service is optional and local-only. It listens only on `127.0.0.1` and can be left off if the user does not want local search support.
 - In Build New Folder Tree Mode, the copy, import, export, and official template download buttons are temporarily disabled and hidden in the visible app interface.
 - Existing folder tree reading is limited to 1, 2, or 3 folder levels, selected by the user.
 - Folder archiving copies recursively, but it does not inspect file content or classify files inside the chosen folder.
