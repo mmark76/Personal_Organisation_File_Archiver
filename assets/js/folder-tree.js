@@ -246,6 +246,8 @@ window.FolderTree = (() => {
   }
 
   function loadExampleTree() {
+    window.AppState.resetNodeCounter();
+
     const profile = {
       id: "profile",
       name: "PROFILE",
@@ -310,7 +312,6 @@ window.FolderTree = (() => {
       ]
     };
 
-    window.AppState.resetNodeCounter();
     window.AppState.setTree({
       id: "documents",
       name: "Organize Your PC",
