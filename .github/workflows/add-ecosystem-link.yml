@@ -1,15 +1,15 @@
 name: Add ecosystem back link
 
 on:
-  push:
-    paths:
-      - .github/workflows/add-ecosystem-link.yml
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
 
 jobs:
   update-homepage:
+    if: github.event.issue.title == 'Trigger ecosystem link update'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
