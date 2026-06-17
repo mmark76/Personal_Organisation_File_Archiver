@@ -1,5 +1,6 @@
+using System.Collections.Concurrent;
 using System.Globalization;
-using System.Net;
+using System.Security.Cryptography;
 
 namespace EverythingCompanion;
 
@@ -37,6 +38,8 @@ public sealed record HealthResponse(
     string Message
 );
 
+public sealed record CompanionSessionResponse(string Token, DateTimeOffset ExpiresAt);
+
 public sealed class SearchRequestException : Exception
 {
     public int StatusCode { get; }
@@ -68,7 +71,7 @@ public static class SearchRequestValidator
 
         if (normalized.Length == 0)
         {
-          throw new SearchRequestException("A search query is required.");
+            throw new SearchRequestException("A search query is required.");
         }
 
         if (normalized.Length > MaximumQueryLength)
@@ -123,24 +126,172 @@ public static class SearchRequestValidator
 
 public static class LocalOriginPolicy
 {
-    public static bool IsAllowedOrigin(string? origin)
+    public const string AllowedOriginContextKey = "EverythingCompanion.AllowedOrigin";
+
+    public static readonly string[] DefaultAllowedOrigins =
+    [
+        "https://organizeyourpc.com",
+        "https://www.organizeyourpc.com",
+        "http://127.0.0.1:4173",
+        "http://localhost:4173"
+    ];
+
+    public static HashSet<string> CreateAllowedOriginSet(IEnumerable<string> origins)
+    {
+        HashSet<string> allowedOrigins = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string origin in origins)
+        {
+            string? normalized = NormalizeOrigin(origin);
+            if (normalized is not null)
+            {
+                allowedOrigins.Add(normalized);
+            }
+        }
+
+        return allowedOrigins;
+    }
+
+    public static bool IsAllowedOrigin(string? origin, IReadOnlySet<string> allowedOrigins)
+    {
+        string? normalized = NormalizeOrigin(origin);
+        return normalized is not null && allowedOrigins.Contains(normalized);
+    }
+
+    public static string? NormalizeOrigin(string? origin)
     {
         if (string.IsNullOrWhiteSpace(origin) || origin.Equals("null", StringComparison.OrdinalIgnoreCase))
         {
-            return true;
+            return null;
         }
 
-        if (!Uri.TryCreate(origin, UriKind.Absolute, out Uri? parsedOrigin))
+        if (!Uri.TryCreate(origin.Trim(), UriKind.Absolute, out Uri? parsedOrigin))
         {
-            return false;
+            return null;
         }
 
         if (parsedOrigin.Scheme is not ("http" or "https"))
         {
+            return null;
+        }
+
+        if ((parsedOrigin.AbsolutePath != string.Empty && parsedOrigin.AbsolutePath != "/") ||
+            !string.IsNullOrEmpty(parsedOrigin.Query) ||
+            !string.IsNullOrEmpty(parsedOrigin.Fragment) ||
+            !string.IsNullOrEmpty(parsedOrigin.UserInfo))
+        {
+            return null;
+        }
+
+        return parsedOrigin.GetLeftPart(UriPartial.Authority).TrimEnd('/');
+    }
+}
+
+public sealed class CompanionSessionStore
+{
+    public const string HeaderName = "X-Everything-Session";
+    public const string ExpiresHeaderName = "X-Everything-Session-Expires";
+
+    private sealed record SessionEntry(string Origin, DateTimeOffset ExpiresAt);
+
+    private readonly ConcurrentDictionary<string, SessionEntry> _sessions = new(StringComparer.Ordinal);
+    private readonly TimeSpan _sessionLifetime;
+    private readonly TimeProvider _timeProvider;
+
+    public CompanionSessionStore(TimeSpan sessionLifetime, TimeProvider? timeProvider = null)
+    {
+        if (sessionLifetime <= TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sessionLifetime));
+        }
+
+        _sessionLifetime = sessionLifetime;
+        _timeProvider = timeProvider ?? TimeProvider.System;
+    }
+
+    public CompanionSessionResponse Create(string origin)
+    {
+        string normalizedOrigin = LocalOriginPolicy.NormalizeOrigin(origin)
+            ?? throw new ArgumentException("A valid origin is required.", nameof(origin));
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+        RemoveExpired(now);
+
+        string token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
+        DateTimeOffset expiresAt = now.Add(_sessionLifetime);
+        _sessions[token] = new SessionEntry(normalizedOrigin, expiresAt);
+
+        return new CompanionSessionResponse(token, expiresAt);
+    }
+
+    public bool IsValid(string? origin, string? token)
+    {
+        string? normalizedOrigin = LocalOriginPolicy.NormalizeOrigin(origin);
+        string normalizedToken = (token ?? string.Empty).Trim();
+
+        if (normalizedOrigin is null || normalizedToken.Length == 0)
+        {
             return false;
         }
 
-        return parsedOrigin.IsLoopback || parsedOrigin.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase);
+        if (!_sessions.TryGetValue(normalizedToken, out SessionEntry? session))
+        {
+            return false;
+        }
+
+        DateTimeOffset now = _timeProvider.GetUtcNow();
+        if (session.ExpiresAt <= now)
+        {
+            _sessions.TryRemove(normalizedToken, out _);
+            return false;
+        }
+
+        return session.Origin.Equals(normalizedOrigin, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void RemoveExpired(DateTimeOffset now)
+    {
+        foreach (KeyValuePair<string, SessionEntry> item in _sessions)
+        {
+            if (item.Value.ExpiresAt <= now)
+            {
+                _sessions.TryRemove(item.Key, out _);
+            }
+        }
+    }
+}
+
+public static class SearchResultPrivacy
+{
+    public static SearchResult Redact(SearchResult result)
+    {
+        return result with { Path = CreateDisplayPath(result.Path) };
+    }
+
+    public static string CreateDisplayPath(string? path)
+    {
+        string trimmedPath = (path ?? string.Empty)
+            .Trim()
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        if (trimmedPath.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        string name = Path.GetFileName(trimmedPath);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "…";
+        }
+
+        string? parentPath = Path.GetDirectoryName(trimmedPath);
+        string parentName = string.IsNullOrWhiteSpace(parentPath)
+            ? string.Empty
+            : Path.GetFileName(parentPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+        return string.IsNullOrWhiteSpace(parentName)
+            ? Path.Combine("…", name)
+            : Path.Combine("…", parentName, name);
     }
 }
 
