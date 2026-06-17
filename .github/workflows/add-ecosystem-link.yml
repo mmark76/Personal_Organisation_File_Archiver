@@ -1,0 +1,44 @@
+name: Add ecosystem back link
+
+on:
+  push:
+    paths:
+      - .github/workflows/add-ecosystem-link.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-homepage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add the ecosystem link
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          marker = 'href="https://markellosecosystem.com/"'
+          link = '''
+  <a href="https://markellosecosystem.com/" aria-label="Back to Markellos Ecosystem" style="position:fixed;top:0.75rem;left:0.75rem;z-index:10000;padding:0.5rem 0.75rem;border:1px solid currentColor;border-radius:999px;background:rgba(255,255,255,0.92);color:#1f2937;font:600 0.85rem/1.2 system-ui,sans-serif;text-decoration:none;box-shadow:0 0.25rem 0.75rem rgba(0,0,0,0.18);">← Back to Markellos Ecosystem</a>
+'''
+
+          if marker not in text:
+              text, count = re.subn(r'(<body\b[^>]*>)', r'\1' + link, text, count=1, flags=re.IGNORECASE)
+              if count != 1:
+                  raise RuntimeError('Opening body tag was not found.')
+              path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit the homepage change
+        run: |
+          rm .github/workflows/add-ecosystem-link.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/add-ecosystem-link.yml
+          git commit -m "Add Markellos Ecosystem back link"
+          git push
