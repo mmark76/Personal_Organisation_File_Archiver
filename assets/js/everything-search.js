@@ -5,7 +5,12 @@ window.EverythingSearch = (() => {
   const defaultLimit = 20;
   const maximumLimit = 50;
   const maximumQueryLength = 256;
+  const sessionHeaderName = "X-Everything-Session";
+  const sessionExpiresHeaderName = "X-Everything-Session-Expires";
+  const sessionExpirySkewMs = 30_000;
   let activeRequestController = null;
+  let sessionToken = null;
+  let sessionExpiresAt = 0;
 
   function getApiBaseUrl() {
     return String(window.EverythingSearchConfig?.baseUrl || defaultApiBaseUrl).replace(/\/+$/, "");
@@ -86,6 +91,34 @@ window.EverythingSearch = (() => {
     return url;
   }
 
+  function clearSession() {
+    sessionToken = null;
+    sessionExpiresAt = 0;
+  }
+
+  function storeSessionFromResponse(response) {
+    const token = response?.headers?.get?.(sessionHeaderName);
+    const expiresValue = response?.headers?.get?.(sessionExpiresHeaderName);
+    const parsedExpiry = Date.parse(expiresValue || "");
+
+    if (!token || !Number.isFinite(parsedExpiry)) {
+      return false;
+    }
+
+    sessionToken = token;
+    sessionExpiresAt = parsedExpiry;
+    return true;
+  }
+
+  function getUsableSessionToken() {
+    if (!sessionToken || sessionExpiresAt <= Date.now() + sessionExpirySkewMs) {
+      clearSession();
+      return null;
+    }
+
+    return sessionToken;
+  }
+
   function setButtonState(isBusy) {
     const { button } = getPanelElements();
     if (button) {
@@ -149,6 +182,7 @@ window.EverythingSearch = (() => {
         throw new Error("Everything is not responding yet.");
       }
 
+      storeSessionFromResponse(response);
       const payload = await response.json();
       if (payload?.everythingAvailable) {
         setStatus(`Everything is ready through ${payload.backend}.`, "success");
@@ -158,9 +192,33 @@ window.EverythingSearch = (() => {
 
       return payload;
     } catch (error) {
+      clearSession();
       setStatus(`Everything companion service is not available on ${getServiceLocationLabel()} yet.`, "error");
       return null;
     }
+  }
+
+  async function fetchSearchResponse(url, signal, allowRefresh = true) {
+    let token = getUsableSessionToken();
+    if (!token) {
+      await fetchHealth();
+      token = getUsableSessionToken();
+    }
+
+    const headers = { Accept: "application/json" };
+    if (token) {
+      headers[sessionHeaderName] = token;
+    }
+
+    const response = await fetch(url, { signal, headers });
+
+    if (response.status === 401 && allowRefresh) {
+      clearSession();
+      await fetchHealth();
+      return fetchSearchResponse(url, signal, false);
+    }
+
+    return response;
   }
 
   async function search(event) {
@@ -190,10 +248,10 @@ window.EverythingSearch = (() => {
     clearResults();
 
     try {
-      const response = await fetch(buildSearchUrl(query, typeSelect.value, limitInput.value), {
-        signal: requestController.signal,
-        headers: { Accept: "application/json" }
-      });
+      const response = await fetchSearchResponse(
+        buildSearchUrl(query, typeSelect.value, limitInput.value),
+        requestController.signal
+      );
 
       if (!response.ok) {
         let detail = "Everything could not complete the search.";
@@ -262,6 +320,7 @@ window.EverythingSearch = (() => {
     normalizeType,
     normalizeLimit,
     renderResults,
-    setStatus
+    setStatus,
+    clearSession
   };
 })();
