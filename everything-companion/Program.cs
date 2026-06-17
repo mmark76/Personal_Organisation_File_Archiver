@@ -143,7 +143,7 @@ app.MapGet("/api/health", (HttpContext context) =>
         CompanionSessionResponse session = sessionStore.Create(allowedOrigin);
         context.Response.Headers[CompanionSessionStore.HeaderName] = session.Token;
         context.Response.Headers[CompanionSessionStore.ExpiresHeaderName] =
-            session.ExpiresAt.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture);
+            session.ExpiresAt.UtcDateTime.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
         context.Response.Headers.CacheControl = "no-store";
     }
 
