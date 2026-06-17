@@ -72,12 +72,88 @@ try {
     throw new Error(`The next generated node ID already exists: ${nodeIdCheck.nextId}`);
   }
 
+  const sessionCheck = await page.evaluate(async () => {
+    const originalFetch = window.fetch;
+    const requests = [];
+    const sessionToken = "ci-session-token";
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+    try {
+      window.EverythingSearch.clearSession();
+      window.fetch = async (url, options = {}) => {
+        const requestUrl = String(url);
+        requests.push({
+          url: requestUrl,
+          sessionHeader: new Headers(options.headers || {}).get("X-Everything-Session")
+        });
+
+        if (requestUrl.includes("/api/health")) {
+          return new Response(JSON.stringify({
+            status: "ok",
+            service: "EverythingCompanion",
+            everythingAvailable: true,
+            backend: "sdk",
+            message: "Ready"
+          }), {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Everything-Session": sessionToken,
+              "X-Everything-Session-Expires": expiresAt
+            }
+          });
+        }
+
+        if (requestUrl.includes("/api/search")) {
+          return new Response(JSON.stringify({
+            source: "sdk",
+            query: "session-check",
+            type: "all",
+            limit: 1,
+            count: 0,
+            results: []
+          }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+
+        throw new Error(`Unexpected request: ${requestUrl}`);
+      };
+
+      await window.EverythingSearch.fetchHealth();
+
+      document.getElementById("everythingSearchInput").value = "session-check";
+      document.getElementById("everythingSearchTypeSelect").value = "all";
+      document.getElementById("everythingSearchLimitInput").value = "1";
+      await window.EverythingSearch.search({ preventDefault() {} });
+
+      const searchRequest = requests.find(request => request.url.includes("/api/search"));
+      return {
+        sessionHeader: searchRequest?.sessionHeader || null,
+        tokenLeakedInUrl: requests.some(request => request.url.includes(sessionToken))
+      };
+    } finally {
+      window.fetch = originalFetch;
+      window.EverythingSearch.clearSession();
+    }
+  });
+
+  if (sessionCheck.sessionHeader !== "ci-session-token") {
+    throw new Error("Everything search did not send the temporary session token in the request header.");
+  }
+
+  if (sessionCheck.tokenLeakedInUrl) {
+    throw new Error("Everything session token must never be included in a request URL.");
+  }
+
   if (pageErrors.length > 0) {
     throw new Error(`Unhandled page errors:\n${pageErrors.join("\n")}`);
   }
 
   console.log(summary);
   console.log(`Node ID uniqueness check passed; next ID is ${nodeIdCheck.nextId}.`);
+  console.log("Everything session header check passed.");
 } finally {
   await browser.close();
 }
