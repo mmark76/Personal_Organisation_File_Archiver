@@ -1,0 +1,33 @@
+{
+  "enabled": false,
+  "baseUrl": "http://127.0.0.1:51337",
+  "providerPreference": [
+    "sdk",
+    "cli"
+  ],
+  "query": {
+    "minimumLength": 1,
+    "maximumLength": 260,
+    "defaultType": "all",
+    "defaultLimit": 50,
+    "maximumLimit": 200
+  },
+  "timeouts": {
+    "healthMilliseconds": 2000,
+    "searchMilliseconds": 10000
+  },
+  "privacy": {
+    "redactFullPaths": true,
+    "persistSearchHistory": false,
+    "allowRemoteTelemetry": false
+  },
+  "ui": {
+    "showAttribution": true,
+    "attributionText": "Search powered by Everything by voidtools"
+  },
+  "packaging": {
+    "everythingInstalledSeparately": true,
+    "bundleSdkDll": false,
+    "bundleCliExecutable": false
+  }
+}
