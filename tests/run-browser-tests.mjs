@@ -219,7 +219,7 @@ async function runEverythingSearchUiTest() {
           source: "sdk",
           query: "passport",
           type: "file",
-          limit: 20,
+          limit: 50,
           count: 1,
           results: [
             {
@@ -258,6 +258,12 @@ async function runEverythingSearchUiTest() {
 
     await page.locator("#everythingSearchInput").fill("passport");
     await page.locator("#everythingSearchTypeSelect").selectOption("file");
+    await page.locator("#everythingSearchExtensionSelect").selectOption("pdf");
+    await page.locator("#everythingSearchModifiedSelect").selectOption("last30days");
+    await page.locator("#everythingSearchSizeSelect").selectOption("over128mb");
+    await page.locator("#everythingSearchMatchSelect").selectOption("startswith");
+    await page.locator("#everythingSearchLimitInput").selectOption("50");
+    await page.locator("#everythingSearchLocationInput").fill("C:\\Users\\Test\\Documents");
     await page.locator("#everythingSearchButton").click();
 
     await page.waitForFunction(() => {
@@ -272,10 +278,19 @@ async function runEverythingSearchUiTest() {
     const requestCheck = await page.evaluate(() => {
       const requests = window.__everythingUiTestState.requests;
       const searchRequest = requests.find(request => request.url.includes("/api/search"));
+      const searchUrl = searchRequest ? new URL(searchRequest.url) : null;
+
       return {
         hasSearchRequest: Boolean(searchRequest),
         searchSessionHeader: searchRequest?.sessionHeader || null,
-        tokenLeakedInUrl: requests.some(request => request.url.includes("ui-session-token"))
+        tokenLeakedInUrl: requests.some(request => request.url.includes("ui-session-token")),
+        type: searchUrl?.searchParams.get("type") || null,
+        extension: searchUrl?.searchParams.get("ext") || null,
+        modified: searchUrl?.searchParams.get("modified") || null,
+        size: searchUrl?.searchParams.get("size") || null,
+        match: searchUrl?.searchParams.get("match") || null,
+        limit: searchUrl?.searchParams.get("limit") || null,
+        location: searchUrl?.searchParams.get("location") || null
       };
     });
 
@@ -289,6 +304,45 @@ async function runEverythingSearchUiTest() {
 
     if (requestCheck.tokenLeakedInUrl) {
       throw new Error("The dedicated Everything screen leaked the session token into a URL.");
+    }
+
+    const expectedFilters = {
+      type: "file",
+      extension: "pdf",
+      modified: "last30days",
+      size: "over128mb",
+      match: "startswith",
+      limit: "50",
+      location: "C:\\Users\\Test\\Documents"
+    };
+
+    for (const [key, expectedValue] of Object.entries(expectedFilters)) {
+      if (requestCheck[key] !== expectedValue) {
+        throw new Error(`Everything filter ${key} was ${requestCheck[key]} instead of ${expectedValue}.`);
+      }
+    }
+
+    await page.locator("#everythingSearchClearFiltersButton").click();
+    const clearedFilters = await page.evaluate(() => ({
+      type: document.getElementById("everythingSearchTypeSelect").value,
+      extension: document.getElementById("everythingSearchExtensionSelect").value,
+      modified: document.getElementById("everythingSearchModifiedSelect").value,
+      size: document.getElementById("everythingSearchSizeSelect").value,
+      match: document.getElementById("everythingSearchMatchSelect").value,
+      limit: document.getElementById("everythingSearchLimitInput").value,
+      location: document.getElementById("everythingSearchLocationInput").value
+    }));
+
+    if (
+      clearedFilters.type !== "all" ||
+      clearedFilters.extension !== "" ||
+      clearedFilters.modified !== "any" ||
+      clearedFilters.size !== "any" ||
+      clearedFilters.match !== "contains" ||
+      clearedFilters.limit !== "20" ||
+      clearedFilters.location !== ""
+    ) {
+      throw new Error("Clear filters did not restore the default Everything search filters.");
     }
 
     await page.evaluate(() => {
@@ -320,7 +374,7 @@ async function runEverythingSearchUiTest() {
       throw new Error(`Unhandled Everything UI page errors:\n${pageErrors.join("\n")}`);
     }
 
-    console.log("Everything dedicated-screen UI test passed.");
+    console.log("Everything dedicated-screen UI and basic-filter test passed.");
   } finally {
     await page.close();
   }
