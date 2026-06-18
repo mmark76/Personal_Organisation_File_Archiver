@@ -3,6 +3,29 @@
 window.AppInit = (() => {
   const { qs, qsa } = window.AppUtils;
 
+  function styleEcosystemBackLink() {
+    const link = document.querySelector('body > a[href="https://markellosecosystem.com/"]');
+    if (!link) return;
+
+    Object.assign(link.style, {
+      display: "block",
+      width: "fit-content",
+      maxWidth: "calc(100% - 32px)",
+      margin: "12px auto 10px",
+      padding: "5px 10px",
+      boxSizing: "border-box",
+      border: "1px solid rgba(148, 163, 184, 0.10)",
+      borderRadius: "8px",
+      background: "rgba(148, 163, 184, 0.035)",
+      color: "inherit",
+      textDecoration: "none",
+      fontSize: "0.78rem",
+      lineHeight: "1.3",
+      textAlign: "center",
+      overflowWrap: "anywhere"
+    });
+  }
+
   function bindHeaderActions() {
     qs("#openDisclaimerButton")?.addEventListener("click", () => window.AppModals.openModal("disclaimerModal"));
     qs("#openHowItWorksButton")?.addEventListener("click", () => window.AppModals.openModal("howItWorksModal"));
@@ -212,6 +235,7 @@ window.AppInit = (() => {
   }
 
   function initialize() {
+    styleEcosystemBackLink();
     removeHiddenBuildModeUtilities();
     hideEverythingSearchUi();
     bindHeaderActions();
