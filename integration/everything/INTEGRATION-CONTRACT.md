@@ -1,104 +1,107 @@
 # Everything Integration Contract
 
-This document defines the stable boundary that the future UI and the local companion should share. It is intentionally implementation-neutral.
+This document records the **current companion API baseline** and the rules for any future versioned contract. The current application and companion remain unchanged by this scaffold.
 
-## Health endpoint
+## 1. Current health endpoint
 
 `GET /api/health`
 
-Expected response shape:
+Current response shape:
 
 ```json
 {
-  "status": "ready",
-  "provider": "sdk",
-  "providerVersion": "unknown",
-  "pathsRedacted": true,
-  "sessionRequired": true
+  "status": "ok",
+  "service": "EverythingCompanion",
+  "everythingAvailable": true,
+  "backend": "sdk",
+  "message": "The companion service is ready on 127.0.0.1."
 }
 ```
 
-Allowed status values:
-
-- `ready`
-- `degraded`
-- `unavailable`
-
-Allowed provider values:
+Current backend values are implementation names such as:
 
 - `sdk`
-- `cli`
-- `none`
+- `es.exe`
+- `unavailable`
 
-## Search endpoint
+When the request comes from an approved origin, the health response also supplies the short-lived session token through response headers. The token is not returned in the URL or JSON body.
+
+## 2. Current search endpoint
 
 `GET /api/search?q=&type=all|file|folder&limit=`
 
-Required request rules:
+Current request rules:
 
 - `q` must be non-empty after trimming;
+- `q` is limited to 256 characters;
 - `type` must be `all`, `file`, or `folder`;
-- `limit` must remain within the configured safe range;
-- an origin-bound session token must be sent through the approved request header;
-- the request must be cancellable.
+- the default limit is 20;
+- the maximum limit is 50;
+- the approved session token must be sent in the `X-Everything-Session` request header;
+- the request uses the browser or connection cancellation token.
 
-Expected response shape:
+Current response shape follows the existing C# records:
 
 ```json
 {
+  "source": "sdk",
   "query": "invoice",
-  "type": "file",
-  "provider": "sdk",
-  "count": 2,
-  "truncated": false,
+  "type": 1,
+  "limit": 20,
+  "count": 1,
   "results": [
     {
       "name": "invoice.pdf",
-      "kind": "file",
-      "displayLocation": "Documents",
-      "fullPath": null
+      "path": "…/Documents/invoice.pdf",
+      "kind": 0
     }
   ]
 }
 ```
 
-## Result rules
+Current enum values:
 
-Each result should contain only normalized values:
+- search type: `0 = all`, `1 = file`, `2 = folder`;
+- result kind: `0 = file`, `1 = folder`.
 
-- `name`: final file or folder name;
-- `kind`: `file` or `folder`;
-- `displayLocation`: safe, user-facing location text;
-- `fullPath`: omitted or `null` by default;
-- optional future metadata must not expose file contents.
+The `path` field is a redacted display path unless full-path exposure is explicitly enabled in the companion configuration.
 
-## Error contract
+## 3. Current errors
 
-Errors should use a stable machine-readable code and a safe message:
+The current endpoints use HTTP status codes and Problem Details responses. Existing browser code and tests must remain compatible with that behaviour until a coordinated, versioned API change is approved.
 
-```json
-{
-  "error": {
-    "code": "SEARCH_TIMEOUT",
-    "message": "The local search did not finish in time."
-  }
-}
-```
+Typical current failures include:
 
-Planned codes:
+- invalid request: HTTP 400;
+- invalid or expired session: HTTP 401;
+- origin not allowed: HTTP 403;
+- rate limited: HTTP 429;
+- Everything unavailable: HTTP 503.
 
-- `COMPANION_UNAVAILABLE`
-- `EVERYTHING_UNAVAILABLE`
-- `INVALID_QUERY`
-- `INVALID_TYPE`
-- `INVALID_LIMIT`
-- `SESSION_REQUIRED`
-- `ORIGIN_NOT_ALLOWED`
-- `RATE_LIMITED`
-- `SEARCH_TIMEOUT`
-- `SEARCH_CANCELLED`
-- `PROVIDER_FAILURE`
+## 4. Future normalized contract
 
-## Compatibility rule
+A future API version may introduce string enum values, stable machine-readable error codes, explicit provider metadata, and opaque result references. That future format must not silently replace the current contract.
 
-The UI must depend on this normalized contract and not on Everything SDK structures, CLI output columns, DLL names, or provider-specific error text.
+It requires, in one reviewed change:
+
+1. a versioned endpoint or explicit contract version;
+2. companion implementation changes;
+3. browser-client changes;
+4. contract tests;
+5. migration and compatibility documentation.
+
+## 5. Result handoff rule
+
+The current search response is for display and discovery only. A redacted display path is not sufficient authority to archive or manipulate a local item.
+
+The initial safe workflow is:
+
+1. the user finds the item through search;
+2. the user chooses the matching file or folder through the existing browser picker;
+3. the existing archive workflow continues after explicit confirmation.
+
+A future direct handoff may use a short-lived opaque result reference resolved locally by the companion. Such a reference must not expose the full path to the browser and must be separately designed, authorized, tested, and reviewed before activation.
+
+## 6. Compatibility rule
+
+The UI must depend only on the documented companion contract and never on Everything SDK structures, CLI output columns, DLL names, or raw provider-specific error text.
