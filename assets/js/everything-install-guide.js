@@ -3,7 +3,19 @@
 window.EverythingInstallGuide = (() => {
   const officialDownloadUrl = "https://www.voidtools.com/downloads/";
   const installInstructions = "Download Everything from voidtools, install it, start it, then return here and refresh or select Check Again.";
+  const currentScriptUrl = document.currentScript?.src || new URL("assets/js/everything-install-guide.js", window.location.href).href;
+  const brandStylesheetUrl = new URL("../css/everything-brand.css", currentScriptUrl).href;
   let bound = false;
+
+  function ensureBrandStylesheet() {
+    if (document.getElementById("everythingBrandStylesheet")) return;
+
+    const link = document.createElement("link");
+    link.id = "everythingBrandStylesheet";
+    link.rel = "stylesheet";
+    link.href = brandStylesheetUrl;
+    document.head.appendChild(link);
+  }
 
   function createPermanentInstallButton() {
     const existingButton = document.getElementById("everythingInstallButton");
@@ -33,6 +45,7 @@ window.EverythingInstallGuide = (() => {
   }
 
   function configureDownloadLink() {
+    ensureBrandStylesheet();
     const installButton = createPermanentInstallButton();
     const { downloadLink } = window.EverythingSearchUi?.getElements?.() || {};
 
@@ -66,6 +79,8 @@ window.EverythingInstallGuide = (() => {
     configureDownloadLink();
     window.EverythingSearchUi?.setGuideExpanded?.(false);
   }
+
+  ensureBrandStylesheet();
 
   return {
     officialDownloadUrl,
