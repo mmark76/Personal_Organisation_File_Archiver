@@ -81,6 +81,9 @@ window.EverythingSearch = (() => {
     if (query.length > maximumQueryLength) {
       throw new Error(`Search terms must be ${maximumQueryLength} characters or fewer.`);
     }
+    if (query.includes('"')) {
+      throw new Error("Search terms cannot contain a double quote.");
+    }
     if (query.startsWith("-") || query.startsWith("/")) {
       throw new Error("Search terms cannot start with a command-style prefix.");
     }
@@ -103,6 +106,25 @@ window.EverythingSearch = (() => {
     return Math.min(requestedLimit, maximumLimit);
   }
 
+  function normalizeFiltersFallback(filters = {}) {
+    const normalized = {
+      extension: String(filters.extension || "").trim().toLowerCase(),
+      modified: String(filters.modified || "any").trim().toLowerCase(),
+      size: String(filters.size || "any").trim().toLowerCase(),
+      location: String(filters.location || "").trim().replaceAll("/", "\\"),
+      match: String(filters.match || "contains").trim().toLowerCase()
+    };
+
+    if (normalized.extension && !/^[a-z0-9]+(?:;[a-z0-9]+)*$/.test(normalized.extension)) {
+      throw new Error("Choose a supported file category.");
+    }
+    if (normalized.location && !/^[a-z]:/i.test(normalized.location)) {
+      throw new Error("Location must begin with a Windows drive letter, for example C:\\Users.");
+    }
+
+    return normalized;
+  }
+
   function normalizeQuery(value) {
     return window.EverythingSearchApi?.normalizeQuery?.(value) || normalizeQueryFallback(value);
   }
@@ -115,15 +137,23 @@ window.EverythingSearch = (() => {
     return window.EverythingSearchApi?.normalizeLimit?.(value) || normalizeLimitFallback(value);
   }
 
-  function buildSearchUrl(query, type, limit) {
+  function buildSearchUrl(query, type, limit, filters = {}) {
     if (window.EverythingSearchApi?.buildSearchUrl) {
-      return window.EverythingSearchApi.buildSearchUrl(query, type, limit);
+      return window.EverythingSearchApi.buildSearchUrl(query, type, limit, filters);
     }
 
+    const normalizedFilters = normalizeFiltersFallback(filters);
     const url = new URL("/api/search", getApiBaseUrlFallback());
     url.searchParams.set("q", normalizeQueryFallback(query));
     url.searchParams.set("type", normalizeTypeFallback(type));
     url.searchParams.set("limit", String(normalizeLimitFallback(limit)));
+
+    if (normalizedFilters.extension) url.searchParams.set("ext", normalizedFilters.extension);
+    if (normalizedFilters.modified !== "any") url.searchParams.set("modified", normalizedFilters.modified);
+    if (normalizedFilters.size !== "any") url.searchParams.set("size", normalizedFilters.size);
+    if (normalizedFilters.location) url.searchParams.set("location", normalizedFilters.location);
+    if (normalizedFilters.match !== "contains") url.searchParams.set("match", normalizedFilters.match);
+
     return url;
   }
 
@@ -139,6 +169,11 @@ window.EverythingSearch = (() => {
     elements.form.dataset.everythingSearchBound = "true";
     elements.form.addEventListener("submit", search);
     elements.cancelButton?.addEventListener("click", cancelSearch);
+    elements.clearFiltersButton?.addEventListener("click", () => {
+      window.EverythingSearchUi.resetFilters();
+      window.EverythingSearchUi.setStatus("Basic filters cleared.", "idle");
+      window.EverythingSearchUi.focusInput();
+    });
     window.EverythingInstallGuide?.bindEvents?.(checkAvailability);
     window.EverythingSearchUi.setSearchEnabled(false);
     initialized = true;
@@ -192,10 +227,16 @@ window.EverythingSearch = (() => {
     if (!api || !ui || !elements?.input || !elements?.typeSelect || !elements?.limitInput) return null;
 
     let query;
+    let filters;
     try {
       query = api.normalizeQuery(elements.input.value);
+      filters = ui.readFilters();
+      filters = {
+        ...filters,
+        ...api.normalizeFilters(filters)
+      };
     } catch (error) {
-      ui.setStatus(error?.message || "Enter a search term.", "error");
+      ui.setStatus(error?.message || "Check the search term and filters.", "error");
       ui.clearResults();
       return null;
     }
@@ -212,13 +253,18 @@ window.EverythingSearch = (() => {
     try {
       const payload = await api.search({
         query,
-        type: elements.typeSelect.value,
-        limit: elements.limitInput.value,
+        type: filters.type,
+        limit: filters.limit,
+        extension: filters.extension,
+        modified: filters.modified,
+        size: filters.size,
+        location: filters.location,
+        match: filters.match,
         signal: requestController.signal
       });
 
       const results = Array.isArray(payload?.results) ? payload.results : [];
-      const type = api.normalizeType(elements.typeSelect.value);
+      const type = api.normalizeType(filters.type);
       ui.renderResults(results, query, type);
       ui.setStatus(`Everything found ${results.length} local result(s).`, "success");
       return payload;
