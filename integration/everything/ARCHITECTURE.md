@@ -58,17 +58,34 @@ Everything remains external third-party software running locally on Windows. Its
 ## 3. Runtime sequence
 
 1. User opens the dedicated search screen.
-2. Browser client calls local health endpoint.
-3. Companion verifies readiness and returns active provider information.
+2. Browser client calls the local health endpoint.
+3. Companion verifies readiness and returns active backend information.
 4. Browser client obtains or refreshes an origin-bound session token.
 5. User submits a validated query.
 6. Companion enforces limits and sends the request to one provider.
 7. Provider queries Everything locally.
-8. Companion normalizes and redacts results.
+8. Companion returns normalized results with redacted display paths by default.
 9. UI displays results.
-10. A selected result may be passed to an existing archive workflow through a later approved adapter.
+10. For the initial release, the user reselects the matching file or folder through the existing browser picker before archiving.
+11. A future direct handoff may use a short-lived opaque result reference, but only after a separate contract and security review.
 
-## 4. Deployment modes
+## 4. Result handoff boundary
+
+A redacted search result is not authority to manipulate a filesystem item.
+
+The initial integration must use the existing browser picker and confirmation flow. The search result helps the user identify the item, but the browser picker supplies the actual user-authorized file or folder selection.
+
+A future opaque-reference mechanism must:
+
+- avoid exposing the full path to the browser;
+- expire quickly;
+- be bound to the active session and origin;
+- prevent replay;
+- resolve only through a narrowly scoped local endpoint;
+- require explicit user confirmation;
+- receive separate tests and security review.
+
+## 5. Deployment modes
 
 ### User-managed Everything
 
@@ -78,10 +95,10 @@ The user installs and runs Everything separately. Organize Your PC distributes o
 
 A future installer may include approved Everything SDK or CLI files only after licensing, notices, version pinning, integrity verification, and update responsibilities are defined.
 
-## 5. Failure isolation
+## 6. Failure isolation
 
 Failure of Everything, its SDK, `es.exe`, or the companion service must never prevent the four existing application areas from operating. Search remains optional and independently degradable.
 
-## 6. Activation rule
+## 7. Activation rule
 
 Nothing in this scaffold becomes active until existing application files are deliberately connected in a separate reviewed change.
