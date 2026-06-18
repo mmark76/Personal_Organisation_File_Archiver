@@ -161,15 +161,90 @@
             <button type="button" id="everythingSearchCancelButton" class="button button-secondary everything-search-cancel-button" hidden>Cancel</button>
           </div>
 
-          <div class="everything-search-filter-row">
-            <label for="everythingSearchTypeSelect">Show</label>
-            <select id="everythingSearchTypeSelect">
-              <option value="all" selected>All results</option>
-              <option value="file">Files only</option>
-              <option value="folder">Folders only</option>
-            </select>
-            <input type="hidden" id="everythingSearchLimitInput" value="20" />
-          </div>
+          <fieldset class="everything-search-filters">
+            <legend>Basic filters</legend>
+
+            <div class="everything-search-filter-grid">
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchTypeSelect">Result type</label>
+                <select id="everythingSearchTypeSelect">
+                  <option value="all" selected>All results</option>
+                  <option value="file">Files only</option>
+                  <option value="folder">Folders only</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchExtensionSelect">File category</label>
+                <select id="everythingSearchExtensionSelect">
+                  <option value="" selected>Any category</option>
+                  <option value="pdf">PDF</option>
+                  <option value="doc;docx;odt;rtf;txt">Documents</option>
+                  <option value="xls;xlsx;ods;csv">Spreadsheets</option>
+                  <option value="ppt;pptx;odp">Presentations</option>
+                  <option value="jpg;jpeg;png;gif;webp;bmp">Images</option>
+                  <option value="mp3;wav;flac;m4a;ogg">Audio</option>
+                  <option value="mp4;mkv;avi;mov;wmv;webm">Video</option>
+                  <option value="zip;7z;rar;tar;gz">Archives</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchModifiedSelect">Modified</label>
+                <select id="everythingSearchModifiedSelect">
+                  <option value="any" selected>Any time</option>
+                  <option value="today">Today</option>
+                  <option value="thisweek">This week</option>
+                  <option value="thismonth">This month</option>
+                  <option value="last7days">Last 7 days</option>
+                  <option value="last30days">Last 30 days</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchSizeSelect">File size</label>
+                <select id="everythingSearchSizeSelect">
+                  <option value="any" selected>Any size</option>
+                  <option value="upto100kb">Up to 100 KB</option>
+                  <option value="100kbto1mb">100 KB to 1 MB</option>
+                  <option value="1mbto16mb">1 MB to 16 MB</option>
+                  <option value="16mbto128mb">16 MB to 128 MB</option>
+                  <option value="over128mb">Over 128 MB</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchMatchSelect">Name match</label>
+                <select id="everythingSearchMatchSelect">
+                  <option value="contains" selected>Contains</option>
+                  <option value="exact">Exact filename</option>
+                  <option value="startswith">Starts with</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchLimitInput">Results</label>
+                <select id="everythingSearchLimitInput">
+                  <option value="20" selected>20 results</option>
+                  <option value="50">50 results</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control everything-search-location-control">
+                <label for="everythingSearchLocationInput">Location or drive</label>
+                <input
+                  type="text"
+                  id="everythingSearchLocationInput"
+                  maxlength="260"
+                  placeholder="Example: C:\Users\Marke\Documents"
+                />
+              </div>
+            </div>
+
+            <div class="everything-search-filter-actions">
+              <button type="button" id="everythingSearchClearFiltersButton" class="button button-secondary">Clear filters</button>
+            </div>
+          </fieldset>
         </form>
 
         <div id="everythingSearchStatus" class="everything-search-status status-idle" aria-live="polite">
