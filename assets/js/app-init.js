@@ -33,6 +33,7 @@ window.AppInit = (() => {
   }
 
   function bindNavigationActions() {
+    qs("#openEverythingSearchButton")?.addEventListener("click", window.AppNavigation.showEverythingSearchMode);
     qs("#openFolderTreeModeButton")?.addEventListener("click", window.AppNavigation.showFolderTreeMode);
     qs("#openExistingFolderTreeModeButton")?.addEventListener("click", window.AppNavigation.showExistingFolderTreeMode);
     qs("#openArchiveModeButton")?.addEventListener("click", window.AppNavigation.showArchiveMode);
@@ -53,13 +54,6 @@ window.AppInit = (() => {
       '[aria-label="Official template downloads"]'
     ].forEach(selector => {
       qsa(selector).forEach(element => element.remove());
-    });
-  }
-
-  function hideEverythingSearchUi() {
-    qsa(".companion-tip-panel, #everythingSearchPanel").forEach(element => {
-      element.hidden = true;
-      element.setAttribute("aria-hidden", "true");
     });
   }
 
@@ -237,7 +231,6 @@ window.AppInit = (() => {
   function initialize() {
     styleEcosystemBackLink();
     removeHiddenBuildModeUtilities();
-    hideEverythingSearchUi();
     bindHeaderActions();
     bindNavigationActions();
     bindFolderTreeActions();
@@ -245,6 +238,7 @@ window.AppInit = (() => {
     bindFolderArchiveActions();
     bindFeedbackActions();
     bindPrivacyActions();
+    window.EverythingSearch?.initialize?.();
 
     applyTemporaryMainChoiceLabels();
     renderHowItWorksDefaultFolderTreePreview();
