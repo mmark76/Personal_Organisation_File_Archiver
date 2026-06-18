@@ -3,14 +3,14 @@
   "baseUrl": "http://127.0.0.1:51337",
   "providerPreference": [
     "sdk",
-    "cli"
+    "es.exe"
   ],
   "query": {
     "minimumLength": 1,
-    "maximumLength": 260,
+    "maximumLength": 256,
     "defaultType": "all",
-    "defaultLimit": 50,
-    "maximumLimit": 200
+    "defaultLimit": 20,
+    "maximumLimit": 50
   },
   "timeouts": {
     "healthMilliseconds": 2000,
@@ -24,6 +24,10 @@
   "ui": {
     "showAttribution": true,
     "attributionText": "Search powered by Everything by voidtools"
+  },
+  "handoff": {
+    "mode": "browser-picker-confirmation",
+    "allowOpaqueResultReferences": false
   },
   "packaging": {
     "everythingInstalledSeparately": true,
