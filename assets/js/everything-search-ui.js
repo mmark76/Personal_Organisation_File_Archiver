@@ -11,7 +11,13 @@ window.EverythingSearchUi = (() => {
       form: document.getElementById("everythingSearchForm"),
       input: document.getElementById("everythingSearchInput"),
       typeSelect: document.getElementById("everythingSearchTypeSelect"),
+      extensionSelect: document.getElementById("everythingSearchExtensionSelect"),
+      modifiedSelect: document.getElementById("everythingSearchModifiedSelect"),
+      sizeSelect: document.getElementById("everythingSearchSizeSelect"),
+      matchSelect: document.getElementById("everythingSearchMatchSelect"),
+      locationInput: document.getElementById("everythingSearchLocationInput"),
       limitInput: document.getElementById("everythingSearchLimitInput"),
+      clearFiltersButton: document.getElementById("everythingSearchClearFiltersButton"),
       searchButton: document.getElementById("everythingSearchButton"),
       cancelButton: document.getElementById("everythingSearchCancelButton"),
       status: document.getElementById("everythingSearchStatus"),
@@ -25,20 +31,31 @@ window.EverythingSearchUi = (() => {
   }
 
   function applyInteractiveState() {
-    const { input, typeSelect, searchButton, cancelButton } = getElements();
+    const elements = getElements();
     const controlsDisabled = !searchEnabled || busy;
 
-    if (input) input.disabled = controlsDisabled;
-    if (typeSelect) typeSelect.disabled = controlsDisabled;
+    [
+      elements.input,
+      elements.typeSelect,
+      elements.extensionSelect,
+      elements.modifiedSelect,
+      elements.sizeSelect,
+      elements.matchSelect,
+      elements.locationInput,
+      elements.limitInput,
+      elements.clearFiltersButton
+    ].forEach(control => {
+      if (control) control.disabled = controlsDisabled;
+    });
 
-    if (searchButton) {
-      searchButton.disabled = controlsDisabled;
-      searchButton.textContent = busy ? "Searching..." : "Search";
+    if (elements.searchButton) {
+      elements.searchButton.disabled = controlsDisabled;
+      elements.searchButton.textContent = busy ? "Searching..." : "Search";
     }
 
-    if (cancelButton) {
-      cancelButton.hidden = !busy;
-      cancelButton.disabled = !busy;
+    if (elements.cancelButton) {
+      elements.cancelButton.hidden = !busy;
+      elements.cancelButton.disabled = !busy;
     }
   }
 
@@ -70,6 +87,30 @@ window.EverythingSearchUi = (() => {
   function clearResults() {
     const { results } = getElements();
     if (results) results.replaceChildren();
+  }
+
+  function resetFilters() {
+    const elements = getElements();
+    if (elements.typeSelect) elements.typeSelect.value = "all";
+    if (elements.extensionSelect) elements.extensionSelect.value = "";
+    if (elements.modifiedSelect) elements.modifiedSelect.value = "any";
+    if (elements.sizeSelect) elements.sizeSelect.value = "any";
+    if (elements.matchSelect) elements.matchSelect.value = "contains";
+    if (elements.locationInput) elements.locationInput.value = "";
+    if (elements.limitInput) elements.limitInput.value = "20";
+  }
+
+  function readFilters() {
+    const elements = getElements();
+    return {
+      type: elements.typeSelect?.value || "all",
+      extension: elements.extensionSelect?.value || "",
+      modified: elements.modifiedSelect?.value || "any",
+      size: elements.sizeSelect?.value || "any",
+      match: elements.matchSelect?.value || "contains",
+      location: elements.locationInput?.value || "",
+      limit: elements.limitInput?.value || "20"
+    };
   }
 
   function createResultKindLabel(kind) {
@@ -177,6 +218,8 @@ window.EverythingSearchUi = (() => {
     setBusy,
     showSetup,
     clearResults,
+    resetFilters,
+    readFilters,
     renderResults,
     showChecking,
     showReady,
