@@ -3,6 +3,7 @@
 window.AppNavigation = (() => {
   const screenIds = [
     "mainChoiceScreen",
+    "everythingSearchScreen",
     "folderTreeScreen",
     "existingFolderTreeScreen",
     "archiveFileScreen",
@@ -27,6 +28,11 @@ window.AppNavigation = (() => {
 
   function showMainChoices() {
     showScreen("mainChoiceScreen");
+  }
+
+  function showEverythingSearchMode() {
+    showScreen("everythingSearchScreen");
+    window.EverythingSearch?.activate?.();
   }
 
   function showFolderTreeMode() {
@@ -73,6 +79,7 @@ window.AppNavigation = (() => {
   return {
     showScreen,
     showMainChoices,
+    showEverythingSearchMode,
     showFolderTreeMode,
     showExistingFolderTreeMode,
     showArchiveMode,
