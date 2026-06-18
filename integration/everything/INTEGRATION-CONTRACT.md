@@ -1,6 +1,6 @@
 # Everything Integration Contract
 
-This document records the **current companion API baseline** and the rules for any future versioned contract. The current application and companion remain unchanged by this scaffold.
+This document records the current companion API baseline and the rules for future versioned contracts.
 
 ## 1. Current health endpoint
 
@@ -28,13 +28,19 @@ When the request comes from an approved origin, the health response also supplie
 
 ## 2. Current search endpoint
 
-`GET /api/search?q=&type=all|file|folder&limit=`
+`GET /api/search?q=&type=&limit=&ext=&modified=&size=&location=&match=`
 
 Current request rules:
 
 - `q` must be non-empty after trimming;
 - `q` is limited to 256 characters;
+- `q` cannot contain control characters or double quotes;
 - `type` must be `all`, `file`, or `folder`;
+- `ext` is optional and contains validated semicolon-separated extensions;
+- `modified` may be `any`, `today`, `thisweek`, `thismonth`, `last7days`, or `last30days`;
+- `size` may be `any`, `upto100kb`, `100kbto1mb`, `1mbto16mb`, `16mbto128mb`, or `over128mb`;
+- `location` is optional and must begin with a Windows drive letter;
+- `match` may be `contains`, `exact`, or `startswith`;
 - the default limit is 20;
 - the maximum limit is 50;
 - the approved session token must be sent in the `X-Everything-Session` request header;
@@ -66,11 +72,26 @@ Current enum values:
 
 The `path` field is a redacted display path unless full-path exposure is explicitly enabled in the companion configuration.
 
-## 3. Current errors
+## 3. Filter execution rule
 
-The current endpoints use HTTP status codes and Problem Details responses. Existing browser code and tests must remain compatible with that behaviour until a coordinated, versioned API change is approved.
+The browser sends only structured filter values. The companion validates them and builds the provider query locally. The UI does not send raw Everything commands as filter values.
 
-Typical current failures include:
+The structured filters map to Everything search capabilities for:
+
+- file or folder result type;
+- extension groups;
+- modified-date ranges;
+- file-size ranges;
+- drive or folder location;
+- contains, exact-name, or starts-with matching.
+
+Both the SDK and `es.exe` backends receive the same validated provider query.
+
+## 4. Current errors
+
+The current endpoints use HTTP status codes and Problem Details responses. Browser code and tests must remain compatible with that behaviour until a coordinated, versioned API change is approved.
+
+Typical failures include:
 
 - invalid request: HTTP 400;
 - invalid or expired session: HTTP 401;
@@ -78,7 +99,7 @@ Typical current failures include:
 - rate limited: HTTP 429;
 - Everything unavailable: HTTP 503.
 
-## 4. Future normalized contract
+## 5. Future normalized contract
 
 A future API version may introduce string enum values, stable machine-readable error codes, explicit provider metadata, and opaque result references. That future format must not silently replace the current contract.
 
@@ -90,7 +111,7 @@ It requires, in one reviewed change:
 4. contract tests;
 5. migration and compatibility documentation.
 
-## 5. Result handoff rule
+## 6. Result handoff rule
 
 The current search response is for display and discovery only. A redacted display path is not sufficient authority to archive or manipulate a local item.
 
@@ -102,6 +123,6 @@ The initial safe workflow is:
 
 A future direct handoff may use a short-lived opaque result reference resolved locally by the companion. Such a reference must not expose the full path to the browser and must be separately designed, authorized, tested, and reviewed before activation.
 
-## 6. Compatibility rule
+## 7. Compatibility rule
 
 The UI must depend only on the documented companion contract and never on Everything SDK structures, CLI output columns, DLL names, or raw provider-specific error text.
