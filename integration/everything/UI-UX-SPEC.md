@@ -34,10 +34,32 @@ Each result should present:
 - file or folder icon;
 - name;
 - kind;
-- safe display location;
-- optional action to continue into an approved archive workflow.
+- safe redacted display location;
+- an optional action to continue toward an approved archive workflow.
 
 Full local paths remain hidden by default. No result action should move, copy, delete, or archive anything without a separate explicit user confirmation.
+
+## Safe archive handoff
+
+The current search response is a discovery aid and does not provide sufficient authority to archive an item automatically.
+
+### Initial implementation
+
+The safe initial flow is:
+
+1. the user selects a search result;
+2. the app shows the selected name and redacted location;
+3. the app opens the existing file or folder selection workflow;
+4. the user selects the matching local item through the browser picker;
+5. archiving continues only after the existing confirmation steps.
+
+This preserves the current browser security model and does not require exposing a full local path.
+
+### Possible future direct handoff
+
+A later version may allow the companion to issue a short-lived opaque result reference. The browser would receive the reference rather than the full path, and the companion would resolve it locally only after an explicit user action.
+
+That design is not part of the current implementation. It requires a separate API contract, expiry rules, authorization checks, replay protection, tests, and security review before use.
 
 ## Interaction states
 
