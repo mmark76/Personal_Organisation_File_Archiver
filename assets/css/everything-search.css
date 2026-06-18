@@ -79,7 +79,7 @@
 
 .everything-search-primary-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 9px;
 }
@@ -93,6 +93,27 @@
   width: 100%;
   min-height: 42px;
   padding-right: 12px;
+}
+
+.everything-install-button {
+  display: inline-flex;
+  min-height: 42px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  line-height: 1.05;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.everything-install-button small {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.78;
 }
 
 .everything-search-filters {
@@ -323,6 +344,7 @@
   }
 
   .everything-search-primary-row .everything-search-button,
+  .everything-search-primary-row .everything-install-button,
   .everything-search-primary-row .everything-search-cancel-button {
     grid-column: 1 / -1;
   }
