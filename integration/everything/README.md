@@ -9,7 +9,7 @@ This folder prepares the repository for a future, optional integration with **Ev
 - No current build, test, UI, or runtime path references this folder.
 - The existing application remains unchanged until a later, explicitly approved integration step.
 
-## Intended future structure
+## Current structure
 
 ```text
 integration/everything/
@@ -18,6 +18,7 @@ integration/everything/
 ├── INTEGRATION-CONTRACT.md
 ├── UI-UX-SPEC.md
 ├── SECURITY-PRIVACY.md
+├── TEST-PLAN.md
 ├── ACTIVATION-CHECKLIST.md
 └── config/
     └── everything.integration.example.json
