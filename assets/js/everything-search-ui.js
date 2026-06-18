@@ -1,6 +1,9 @@
 /* Everything search presentation: element access, states, and safe result rendering. */
 
 window.EverythingSearchUi = (() => {
+  let searchEnabled = false;
+  let busy = false;
+
   function getElements() {
     return {
       screen: document.getElementById("everythingSearchScreen"),
@@ -21,6 +24,24 @@ window.EverythingSearchUi = (() => {
     };
   }
 
+  function applyInteractiveState() {
+    const { input, typeSelect, searchButton, cancelButton } = getElements();
+    const controlsDisabled = !searchEnabled || busy;
+
+    if (input) input.disabled = controlsDisabled;
+    if (typeSelect) typeSelect.disabled = controlsDisabled;
+
+    if (searchButton) {
+      searchButton.disabled = controlsDisabled;
+      searchButton.textContent = busy ? "Searching..." : "Search";
+    }
+
+    if (cancelButton) {
+      cancelButton.hidden = !busy;
+      cancelButton.disabled = !busy;
+    }
+  }
+
   function setStatus(message, tone = "idle") {
     const { status } = getElements();
     if (!status) return;
@@ -32,27 +53,13 @@ window.EverythingSearchUi = (() => {
   }
 
   function setSearchEnabled(enabled) {
-    const { input, typeSelect, searchButton } = getElements();
-    if (input) input.disabled = !enabled;
-    if (typeSelect) typeSelect.disabled = !enabled;
-    if (searchButton) searchButton.disabled = !enabled;
+    searchEnabled = Boolean(enabled);
+    applyInteractiveState();
   }
 
   function setBusy(isBusy) {
-    const { input, typeSelect, searchButton, cancelButton } = getElements();
-
-    if (input) input.disabled = isBusy;
-    if (typeSelect) typeSelect.disabled = isBusy;
-
-    if (searchButton) {
-      searchButton.disabled = isBusy;
-      searchButton.textContent = isBusy ? "Searching..." : "Search";
-    }
-
-    if (cancelButton) {
-      cancelButton.hidden = !isBusy;
-      cancelButton.disabled = !isBusy;
-    }
+    busy = Boolean(isBusy);
+    applyInteractiveState();
   }
 
   function showSetup(show) {
