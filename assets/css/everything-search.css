@@ -74,7 +74,7 @@
 
 .everything-search-form {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .everything-search-primary-row {
@@ -95,22 +95,54 @@
   padding-right: 12px;
 }
 
-.everything-search-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
+.everything-search-filters {
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--app-border-soft);
+  border-radius: var(--app-radius-sm);
+  background: rgba(148, 163, 184, 0.035);
 }
 
-.everything-search-filter-row label {
+.everything-search-filters legend {
+  padding: 0 7px;
+  color: var(--app-text);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.everything-search-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.everything-search-filter-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.everything-search-filter-control label {
   margin: 0;
   color: var(--app-muted-strong);
   font-size: 12px;
 }
 
-.everything-search-filter-row select {
-  width: auto;
-  min-width: 130px;
+.everything-search-filter-control select,
+.everything-search-filter-control input {
+  width: 100%;
+  min-width: 0;
+}
+
+.everything-search-location-control {
+  grid-column: 1 / -1;
+}
+
+.everything-search-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .everything-search-status {
@@ -275,6 +307,12 @@
   text-align: center;
 }
 
+@media (max-width: 900px) {
+  .everything-search-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 720px) {
   .everything-search-primary-row {
     grid-template-columns: auto minmax(0, 1fr);
@@ -289,7 +327,19 @@
     grid-column: 1 / -1;
   }
 
-  .everything-search-filter-row {
-    justify-content: center;
+  .everything-search-filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .everything-search-location-control {
+    grid-column: auto;
+  }
+
+  .everything-search-filter-actions {
+    justify-content: stretch;
+  }
+
+  .everything-search-filter-actions .button {
+    width: 100%;
   }
 }
