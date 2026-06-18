@@ -17,7 +17,43 @@ public enum SearchResultKind
     Folder
 }
 
-public sealed record SearchRequest(string Query, SearchQueryType Type, int Limit);
+public enum SearchModifiedFilter
+{
+    Any,
+    Today,
+    ThisWeek,
+    ThisMonth,
+    Last7Days,
+    Last30Days
+}
+
+public enum SearchSizeFilter
+{
+    Any,
+    UpTo100Kb,
+    From100KbTo1Mb,
+    From1MbTo16Mb,
+    From16MbTo128Mb,
+    Over128Mb
+}
+
+public enum SearchMatchMode
+{
+    Contains,
+    Exact,
+    StartsWith
+}
+
+public sealed record SearchRequest(
+    string Query,
+    SearchQueryType Type,
+    int Limit,
+    string Extension,
+    SearchModifiedFilter Modified,
+    SearchSizeFilter Size,
+    string Location,
+    SearchMatchMode Match
+);
 
 public sealed record SearchResult(string Name, string Path, SearchResultKind Kind);
 
@@ -55,14 +91,30 @@ public static class SearchRequestValidator
     public const int DefaultLimit = 20;
     public const int MaximumLimit = 50;
     public const int MaximumQueryLength = 256;
+    public const int MaximumLocationLength = 260;
+    public const int MaximumExtensionLength = 12;
+    public const int MaximumExtensionCount = 12;
 
-    public static SearchRequest Normalize(string? query, string? type, int? limit)
+    public static SearchRequest Normalize(
+        string? query,
+        string? type,
+        int? limit,
+        string? extension,
+        string? modified,
+        string? size,
+        string? location,
+        string? match)
     {
-        string normalizedQuery = NormalizeQuery(query);
-        SearchQueryType normalizedType = NormalizeType(type);
-        int normalizedLimit = NormalizeLimit(limit);
-
-        return new SearchRequest(normalizedQuery, normalizedType, normalizedLimit);
+        return new SearchRequest(
+            NormalizeQuery(query),
+            NormalizeType(type),
+            NormalizeLimit(limit),
+            NormalizeExtension(extension),
+            NormalizeModified(modified),
+            NormalizeSize(size),
+            NormalizeLocation(location),
+            NormalizeMatch(match)
+        );
     }
 
     public static string NormalizeQuery(string? query)
@@ -82,6 +134,11 @@ public static class SearchRequestValidator
         if (normalized.Any(char.IsControl))
         {
             throw new SearchRequestException("The search query contains an invalid control character.");
+        }
+
+        if (normalized.Contains('"', StringComparison.Ordinal))
+        {
+            throw new SearchRequestException("The search query cannot contain a double quote.");
         }
 
         if (normalized.StartsWith("-", StringComparison.Ordinal) || normalized.StartsWith("/", StringComparison.Ordinal))
@@ -122,6 +179,182 @@ public static class SearchRequestValidator
 
         return requestedLimit;
     }
+
+    public static string NormalizeExtension(string? extension)
+    {
+        string normalized = (extension ?? string.Empty).Trim().ToLower(CultureInfo.InvariantCulture);
+        if (normalized.Length == 0 || normalized == "any")
+        {
+            return string.Empty;
+        }
+
+        string[] parts = normalized.Split(
+            [';', ',', ' '],
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+        );
+
+        if (parts.Length == 0 || parts.Length > MaximumExtensionCount)
+        {
+            throw new SearchRequestException($"Choose between 1 and {MaximumExtensionCount} file extensions.");
+        }
+
+        List<string> safeExtensions = new(parts.Length);
+        foreach (string rawPart in parts)
+        {
+            string part = rawPart.TrimStart('.');
+            if (part.Length is < 1 or > MaximumExtensionLength || !part.All(char.IsLetterOrDigit))
+            {
+                throw new SearchRequestException("File extensions may contain only letters and numbers.");
+            }
+
+            if (!safeExtensions.Contains(part, StringComparer.OrdinalIgnoreCase))
+            {
+                safeExtensions.Add(part);
+            }
+        }
+
+        return string.Join(';', safeExtensions);
+    }
+
+    public static SearchModifiedFilter NormalizeModified(string? modified)
+    {
+        string normalized = (modified ?? "any").Trim().ToLower(CultureInfo.InvariantCulture);
+
+        return normalized switch
+        {
+            "" or "any" => SearchModifiedFilter.Any,
+            "today" => SearchModifiedFilter.Today,
+            "thisweek" => SearchModifiedFilter.ThisWeek,
+            "thismonth" => SearchModifiedFilter.ThisMonth,
+            "last7days" => SearchModifiedFilter.Last7Days,
+            "last30days" => SearchModifiedFilter.Last30Days,
+            _ => throw new SearchRequestException("The modified-date filter is not supported.")
+        };
+    }
+
+    public static SearchSizeFilter NormalizeSize(string? size)
+    {
+        string normalized = (size ?? "any").Trim().ToLower(CultureInfo.InvariantCulture);
+
+        return normalized switch
+        {
+            "" or "any" => SearchSizeFilter.Any,
+            "upto100kb" => SearchSizeFilter.UpTo100Kb,
+            "100kbto1mb" => SearchSizeFilter.From100KbTo1Mb,
+            "1mbto16mb" => SearchSizeFilter.From1MbTo16Mb,
+            "16mbto128mb" => SearchSizeFilter.From16MbTo128Mb,
+            "over128mb" => SearchSizeFilter.Over128Mb,
+            _ => throw new SearchRequestException("The file-size filter is not supported.")
+        };
+    }
+
+    public static string NormalizeLocation(string? location)
+    {
+        string normalized = (location ?? string.Empty).Trim();
+        if (normalized.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (normalized.Length > MaximumLocationLength)
+        {
+            throw new SearchRequestException($"The location must be {MaximumLocationLength} characters or fewer.");
+        }
+
+        if (normalized.Any(char.IsControl) || normalized.Contains('"', StringComparison.Ordinal))
+        {
+            throw new SearchRequestException("The location contains an invalid character.");
+        }
+
+        normalized = normalized.Replace('/', '\\');
+        if (normalized.Length < 2 || !char.IsLetter(normalized[0]) || normalized[1] != ':')
+        {
+            throw new SearchRequestException("The location must begin with a Windows drive letter, for example C:\\Users.");
+        }
+
+        return normalized;
+    }
+
+    public static SearchMatchMode NormalizeMatch(string? match)
+    {
+        string normalized = (match ?? "contains").Trim().ToLower(CultureInfo.InvariantCulture);
+
+        return normalized switch
+        {
+            "" or "contains" => SearchMatchMode.Contains,
+            "exact" => SearchMatchMode.Exact,
+            "startswith" => SearchMatchMode.StartsWith,
+            _ => throw new SearchRequestException("The name-match filter must be contains, exact, or startswith.")
+        };
+    }
+}
+
+public static class EverythingSearchQueryBuilder
+{
+    public static string Build(SearchRequest request)
+    {
+        List<string> parts = new(7)
+        {
+            request.Match switch
+            {
+                SearchMatchMode.Exact => $"exact:{Quote(request.Query)}",
+                SearchMatchMode.StartsWith => $"startwith:{Quote(request.Query)}",
+                _ => Quote(request.Query)
+            }
+        };
+
+        if (request.Type == SearchQueryType.File)
+        {
+            parts.Add("file:");
+        }
+        else if (request.Type == SearchQueryType.Folder)
+        {
+            parts.Add("folder:");
+        }
+
+        if (request.Extension.Length > 0)
+        {
+            parts.Add($"ext:{request.Extension}");
+        }
+
+        string? modifiedFilter = request.Modified switch
+        {
+            SearchModifiedFilter.Today => "dm:today",
+            SearchModifiedFilter.ThisWeek => "dm:thisweek",
+            SearchModifiedFilter.ThisMonth => "dm:thismonth",
+            SearchModifiedFilter.Last7Days => "dm:last7days",
+            SearchModifiedFilter.Last30Days => "dm:last30days",
+            _ => null
+        };
+        if (modifiedFilter is not null)
+        {
+            parts.Add(modifiedFilter);
+        }
+
+        string? sizeFilter = request.Size switch
+        {
+            SearchSizeFilter.UpTo100Kb => "size:<=100kb",
+            SearchSizeFilter.From100KbTo1Mb => "size:>100kb size:<=1mb",
+            SearchSizeFilter.From1MbTo16Mb => "size:>1mb size:<=16mb",
+            SearchSizeFilter.From16MbTo128Mb => "size:>16mb size:<=128mb",
+            SearchSizeFilter.Over128Mb => "size:>128mb",
+            _ => null
+        };
+        if (sizeFilter is not null)
+        {
+            parts.Add(sizeFilter);
+        }
+
+        if (request.Location.Length > 0)
+        {
+            string location = request.Location.TrimEnd('\\') + "\\";
+            parts.Add(Quote(location));
+        }
+
+        return string.Join(' ', parts);
+    }
+
+    private static string Quote(string value) => $"\"{value}\"";
 }
 
 public static class LocalOriginPolicy
