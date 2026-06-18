@@ -92,7 +92,7 @@ internal sealed class EverythingSdkBackend : IEverythingSearchBackend
 
         public IReadOnlyList<SearchResult> Search(SearchRequest request, CancellationToken cancellationToken)
         {
-            _setSearch(request.Query);
+            _setSearch(EverythingSearchQueryBuilder.Build(request));
             _setMatchCase(false);
             _setMatchWholeWord(false);
             _setMatchPath(false);
