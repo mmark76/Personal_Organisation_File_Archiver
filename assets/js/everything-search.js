@@ -3,11 +3,10 @@
 window.EverythingSearch = (() => {
   const currentScriptUrl = document.currentScript?.src || window.location.href;
   const scriptDirectory = new URL(".", currentScriptUrl);
-  const moduleFiles = [
-    "everything-search-api.js",
-    "everything-search-ui.js",
-    "everything-install-guide.js",
-    "everything-search-view.js"
+  const moduleDescriptors = [
+    { fileName: "everything-search-api.js", globalName: "EverythingSearchApi" },
+    { fileName: "everything-search-ui.js", globalName: "EverythingSearchUi" },
+    { fileName: "everything-install-guide.js", globalName: "EverythingInstallGuide" }
   ];
 
   const defaultApiBaseUrl = "http://127.0.0.1:51337";
@@ -20,22 +19,16 @@ window.EverythingSearch = (() => {
   let activeRequestController = null;
   let clearSessionWhenReady = false;
 
-  function loadStylesheet() {
-    if (document.querySelector('link[data-everything-search-styles="true"]')) return;
+  function loadClassicScript({ fileName, globalName }) {
+    if (window[globalName]) {
+      return Promise.resolve();
+    }
 
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = new URL("../css/everything-search.css", scriptDirectory).href;
-    link.dataset.everythingSearchStyles = "true";
-    document.head.appendChild(link);
-  }
-
-  function loadClassicScript(fileName) {
     return new Promise((resolve, reject) => {
       const source = new URL(fileName, scriptDirectory).href;
       const existing = [...document.scripts].find(script => script.src === source);
 
-      if (existing?.dataset.loaded === "true") {
+      if (window[globalName]) {
         resolve();
         return;
       }
@@ -44,13 +37,19 @@ window.EverythingSearch = (() => {
       script.src = source;
       script.async = false;
       script.addEventListener("load", () => {
-        script.dataset.loaded = "true";
+        if (!window[globalName]) {
+          reject(new Error(`${fileName} loaded without creating ${globalName}.`));
+          return;
+        }
+
         resolve();
       }, { once: true });
       script.addEventListener("error", () => reject(new Error(`Could not load ${fileName}.`)), { once: true });
 
       if (!existing) {
         document.head.appendChild(script);
+      } else if (window[globalName]) {
+        resolve();
       }
     });
   }
@@ -58,9 +57,8 @@ window.EverythingSearch = (() => {
   function ensureModules() {
     if (modulesPromise) return modulesPromise;
 
-    loadStylesheet();
-    modulesPromise = moduleFiles.reduce(
-      (promise, fileName) => promise.then(() => loadClassicScript(fileName)),
+    modulesPromise = moduleDescriptors.reduce(
+      (promise, descriptor) => promise.then(() => loadClassicScript(descriptor)),
       Promise.resolve()
     ).then(() => {
       if (clearSessionWhenReady) {
@@ -131,7 +129,6 @@ window.EverythingSearch = (() => {
 
   async function initialize() {
     await ensureModules();
-    window.EverythingSearchView?.ensureView?.();
 
     const elements = window.EverythingSearchUi?.getElements?.();
     if (!elements?.form || elements.form.dataset.everythingSearchBound === "true") {
@@ -269,10 +266,10 @@ window.EverythingSearch = (() => {
     return window.EverythingSearchUi?.setStatus?.(message, tone);
   }
 
-  if (document.readyState === "complete") {
-    void initialize();
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => void initialize(), { once: true });
   } else {
-    window.addEventListener("load", () => void initialize(), { once: true });
+    void initialize();
   }
 
   return {
