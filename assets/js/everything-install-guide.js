@@ -43,26 +43,78 @@ window.EverythingInstallGuide = (() => {
     return setupButton;
   }
 
+  function createCompanionDownloadButton() {
+    const existingButton = document.getElementById("companionDownloadLink");
+    if (existingButton) return existingButton;
+
+    const everythingButton = document.getElementById("everythingDownloadLink");
+    if (!everythingButton?.parentElement) return null;
+
+    const companionButton = document.createElement("a");
+    companionButton.id = "companionDownloadLink";
+    companionButton.className = "button";
+    companionButton.textContent = "Install Companion";
+    everythingButton.insertAdjacentElement("afterend", companionButton);
+    return companionButton;
+  }
+
+  function configureSetupPanel() {
+    const title = document.getElementById("everythingSetupTitle");
+    const panel = document.getElementById("everythingSetupPanel");
+    const description = panel?.querySelector(":scope > p");
+    const everythingButton = document.getElementById("everythingDownloadLink");
+    const guideButton = document.getElementById("toggleEverythingInstallGuideButton");
+    const guide = document.getElementById("everythingInstallGuide");
+    const companionButton = createCompanionDownloadButton();
+
+    if (title) title.textContent = "Search setup is required";
+    if (description) {
+      description.textContent = "Search this PC needs both Everything and the Organize Your PC Companion on this Windows computer.";
+    }
+
+    if (everythingButton) {
+      everythingButton.textContent = "Install Everything";
+      everythingButton.href = officialDownloadUrl;
+      everythingButton.target = "_blank";
+      everythingButton.rel = "noopener noreferrer";
+    }
+
+    if (companionButton) {
+      companionButton.href = companionDownloadUrl;
+      companionButton.target = "_blank";
+      companionButton.rel = "noopener noreferrer";
+      companionButton.setAttribute("download", "EverythingCompanion-win-x64.zip");
+    }
+
+    if (guideButton && guideButton.getAttribute("aria-expanded") !== "true") {
+      guideButton.textContent = "Simple Instructions";
+    }
+
+    if (guide) {
+      const list = document.createElement("ol");
+      [
+        "Select Install Everything, download the current 64-bit installer, install it, and start Everything.",
+        "Select Install Companion, extract the downloaded ZIP, and double-click Install-EverythingCompanion.cmd.",
+        "Return to Organize Your PC and select Check Again. The companion will then start automatically with Windows."
+      ].forEach(text => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        list.appendChild(item);
+      });
+      guide.replaceChildren(list);
+    }
+  }
+
   function configureDownloadLinks() {
     ensureBrandStylesheet();
-    const { downloadLink, companionDownloadLink } = window.EverythingSearchUi?.getElements?.() || {};
-
-    if (downloadLink) {
-      downloadLink.href = officialDownloadUrl;
-      downloadLink.target = "_blank";
-      downloadLink.rel = "noopener noreferrer";
-    }
-
-    if (companionDownloadLink) {
-      companionDownloadLink.href = companionDownloadUrl;
-      companionDownloadLink.target = "_blank";
-      companionDownloadLink.rel = "noopener noreferrer";
-    }
+    configureSetupPanel();
   }
 
   function openSetupInstructions() {
     window.EverythingSearchUi?.showSetup?.(true);
     window.EverythingSearchUi?.setGuideExpanded?.(true);
+    const guideButton = document.getElementById("toggleEverythingInstallGuideButton");
+    if (guideButton) guideButton.textContent = "Hide Instructions";
     document.getElementById("everythingSetupPanel")?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
   }
 
@@ -77,7 +129,9 @@ window.EverythingInstallGuide = (() => {
 
     guideButton?.addEventListener("click", () => {
       const { installGuide } = window.EverythingSearchUi.getElements();
-      window.EverythingSearchUi.setGuideExpanded(Boolean(installGuide?.hidden));
+      const expand = Boolean(installGuide?.hidden);
+      window.EverythingSearchUi.setGuideExpanded(expand);
+      guideButton.textContent = expand ? "Hide Instructions" : "Simple Instructions";
     });
 
     checkAgainButton?.addEventListener("click", () => {
@@ -91,6 +145,8 @@ window.EverythingInstallGuide = (() => {
     configureDownloadLinks();
     createPermanentSetupButton();
     window.EverythingSearchUi?.setGuideExpanded?.(false);
+    const guideButton = document.getElementById("toggleEverythingInstallGuideButton");
+    if (guideButton) guideButton.textContent = "Simple Instructions";
   }
 
   ensureBrandStylesheet();
