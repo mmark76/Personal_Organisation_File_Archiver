@@ -1,17 +1,18 @@
 # Personal Memory-Based File Archiver
 
-**Personal Memory-Based File Archiver** is a standalone browser-based tool that helps the user build a personal memory-based folder tree, view an existing one, archive files manually, and archive folders manually into user-selected archive destinations.
+**Personal Memory-Based File Archiver**, presented in the interface as **Organize Your PC**, is a standalone browser-based tool that helps the user search local file and folder names, build a personal memory-based folder tree, view an existing one, archive files manually, and archive folders manually into user-selected archive destinations.
 
 The app follows a memory-based approach: files and folders are organised according to how the user naturally remembers them, such as by life area, work period, responsibility, project, subject, interest, or document function.
 
-The current app has four main choices:
+The current app has five main choices:
 
+- **Search this PC** — search local file and folder names through Everything by voidtools and the optional local companion service. Search supports filters for result type, file category, modified date, size, filename matching, result count, and Windows location.
 - **Build New Folder Tree on this PC** — create, review, and optionally create a memory-based folder tree on the local computer. The copy, export, import, and official template download buttons for this mode are currently implemented in the codebase but temporarily disabled and hidden in the visible app interface.
 - **View Existing Folder Tree on this PC** — choose a local folder and read only folder names up to the selected depth as a starting tree.
 - **Archive a File** — choose an archive folder tree from this PC or from a JSON file, load one file, review its basic browser metadata, receive a simple offline folder suggestion, select a destination, and archive the file after the user grants browser permission.
 - **Archive a Folder** — choose an archive folder tree from this PC or from a JSON file, choose one source folder, select a destination, and archive a recursive copy of that folder after the user grants browser permission.
 
-The app does not delete, upload, rename, modify, automatically scan, or automatically move files or folders. Archive actions leave the original file or source folder untouched.
+The app does not delete, upload, rename, modify, automatically scan, or automatically move files or folders. Archive actions leave the original file or source folder untouched. Search results are discovery-only and do not grant filesystem access.
 
 As a good practice, users are encouraged to keep a backup of important files. The app displays this recommendation in a small panel on the main screen and explains in the Disclaimer that archive actions create copies without deleting the originals.
 
@@ -23,7 +24,8 @@ Recent safety improvements include:
 - preflight limits that stop unusually large folder archives before any destination output is created;
 - rejection of both direct and retained-root folder destinations that point inside the source folder;
 - automatic rollback attempts that remove incomplete file or folder archives if copying fails;
-- clear user-facing messages for permission denial, cancellation, blocked concurrent operations, oversized folders, rollback, and success.
+- clear user-facing messages for permission denial, cancellation, blocked concurrent operations, oversized folders, rollback, and success;
+- loopback-only Everything search with origin checks, expiring in-memory sessions, rate limiting, structured filter validation, and redacted display paths.
 
 ## Current App Structure
 
@@ -32,12 +34,16 @@ index.html
 site.webmanifest
 LICENSE.md
 PRIVACY.md
+CHANGELOG.md
+THIRD_PARTY_NOTICES.md
 
 docs/philosophy.md
 
 assets/css/base.css
 assets/css/layout.css
 assets/css/components.css
+assets/css/everything-search.css
+assets/css/everything-brand.css
 assets/css/modals.css
 assets/css/privacy.css
 assets/css/responsive.css
@@ -60,6 +66,9 @@ assets/js/folder-tree-existing.js
 assets/js/folder-creation.js
 
 assets/js/file-advisor.js
+assets/js/everything-search-api.js
+assets/js/everything-search-ui.js
+assets/js/everything-install-guide.js
 assets/js/everything-search.js
 assets/js/file-import.js
 assets/js/archive-operation.js
@@ -78,6 +87,7 @@ assets/images/organize-your-pc-social-preview.png
 assets/images/local-copyright-protected-badge.svg
 
 tests/archive-core-tests.html
+tests/run-browser-tests.mjs
 
 everything-companion/
   EverythingCompanion.csproj
@@ -86,13 +96,32 @@ everything-companion/
   EverythingSdkBackend.cs
   EverythingEsExeBackend.cs
   README.md
+
+integration/everything/
+  README.md
+  ARCHITECTURE.md
+  INTEGRATION-CONTRACT.md
+  UI-UX-SPEC.md
+  SECURITY-PRIVACY.md
+  TEST-PLAN.md
+  ACTIVATION-CHECKLIST.md
 ```
 
 The visible app interface is English-only.
 
 ## How to Run
 
-Open `index.html` in a modern browser.
+For ordinary browser use, open `index.html` in a modern browser. For reliable local development and the Everything integration, serve the repository over localhost:
+
+```powershell
+python -m http.server 4173
+```
+
+Then open:
+
+```text
+http://127.0.0.1:4173/
+```
 
 For direct local folder creation, existing folder tree reading, file archiving, and folder archiving operations, use a browser that supports the File System Access API, such as Chrome or Edge. Browser support may also depend on secure-context rules.
 
@@ -120,32 +149,58 @@ The settings export contains the app name, export type, schema version, export d
 
 The **Settings** button remains available above ordinary app modals so the user can open the settings panel while a modal dialog is visible.
 
-## Optional Everything Companion Service
+## Optional Everything Search
 
-The app includes an optional **Search this PC with Everything** panel on the main screen. It connects only to a local Windows companion service bound to `127.0.0.1`.
+The app includes a dedicated **Search this PC** screen. It connects only to a local Windows companion service bound to `127.0.0.1:51337`.
 
 The companion service is implemented as a small .NET 8 Windows app in `everything-companion/`.
 
 It:
 
 - exposes `GET /api/health`;
-- exposes `GET /api/search?q=&type=all|file|folder&limit=`;
+- exposes `GET /api/search?q=&type=&limit=&ext=&modified=&size=&location=&match=`;
+- validates all query and filter values;
 - prefers the Everything SDK when available;
-- falls back to `es.exe` only when the SDK is unavailable;
+- falls back to `es.exe` when the SDK is unavailable;
+- requires a short-lived session established through the health endpoint;
+- sends temporary session information through a request header and never through a URL;
+- applies rate limiting;
+- redacts display paths by default;
 - does not expose file downloads or arbitrary filesystem access; and
-- does not send local file paths to any remote server.
+- does not send local search queries or file paths to a remote server.
 
-The panel is optional. If the companion service is not running, the rest of the app still works normally.
-See `everything-companion/README.md` for the local run command and companion-file notes.
+The search screen supports:
+
+- all results, files only, or folders only;
+- common file categories such as PDF, documents, spreadsheets, presentations, images, audio, video, and archives;
+- modified-date ranges;
+- file-size ranges;
+- contains, exact-name, and starts-with matching;
+- an optional Windows drive or folder location;
+- 20 or 50 results;
+- cancellation and Clear filters.
+
+A permanent **Install Everything** button opens the official voidtools download page and shows the sequence **Download · Install · Start**. The repository does not distribute the Everything installer, executable, SDK DLL, or `es.exe` binary.
+
+The search feature is optional. If Everything or the companion service is unavailable, the four original app workflows continue to work normally.
+
+Run the companion from the repository root with:
+
+```powershell
+dotnet run --project .\everything-companion\EverythingCompanion.csproj
+```
+
+Everything branding is used only to identify the optional integration. Organize Your PC is not affiliated with or endorsed by voidtools. See `THIRD_PARTY_NOTICES.md` and `integration/everything/` for attribution, architecture, contract, security, testing, and activation notes.
 
 ## What the App Does
 
-The app provides four main working areas:
+The app provides five main working areas:
 
-1. **Build New Folder Tree** — the user can build, review, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names. The copy, export, import, and official template download buttons for this mode are temporarily disabled and hidden in the visible app interface.
-2. **View Existing Folder Tree on this PC** — the user can choose one local root folder and select a reading depth of 1, 2, or 3 levels. The app reads only folder names up to that depth and turns them into a starting folder tree for review.
-3. **Archive a File** — the user can choose an archive folder tree from this PC or import a folder tree JSON file, load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the archive tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
-4. **Archive a Folder** — the user can choose an archive folder tree from this PC or import a folder tree JSON file, choose one source folder, select a destination folder from the archive tree preview, and archive a recursive copy of the chosen folder to that destination.
+1. **Search this PC** — the user can search local file and folder names through Everything, apply the supported filters, and review safe result metadata. Search results do not automatically archive or manipulate files.
+2. **Build New Folder Tree** — the user can build, review, and optionally create a personal folder tree on the computer. The visible tree also shows folder selection codes beside each folder, such as `01`, `01.001`, or `02.004.001`. These codes are visual selection aids and do not change the actual folder names. The copy, export, import, and official template download buttons for this mode are temporarily disabled and hidden in the visible app interface.
+3. **View Existing Folder Tree on this PC** — the user can choose one local root folder and select a reading depth of 1, 2, or 3 levels. The app reads only folder names up to that depth and turns them into a starting folder tree for review.
+4. **Archive a File** — the user can choose an archive folder tree from this PC or import a folder tree JSON file, load one file, review basic browser metadata, receive a simple offline folder suggestion, select a destination folder from the archive tree preview, and archive the file to the corresponding local folder after choosing the app root folder or its parent folder through the browser folder picker.
+5. **Archive a Folder** — the user can choose an archive folder tree from this PC or import a folder tree JSON file, choose one source folder, select a destination folder from the archive tree preview, and archive a recursive copy of the chosen folder to that destination.
 
 In **Build New Folder Tree on the PC**, the first level is fixed:
 
@@ -361,11 +416,13 @@ The current app leaves the final destination decision to the user. The folder tr
 
 The app is local and browser-based.
 
-It does not upload imported files, chosen folders, or file data to a server. It does not read or inspect the user's files automatically. A file or folder is used only when the user imports or chooses it through the browser picker.
+It does not upload imported files, chosen folders, file data, search queries, or local search paths to a remote server. It does not read or inspect the user's files automatically. A file or folder is used only when the user imports or chooses it through the browser picker.
 
 When reading an existing folder tree, it reads only folder names from the user-selected root folder up to the selected depth.
 
-The deployed website offers optional Google Analytics usage measurement only after the user explicitly allows it. Rejecting analytics does not restrict the app. The fixed analytics events contain no file names, folder names, paths, file contents, imported metadata, destination names, feedback text, or email addresses. The choice is stored locally and can be changed from the footer.
+The Everything search feature communicates only with the local companion on loopback. Search history is not persisted by default, session information remains in memory, and display paths are redacted unless an explicit local configuration enables full paths.
+
+The deployed website offers optional Google Analytics usage measurement only after the user explicitly allows it. Rejecting analytics does not restrict the app. The fixed analytics events contain no file names, folder names, paths, file contents, imported metadata, destination names, search queries, feedback text, or email addresses. The choice is stored locally and can be changed from the footer.
 
 When folder creation, existing folder tree reading, file archiving, or folder archiving is used, the user must manually choose a folder and give permission through the browser.
 
@@ -373,7 +430,11 @@ As a general good practice, users should keep a separate backup of important fil
 
 ## Tests
 
-The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html`. The current suite contains 27 tests covering file and folder archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, final destination containment, file and folder rollback, concurrent archive prevention, optional analytics consent and event filtering, the Everything companion panel, and the unchanged normal new-folder-structure workflow.
+The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html` and a Playwright runner at `tests/run-browser-tests.mjs`.
+
+Current automated coverage includes archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, optional analytics consent and event filtering, the dedicated Everything screen, structured filters, session-header handling, unavailable/setup states, navigation, and the unchanged normal folder-tree and archive workflows.
+
+The CI workflow also restores and builds the .NET 8 companion on Windows.
 
 ## Local Copyright Badge
 
@@ -381,10 +442,19 @@ The footer displays a local SVG copyright badge stored at `assets/images/local-c
 
 The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains. The separate optional Google Analytics tag is loaded only after explicit consent on the deployed production website.
 
+## Third-Party Attribution
+
+Everything is third-party software by voidtools and must be installed separately by the user. The app links to the official voidtools website and uses Everything branding only to identify the optional integration.
+
+See `THIRD_PARTY_NOTICES.md` for official links and attribution details.
+
 ## Known Limitations
 
 - The app is a user-controlled folder tree builder and archiver, not a background automatic file manager.
-- The Everything companion service is optional and local-only. It listens only on `127.0.0.1` and can be left off if the user does not want local search support.
+- Search this PC requires Windows, a running Everything installation, and the local .NET companion service.
+- The repository does not bundle or automatically install Everything.
+- Search results are discovery-only and do not directly authorize archive actions.
+- Display paths are redacted by default.
 - In Build New Folder Tree Mode, the copy, import, export, and official template download buttons are temporarily disabled and hidden in the visible app interface.
 - Existing folder tree reading is limited to 1, 2, or 3 folder levels, selected by the user.
 - Folder archiving copies recursively, but it does not inspect file content or classify files inside the chosen folder.

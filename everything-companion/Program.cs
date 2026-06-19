@@ -161,7 +161,17 @@ app.MapGet("/api/health", (HttpContext context) =>
     ));
 }).RequireRateLimiting("health");
 
-app.MapGet("/api/search", async (HttpContext context, string? q, string? type, int? limit, CancellationToken cancellationToken) =>
+app.MapGet("/api/search", async (
+    HttpContext context,
+    string? q,
+    string? type,
+    int? limit,
+    string? ext,
+    string? modified,
+    string? size,
+    string? location,
+    string? match,
+    CancellationToken cancellationToken) =>
 {
     string? origin = context.Request.Headers.Origin.ToString();
     string? sessionToken = context.Request.Headers[CompanionSessionStore.HeaderName].ToString();
@@ -177,7 +187,16 @@ app.MapGet("/api/search", async (HttpContext context, string? q, string? type, i
 
     try
     {
-        SearchRequest request = SearchRequestValidator.Normalize(q, type, limit);
+        SearchRequest request = SearchRequestValidator.Normalize(
+            q,
+            type,
+            limit,
+            ext,
+            modified,
+            size,
+            location,
+            match
+        );
         SearchExecutionResult execution = await searchFacade.SearchAsync(request, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<SearchResult> responseResults = exposeFullPaths
             ? execution.Results

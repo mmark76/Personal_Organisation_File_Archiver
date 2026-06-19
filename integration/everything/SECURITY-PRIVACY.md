@@ -2,25 +2,21 @@
 
 ## Security boundary
 
-The companion service is a local bridge, not a general filesystem API. It must expose only narrowly defined health and search operations.
+The companion service is a local search bridge, not a general filesystem API. It exposes only narrowly defined health and search operations.
 
-## Required controls
+## Implemented controls
 
-- Bind only to `127.0.0.1`.
-- Reject non-approved browser origins.
-- Require a short-lived, origin-bound session token.
-- Never place the session token in a URL.
-- Validate and length-limit every query.
-- Restrict result type to `all`, `file`, or `folder`.
-- Restrict result count to a configured maximum.
-- Apply request rate limiting.
-- Apply a hard execution timeout.
-- Support cancellation.
-- Serialize or otherwise isolate native SDK calls when required by provider state.
-- Execute `es.exe` without a shell and only through fixed argument construction.
-- Capture and evaluate CLI exit code and standard error.
-- Terminate the CLI process on timeout or cancellation.
-- Return safe normalized errors rather than raw provider output.
+- Binds only to `127.0.0.1`.
+- Rejects non-approved browser origins.
+- Requires a short-lived, origin-bound search session.
+- Sends session information through a request header and never through the URL.
+- Validates and length-limits every query.
+- Validates filters for result type, extension, modified date, size, location, match mode, and result count.
+- Restricts results to a maximum of 50 per request.
+- Applies request rate limiting and cancellation.
+- Executes `es.exe` without a command shell.
+- Returns safe error responses rather than raw backend output.
+- Keeps search failure isolated from the four original application workflows.
 
 ## Path handling
 
@@ -28,31 +24,38 @@ Full local paths are private data.
 
 Default behaviour:
 
-- return only the final name and a safe display location;
-- keep `fullPath` absent or `null`;
-- never log full paths in normal operation;
-- never send paths to remote analytics, crash reporting, or network services.
+- return the final name and a redacted display location;
+- do not expose arbitrary file-access endpoints;
+- do not write search results or full paths to browser storage;
+- do not send paths to analytics, crash reporting, or remote services.
 
-Any future full-path mode requires explicit configuration, clear UI disclosure, and a separate security review.
+Any future full-path or direct-result handoff mode requires explicit configuration, clear UI disclosure, a separate contract, and a new security review.
+
+## Query handling
+
+The browser sends structured filter values rather than raw Everything command syntax. The companion validates those values and constructs the provider query locally.
+
+The current integration does not persist search history. Query and result data remain only as long as needed for the active screen and browser session.
 
 ## Provider trust
 
-If native DLL or CLI files are supported, the companion must:
+Everything remains user-installed third-party software. The companion uses approved SDK or CLI locations and does not search arbitrary writable directories for executables or DLLs.
 
-- load only from approved directories;
-- use pinned supported versions where practical;
-- document expected filenames and architecture;
-- verify integrity before any bundled distribution;
-- never search arbitrary writable directories for executables or DLLs.
+No Everything executable, installer, SDK DLL, or CLI binary is bundled in this repository.
 
-## Readiness
+## Install and branding links
 
-Health must verify real provider readiness, not only the presence of a DLL or executable. A provider is ready only when it can communicate successfully with the local Everything runtime.
+The Install Everything action opens the official voidtools download page in a new browser tab. It does not proxy, mirror, or automatically download an installer.
+
+Everything branding is used only to identify the optional integration. It is not included in analytics events and does not alter the local-only search boundary.
 
 ## Data retention
 
-Search queries and results should remain in memory only for the duration needed to render the current screen. Persistent search history must not be introduced without explicit user choice and a separate privacy design.
+- No persistent search history.
+- No query or result storage in local browser storage.
+- No remote transmission of queries or local paths.
+- Temporary session data is kept only in memory and expires automatically.
 
 ## Failure isolation
 
-A companion or provider failure must disable only the optional search feature. It must not affect folder-tree building, viewing, file archiving, or folder archiving.
+A companion or backend failure disables only Search this PC. It does not affect folder-tree building, existing-tree viewing, file archiving, or folder archiving.

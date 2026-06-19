@@ -10,13 +10,14 @@ Provide fast local filename and folder search inside Organize Your PC while keep
 
 Responsibilities:
 
-- render the dedicated search screen inside the existing application shell;
-- collect query, result type, and result-limit choices;
-- show connection, loading, empty, success, and error states;
+- render the compact Search this PC entry point and dedicated search screen;
+- display Everything branding and the permanent Install Everything action;
+- collect query, result type, filters, location, and result-limit choices;
+- show connection, loading, empty, success, cancelled, unavailable, and error states;
 - present safe result metadata;
-- hand selected results to existing archive workflows only after explicit user action.
+- keep search results separate from archive authority.
 
-The UI must not call Everything DLL functions or execute `es.exe` directly.
+The UI does not call Everything DLL functions or execute `es.exe` directly.
 
 ### B. Browser search client
 
@@ -24,36 +25,43 @@ Responsibilities:
 
 - communicate only with the local companion API;
 - perform health and session negotiation;
-- validate client-side input;
-- apply request cancellation and UI timeouts;
+- validate query and filter input;
+- send the temporary session token only in the approved header;
+- apply request cancellation;
 - normalize API errors for presentation.
+
+Browser modules:
+
+- `assets/js/everything-search-api.js` — API, session, and validation;
+- `assets/js/everything-search-ui.js` — states and safe result rendering;
+- `assets/js/everything-install-guide.js` — install link, guidance, and branding stylesheet loading;
+- `assets/js/everything-search.js` — coordination.
 
 ### C. Local companion API
 
 Responsibilities:
 
 - bind only to loopback;
-- validate origin, session token, query, type, and limit;
-- apply rate limits, execution timeouts, and cancellation;
-- choose one search provider;
-- normalize provider output into a stable response contract;
+- validate origin and session token;
+- validate query, type, extension, modified date, size, location, match mode, and limit;
+- apply rate limits and cancellation;
+- choose one search backend;
+- normalize backend output into a stable response contract;
 - redact full paths unless explicitly enabled by approved configuration.
 
-### D. Search-provider abstraction
+### D. Search backend abstraction
 
-The companion should eventually depend on one stable provider contract rather than on concrete Everything implementations.
+Implemented backend roles:
 
-Planned provider roles:
+- `EverythingSdkBackend` — preferred native SDK route;
+- `EverythingEsExeBackend` — controlled `es.exe` fallback;
+- unavailable state — explicit diagnostic state when neither backend is usable.
 
-- `EverythingSdkProvider`: preferred native SDK route;
-- `EverythingCliProvider`: controlled `es.exe` fallback;
-- `UnavailableProvider`: explicit diagnostic state when neither provider is usable.
-
-Provider selection must be deterministic and reported by the health endpoint.
+Both backends receive the same validated provider query constructed by the companion.
 
 ### E. Everything runtime
 
-Everything remains external third-party software running locally on Windows. Its indexing and search engine are not reimplemented by Organize Your PC.
+Everything remains external third-party software running locally on Windows. Its indexing and search engine are not reimplemented or distributed by Organize Your PC.
 
 ## 3. Runtime sequence
 
@@ -61,44 +69,34 @@ Everything remains external third-party software running locally on Windows. Its
 2. Browser client calls the local health endpoint.
 3. Companion verifies readiness and returns active backend information.
 4. Browser client obtains or refreshes an origin-bound session token.
-5. User submits a validated query.
-6. Companion enforces limits and sends the request to one provider.
-7. Provider queries Everything locally.
-8. Companion returns normalized results with redacted display paths by default.
-9. UI displays results.
-10. For the initial release, the user reselects the matching file or folder through the existing browser picker before archiving.
-11. A future direct handoff may use a short-lived opaque result reference, but only after a separate contract and security review.
+5. User submits a validated query and optional filters.
+6. Companion validates structured values and builds the local Everything provider query.
+7. Companion sends the query to the SDK backend or controlled `es.exe` fallback.
+8. Everything searches its local index.
+9. Companion returns normalized results with redacted display paths by default.
+10. UI displays results.
+11. The user must still use the existing browser picker and confirmation flow before an archive action.
 
-## 4. Result handoff boundary
+## 4. Search and archive boundary
 
-A redacted search result is not authority to manipulate a filesystem item.
+A search result is not authority to manipulate a filesystem item. The current integration is discovery-only.
 
-The initial integration must use the existing browser picker and confirmation flow. The search result helps the user identify the item, but the browser picker supplies the actual user-authorized file or folder selection.
+The existing browser picker remains responsible for the actual user-authorized file or folder selection. A future opaque-reference mechanism would require a separate contract, security review, and explicit approval.
 
-A future opaque-reference mechanism must:
+## 5. Deployment model
 
-- avoid exposing the full path to the browser;
-- expire quickly;
-- be bound to the active session and origin;
-- prevent replay;
-- resolve only through a narrowly scoped local endpoint;
-- require explicit user confirmation;
-- receive separate tests and security review.
+### Current user-managed model
 
-## 5. Deployment modes
+The user installs and runs Everything separately. Organize Your PC distributes only its own UI and companion integration code. The permanent Install Everything action opens the official voidtools download page.
 
-### User-managed Everything
+### Future bundled dependencies
 
-The user installs and runs Everything separately. Organize Your PC distributes only its own integration code. This is the preferred initial deployment model.
+Any future installer may include approved Everything SDK or CLI files only after licensing, notices, version pinning, integrity verification, update responsibility, and packaging requirements are separately reviewed.
 
-### Bundled companion dependencies
+## 6. Branding boundary
 
-A future installer may include approved Everything SDK or CLI files only after licensing, notices, version pinning, integrity verification, and update responsibilities are defined.
+Everything branding is used only to identify the optional integration. It is not presented as Organize Your PC branding and does not imply affiliation or endorsement.
 
-## 6. Failure isolation
+## 7. Failure isolation
 
-Failure of Everything, its SDK, `es.exe`, or the companion service must never prevent the four existing application areas from operating. Search remains optional and independently degradable.
-
-## 7. Activation rule
-
-Nothing in this scaffold becomes active until existing application files are deliberately connected in a separate reviewed change.
+Failure of Everything, its SDK, `es.exe`, or the companion service disables only the optional search feature. Folder-tree building, existing-tree viewing, file archiving, and folder archiving remain available.

@@ -53,6 +53,7 @@
   <link rel="stylesheet" href="assets/css/base.css" />
   <link rel="stylesheet" href="assets/css/layout.css" />
   <link rel="stylesheet" href="assets/css/components.css" />
+  <link rel="stylesheet" href="assets/css/everything-search.css" />
   <link rel="stylesheet" href="assets/css/modals.css" />
   <link rel="stylesheet" href="assets/css/privacy.css" />
   <link rel="stylesheet" href="assets/css/responsive.css" />
@@ -94,56 +95,17 @@
         <span>This app is for personal use only. As a good practice, we recommend that you always keep a backup of your important files. This app creates copies and does not delete original files or folders.</span>
       </div>
 
-      <div class="companion-tip-panel" role="note" aria-label="Optional file search companion">
-        <span>Optional: Use Everything, a free companion tool, to find files and folders faster before archiving.</span>
-      </div>
-
-      <section id="everythingSearchPanel" class="screen-card everything-search-panel" aria-labelledby="everythingSearchTitle">
-        <h2 id="everythingSearchTitle">Search this PC with Everything</h2>
-        <p class="everything-search-intro">
-          Optional local search companion. Search file and folder names on this PC through a small service that binds only to 127.0.0.1.
-        </p>
-
-        <form id="everythingSearchForm" class="everything-search-form">
-          <label for="everythingSearchInput">Search term</label>
-          <input
-            type="search"
-            id="everythingSearchInput"
-            autocomplete="off"
-            placeholder="Search local file and folder names"
-          />
-
-          <div class="everything-search-controls">
-            <div class="everything-search-control">
-              <label for="everythingSearchTypeSelect">Result type</label>
-              <select id="everythingSearchTypeSelect">
-                <option value="all" selected>All</option>
-                <option value="file">Files only</option>
-                <option value="folder">Folders only</option>
-              </select>
-            </div>
-
-            <div class="everything-search-control">
-              <label for="everythingSearchLimitInput">Limit</label>
-              <input type="number" id="everythingSearchLimitInput" min="1" max="50" step="1" value="20" />
-            </div>
-
-            <div class="everything-search-submit">
-              <label class="sr-only" for="everythingSearchButton">Run Everything search</label>
-              <button type="submit" id="everythingSearchButton" class="button">Search</button>
-            </div>
-          </div>
-        </form>
-
-        <div id="everythingSearchStatus" class="everything-search-status" aria-live="polite">Everything search is not checked yet.</div>
-        <div id="everythingSearchResults" class="everything-search-results" aria-live="polite"></div>
-      </section>
-
       <div class="screen-card">
         <h2 id="mainChoiceTitle">Choose what you want to do</h2>
-        <p>Start with a new tree, view an existing folder tree on this PC, archive a file, or archive a whole folder.</p>
+        <p>Search this PC, start with a new tree, view an existing folder tree, archive a file, or archive a whole folder.</p>
 
         <div class="choice-grid">
+          <button type="button" id="openEverythingSearchButton" class="choice-card everything-search-choice">
+            <span class="everything-search-mark" aria-hidden="true"></span>
+            <strong>Search this PC</strong>
+            <span>Find file and folder names quickly with Everything.</span>
+          </button>
+
           <button type="button" id="openFolderTreeModeButton" class="choice-card">
             <strong>Build New Folder Tree on this PC</strong>
             <span>Build and manage your memory-based folder structure.</span>
@@ -165,6 +127,156 @@
           </button>
         </div>
       </div>
+    </section>
+
+    <section id="everythingSearchScreen" class="screen everything-search-screen" aria-labelledby="everythingSearchTitle" hidden aria-hidden="true">
+      <div class="screen-toolbar">
+        <button type="button" class="button button-secondary back-to-main-button">Back to main choices</button>
+      </div>
+
+      <section id="everythingSearchPanel" class="work-panel everything-search-panel" aria-labelledby="everythingSearchTitle">
+        <div class="everything-search-heading">
+          <span class="everything-search-mark" aria-hidden="true"></span>
+          <div class="everything-search-heading-copy">
+            <h2 id="everythingSearchTitle">Search this PC</h2>
+            <p>A simple local filename and folder search powered by Everything.</p>
+          </div>
+        </div>
+
+        <form id="everythingSearchForm" class="everything-search-form">
+          <label class="sr-only" for="everythingSearchInput">Search file and folder names</label>
+
+          <div class="everything-search-primary-row">
+            <span class="everything-search-mark" aria-hidden="true"></span>
+            <div class="everything-search-input-wrap">
+              <input
+                type="search"
+                id="everythingSearchInput"
+                autocomplete="off"
+                maxlength="256"
+                placeholder="Search file and folder names"
+              />
+            </div>
+            <button type="submit" id="everythingSearchButton" class="button everything-search-button">Search</button>
+            <button type="button" id="everythingSearchCancelButton" class="button button-secondary everything-search-cancel-button" hidden>Cancel</button>
+          </div>
+
+          <fieldset class="everything-search-filters">
+            <legend>Basic filters</legend>
+
+            <div class="everything-search-filter-grid">
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchTypeSelect">Result type</label>
+                <select id="everythingSearchTypeSelect">
+                  <option value="all" selected>All results</option>
+                  <option value="file">Files only</option>
+                  <option value="folder">Folders only</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchExtensionSelect">File category</label>
+                <select id="everythingSearchExtensionSelect">
+                  <option value="" selected>Any category</option>
+                  <option value="pdf">PDF</option>
+                  <option value="doc;docx;odt;rtf;txt">Documents</option>
+                  <option value="xls;xlsx;ods;csv">Spreadsheets</option>
+                  <option value="ppt;pptx;odp">Presentations</option>
+                  <option value="jpg;jpeg;png;gif;webp;bmp">Images</option>
+                  <option value="mp3;wav;flac;m4a;ogg">Audio</option>
+                  <option value="mp4;mkv;avi;mov;wmv;webm">Video</option>
+                  <option value="zip;7z;rar;tar;gz">Archives</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchModifiedSelect">Modified</label>
+                <select id="everythingSearchModifiedSelect">
+                  <option value="any" selected>Any time</option>
+                  <option value="today">Today</option>
+                  <option value="thisweek">This week</option>
+                  <option value="thismonth">This month</option>
+                  <option value="last7days">Last 7 days</option>
+                  <option value="last30days">Last 30 days</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchSizeSelect">File size</label>
+                <select id="everythingSearchSizeSelect">
+                  <option value="any" selected>Any size</option>
+                  <option value="upto100kb">Up to 100 KB</option>
+                  <option value="100kbto1mb">100 KB to 1 MB</option>
+                  <option value="1mbto16mb">1 MB to 16 MB</option>
+                  <option value="16mbto128mb">16 MB to 128 MB</option>
+                  <option value="over128mb">Over 128 MB</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchMatchSelect">Name match</label>
+                <select id="everythingSearchMatchSelect">
+                  <option value="contains" selected>Contains</option>
+                  <option value="exact">Exact filename</option>
+                  <option value="startswith">Starts with</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control">
+                <label for="everythingSearchLimitInput">Results</label>
+                <select id="everythingSearchLimitInput">
+                  <option value="20" selected>20 results</option>
+                  <option value="50">50 results</option>
+                </select>
+              </div>
+
+              <div class="everything-search-filter-control everything-search-location-control">
+                <label for="everythingSearchLocationInput">Location or drive</label>
+                <input
+                  type="text"
+                  id="everythingSearchLocationInput"
+                  maxlength="260"
+                  placeholder="Example: C:\Users\Marke\Documents"
+                />
+              </div>
+            </div>
+
+            <div class="everything-search-filter-actions">
+              <button type="button" id="everythingSearchClearFiltersButton" class="button button-secondary">Clear filters</button>
+            </div>
+          </fieldset>
+        </form>
+
+        <div id="everythingSearchStatus" class="everything-search-status status-idle" aria-live="polite">
+          Open this screen to check the local Everything connection.
+        </div>
+
+        <section id="everythingSetupPanel" class="everything-setup-panel" aria-labelledby="everythingSetupTitle" hidden>
+          <h3 id="everythingSetupTitle">Everything is required</h3>
+          <p>Install Everything by voidtools, start it on this Windows PC, and then check the connection again.</p>
+
+          <div class="everything-setup-actions">
+            <a id="everythingDownloadLink" class="button" href="https://www.voidtools.com/downloads/" target="_blank" rel="noopener noreferrer">Download Everything</a>
+            <button type="button" id="toggleEverythingInstallGuideButton" class="button button-secondary" aria-expanded="false">Installation Guide</button>
+            <button type="button" id="everythingCheckAgainButton" class="button button-secondary">Check Again</button>
+          </div>
+
+          <div id="everythingInstallGuide" class="everything-install-guide" hidden>
+            <ol>
+              <li>Open the official voidtools download page.</li>
+              <li>Choose the current 64-bit installer for a normal Windows installation.</li>
+              <li>Run the installer and keep the Everything service option enabled.</li>
+              <li>Start Everything and allow it to finish its first local index.</li>
+              <li>Return here and select Check Again.</li>
+            </ol>
+          </div>
+
+          <p class="everything-search-privacy-note">Search stays on this computer. File names and paths are not uploaded by this feature.</p>
+        </section>
+
+        <div id="everythingSearchResults" class="everything-search-results" aria-live="polite"></div>
+        <p class="everything-search-attribution">Search powered by Everything by voidtools.</p>
+      </section>
     </section>
 
     <section id="folderTreeScreen" class="screen" aria-labelledby="folderTreeTitle" hidden aria-hidden="true">
@@ -436,8 +548,9 @@
       </div>
 
       <div class="modal-content">
-        <p>The app has four main choices.</p>
+        <p>The app has five main choices.</p>
         <ol>
+          <li><strong>Search this PC:</strong> find local file and folder names through Everything when the local companion is available.</li>
           <li><strong>Build New Folder Tree on this PC:</strong> create and manage your memory-based folder structure.</li>
           <li><strong>View Existing Folder Tree on this PC:</strong> choose a local folder and build the folder tree up to the depth you select.</li>
           <li><strong>Archive a File:</strong> load a file, select a destination from the folder tree, and archive it there with your permission.</li>
@@ -521,6 +634,9 @@
   <script src="assets/js/archive-operation.js" defer></script>
   <script src="assets/js/file-archive.js" defer></script>
   <script src="assets/js/folder-archive.js" defer></script>
+  <script src="assets/js/everything-search-api.js" defer></script>
+  <script src="assets/js/everything-search-ui.js" defer></script>
+  <script src="assets/js/everything-install-guide.js" defer></script>
   <script src="assets/js/everything-search.js" defer></script>
 
   <script src="assets/js/modals.js" defer></script>

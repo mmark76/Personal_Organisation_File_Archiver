@@ -17,7 +17,10 @@ internal sealed class EverythingEsExeBackend : IEverythingSearchBackend
             throw new EverythingBackendUnavailableException("The Everything command line tool was not found.");
         }
 
-        ProcessStartInfo startInfo = BuildProcessStartInfo(executablePath, request.Query);
+        ProcessStartInfo startInfo = BuildProcessStartInfo(
+            executablePath,
+            EverythingSearchQueryBuilder.Build(request)
+        );
         using Process? process = Process.Start(startInfo);
         if (process is null)
         {
@@ -38,6 +41,11 @@ internal sealed class EverythingEsExeBackend : IEverythingSearchBackend
             }
 
             string? line = await stdoutLineTask.ConfigureAwait(false);
+            if (line is null)
+            {
+                break;
+            }
+
             stdoutLineTask = process.StandardOutput.ReadLineAsync();
 
             if (!string.IsNullOrWhiteSpace(line))
@@ -51,11 +59,6 @@ internal sealed class EverythingEsExeBackend : IEverythingSearchBackend
                         break;
                     }
                 }
-            }
-
-            if (stdoutLineTask is null)
-            {
-                break;
             }
         }
 

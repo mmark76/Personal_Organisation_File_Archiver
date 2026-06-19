@@ -1,106 +1,101 @@
 # Everything Search UI/UX Specification
 
-## Placement
+## Purpose
 
-The search experience should open as a dedicated screen inside the existing application, not as a modal popup and not as a separate external window.
+The Everything integration appears as a dedicated **Search this PC** screen inside the existing Organize Your PC application. It uses the existing black-and-gold shell and keeps the four archive and folder-tree workflows unchanged.
 
-The existing header, footer, visual identity, and navigation conventions remain in place. The main-choice area is temporarily replaced by the search screen and restored through a clear **Back to main choices** action.
+## Entry point
 
-## Visual identity
+The main choice screen includes a fifth, compact control:
 
-The interface belongs to Organize Your PC and should follow its established black-and-gold design language. It does not need to resemble the Everything desktop application.
+- **Search this PC**;
+- Everything branding with the magnifying-glass graphic and the word **Everything**;
+- a short explanation that the feature finds local file and folder names through Everything.
 
-A discreet attribution should be visible:
+The full main-choice area uses smaller controls in a compact multi-column layout rather than large feature cards.
 
-> Search powered by Everything by voidtools
+## Search screen
 
-## Screen structure
+The dedicated screen includes:
 
-1. Screen title and short local-search explanation.
-2. Companion connection status.
-3. Search input.
-4. Type filter: all, files, or folders.
-5. Result-limit selector.
-6. Search and cancel actions.
-7. Results summary.
-8. Scrollable results area.
-9. Empty, unavailable, timeout, and error states.
-10. Back to main choices action.
+1. **Back to main choices**;
+2. Everything branding;
+3. one primary search field;
+4. Search and Cancel buttons;
+5. a permanently visible **Install Everything** button;
+6. basic filters;
+7. local connection status;
+8. results;
+9. Everything attribution.
 
-## Result presentation
+## Install Everything action
 
-Each result should present:
+The permanent install action:
 
-- file or folder icon;
-- name;
-- kind;
-- safe redacted display location;
-- an optional action to continue toward an approved archive workflow.
+- appears beside the Search button on wider screens;
+- opens the official voidtools download page in a new tab;
+- displays **Download · Install · Start** as short guidance;
+- includes a longer accessible tooltip/label;
+- does not download or redistribute an Everything installer from this repository.
 
-Full local paths remain hidden by default. No result action should move, copy, delete, or archive anything without a separate explicit user confirmation.
+When the companion or Everything runtime is unavailable, the separate setup panel also provides Download Everything, Installation Guide, and Check Again actions.
 
-## Safe archive handoff
+## Basic filters
 
-The current search response is a discovery aid and does not provide sufficient authority to archive an item automatically.
+The visible filter area includes:
 
-### Initial implementation
+- result type: all, files, or folders;
+- file category: PDF, documents, spreadsheets, presentations, images, audio, video, or archives;
+- modified date: any time, today, this week, this month, last 7 days, or last 30 days;
+- file size: any size, up to 100 KB, 100 KB to 1 MB, 1 MB to 16 MB, 16 MB to 128 MB, or over 128 MB;
+- filename matching: contains, exact filename, or starts with;
+- result count: 20 or 50;
+- optional Windows drive or folder location;
+- Clear filters action.
 
-The safe initial flow is:
+Filters remain simple form controls. Raw Everything syntax is not required from the user.
 
-1. the user selects a search result;
-2. the app shows the selected name and redacted location;
-3. the app opens the existing file or folder selection workflow;
-4. the user selects the matching local item through the browser picker;
-5. archiving continues only after the existing confirmation steps.
+## Connection states
 
-This preserves the current browser security model and does not require exposing a full local path.
+### Checking
 
-### Possible future direct handoff
-
-A later version may allow the companion to issue a short-lived opaque result reference. The browser would receive the reference rather than the full path, and the companion would resolve it locally only after an explicit user action.
-
-That design is not part of the current implementation. It requires a separate API contract, expiry rules, authorization checks, replay protection, tests, and security review before use.
-
-## Interaction states
-
-### Initial
-
-Explain that search is local and requires Everything plus the companion service.
-
-### Connecting
-
-Show a non-blocking readiness check.
+The search controls are temporarily disabled and the screen reports that the local companion is being checked.
 
 ### Ready
 
-Enable the form and place focus in the search field.
+The status reports the active backend, such as SDK, and enables the search field and filters.
 
-### Searching
+### Unavailable
 
-Keep the screen usable, disable duplicate submission, and expose a cancel action.
+The screen shows:
 
-### Empty
+- **Everything is required**;
+- Download Everything;
+- Installation Guide;
+- Check Again;
+- a reminder that search remains local.
 
-State clearly that no matching files or folders were found.
+## Results
 
-### Companion unavailable
+Each result displays:
 
-Explain that the rest of Organize Your PC still works and provide local setup guidance without blocking navigation.
+- local item name;
+- file or folder kind;
+- the path value returned by the companion, redacted by default.
 
-### Results
+The results are discovery-only. They do not automatically start an archive action or grant filesystem access.
 
-Show count, active filter, truncation notice when applicable, and keyboard-accessible rows.
+## Responsive behaviour
+
+- desktop: compact main choices and filter controls use multi-column layouts;
+- medium screens: the main choices and filters reduce their column count;
+- small screens: controls stack into one column and Search, Install Everything, and Cancel become full-width where appropriate.
 
 ## Accessibility
 
-- full keyboard operation;
-- visible focus indicators;
-- semantic form labels;
-- status announcements through an ARIA live region;
-- no meaning communicated by colour alone;
-- sufficient contrast within the existing theme;
-- predictable focus restoration when returning to main choices.
-
-## Privacy message
-
-The screen should state that searches run locally and that Organize Your PC does not upload search queries or file paths to a remote server.
+- every field has a visible or screen-reader label;
+- status and results use polite live regions;
+- disabled and busy states are reflected in native controls;
+- the install action has an explanatory accessible label;
+- keyboard navigation follows normal form order;
+- the back action returns to the main choice screen.
