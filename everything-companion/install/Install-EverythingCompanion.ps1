@@ -56,7 +56,7 @@ Set-Item -Path $defaultIconKey -Value ('"' + $installedExecutable + '",0')
 
 $commandKey = Join-Path $protocolRoot 'shell\open\command'
 New-Item -Path $commandKey -Force | Out-Null
-Set-Item -Path $commandKey -Value ('"' + $installedExecutable + '" "%1"')
+Set-Item -Path $commandKey -Value ('"' + $installedExecutable + '"')
 
 Start-ScheduledTask -TaskName $taskName
 Start-Sleep -Seconds 2
