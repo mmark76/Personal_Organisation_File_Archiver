@@ -3,6 +3,13 @@ using System.Threading.RateLimiting;
 using EverythingCompanion;
 using Microsoft.AspNetCore.RateLimiting;
 
+const string singleInstanceMutexName = @"Local\OrganizeYourPC.EverythingCompanion";
+using Mutex singleInstanceMutex = new(initiallyOwned: true, singleInstanceMutexName, out bool ownsMutex);
+if (!ownsMutex)
+{
+    return;
+}
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 int port = builder.Configuration.GetValue("EverythingCompanion:Port", 51337);
 bool exposeFullPaths = builder.Configuration.GetValue("EverythingCompanion:ExposeFullPaths", false);
