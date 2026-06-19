@@ -15,6 +15,11 @@
 - Added browser and companion CI coverage for the dedicated search screen, filters, session handling, unavailable state, navigation, and regression safety.
 - Added and updated Everything integration documentation and third-party attribution.
 
+### Hotfix
+
+- Added independent fallback navigation for **Search this PC** and its Back action so the screen still opens when an older cached `app-init.js` is loaded after a deployment.
+- Prevented duplicate Everything activation checks when more than one navigation binding is present during a cache transition.
+
 ## 2026-06-14
 
 ### Archive Safety and Reliability

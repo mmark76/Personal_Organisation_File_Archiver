@@ -8,6 +8,14 @@ window.EverythingSearch = (() => {
     { fileName: "everything-search-ui.js", globalName: "EverythingSearchUi" },
     { fileName: "everything-install-guide.js", globalName: "EverythingInstallGuide" }
   ];
+  const screenIds = [
+    "mainChoiceScreen",
+    "everythingSearchScreen",
+    "folderTreeScreen",
+    "existingFolderTreeScreen",
+    "archiveFileScreen",
+    "archiveFolderScreen"
+  ];
 
   const defaultApiBaseUrl = "http://127.0.0.1:51337";
   const defaultLimit = 20;
@@ -18,6 +26,7 @@ window.EverythingSearch = (() => {
   let initialized = false;
   let activeRequestController = null;
   let clearSessionWhenReady = false;
+  let activationPromise = null;
 
   function loadClassicScript({ fileName, globalName }) {
     if (window[globalName]) {
@@ -157,7 +166,68 @@ window.EverythingSearch = (() => {
     return url;
   }
 
+  function showScreenFallback(screenId) {
+    screenIds.forEach(id => {
+      const screen = document.getElementById(id);
+      if (!screen) return;
+
+      const isActive = id === screenId;
+      screen.hidden = !isActive;
+      screen.setAttribute("aria-hidden", String(!isActive));
+      screen.classList.toggle("screen-active", isActive);
+    });
+
+    const activeTitle = document.querySelector(`#${screenId} h2`);
+    if (activeTitle) {
+      activeTitle.setAttribute("tabindex", "-1");
+      activeTitle.focus();
+    }
+  }
+
+  function openSearchScreen() {
+    if (typeof window.AppNavigation?.showEverythingSearchMode === "function") {
+      window.AppNavigation.showEverythingSearchMode();
+      return;
+    }
+
+    showScreenFallback("everythingSearchScreen");
+    void activate();
+  }
+
+  function showMainChoices() {
+    if (typeof window.AppNavigation?.showMainChoices === "function") {
+      window.AppNavigation.showMainChoices();
+      return;
+    }
+
+    showScreenFallback("mainChoiceScreen");
+  }
+
+  function bindNavigationFallback() {
+    const openButton = document.getElementById("openEverythingSearchButton");
+    if (openButton && openButton.dataset.everythingNavigationFallbackBound !== "true") {
+      openButton.dataset.everythingNavigationFallbackBound = "true";
+      openButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        openSearchScreen();
+      }, { capture: true });
+    }
+
+    document.querySelectorAll("#everythingSearchScreen .back-to-main-button").forEach(button => {
+      if (button.dataset.everythingNavigationFallbackBound === "true") return;
+
+      button.dataset.everythingNavigationFallbackBound = "true";
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        showMainChoices();
+      }, { capture: true });
+    });
+  }
+
   async function initialize() {
+    bindNavigationFallback();
     await ensureModules();
 
     const elements = window.EverythingSearchUi?.getElements?.();
@@ -205,16 +275,24 @@ window.EverythingSearch = (() => {
     }
   }
 
-  async function activate() {
-    await initialize();
-    window.EverythingInstallGuide?.reset?.();
-    const payload = await checkAvailability();
+  function activate() {
+    if (activationPromise) return activationPromise;
 
-    if (payload?.everythingAvailable) {
-      window.EverythingSearchUi?.focusInput?.();
-    }
+    activationPromise = (async () => {
+      await initialize();
+      window.EverythingInstallGuide?.reset?.();
+      const payload = await checkAvailability();
 
-    return payload;
+      if (payload?.everythingAvailable) {
+        window.EverythingSearchUi?.focusInput?.();
+      }
+
+      return payload;
+    })().finally(() => {
+      activationPromise = null;
+    });
+
+    return activationPromise;
   }
 
   async function search(event) {
@@ -313,8 +391,12 @@ window.EverythingSearch = (() => {
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => void initialize(), { once: true });
+    document.addEventListener("DOMContentLoaded", () => {
+      bindNavigationFallback();
+      void initialize();
+    }, { once: true });
   } else {
+    bindNavigationFallback();
     void initialize();
   }
 
