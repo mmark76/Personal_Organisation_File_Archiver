@@ -3,7 +3,8 @@
 window.EverythingInstallGuide = (() => {
   const officialDownloadUrl = "https://www.voidtools.com/downloads/";
   const companionDownloadUrl = "https://github.com/mmark76/Personal_Organisation_File_Archiver/releases/latest/download/EverythingCompanion-win-x64.zip";
-  const installInstructions = "Install Everything first, install the Organize Your PC Companion second, then return here and select Check Again.";
+  const startCompanionUrl = "organizeyourpc-companion://start";
+  const installInstructions = "Start the Companion if it is already installed. Otherwise install Everything first, install the Organize Your PC Companion second, then return here and select Check Again.";
   const currentScriptUrl = document.currentScript?.src || new URL("assets/js/everything-install-guide.js", window.location.href).href;
   const brandStylesheetUrl = new URL("../css/everything-brand.css", currentScriptUrl).href;
   let bound = false;
@@ -16,6 +17,38 @@ window.EverythingInstallGuide = (() => {
     link.rel = "stylesheet";
     link.href = brandStylesheetUrl;
     document.head.appendChild(link);
+  }
+
+  function placeSetupPanelBelowBackButton() {
+    const panel = document.getElementById("everythingSetupPanel");
+    const toolbar = document.querySelector("#everythingSearchScreen > .screen-toolbar");
+    if (!panel || !toolbar) return;
+
+    if (toolbar.nextElementSibling !== panel) {
+      toolbar.insertAdjacentElement("afterend", panel);
+    }
+
+    Object.assign(panel.style, {
+      width: "100%",
+      boxSizing: "border-box",
+      marginBottom: "12px"
+    });
+  }
+
+  function createStartCompanionButton() {
+    const existingButton = document.getElementById("startCompanionLink");
+    if (existingButton) return existingButton;
+
+    const everythingButton = document.getElementById("everythingDownloadLink");
+    if (!everythingButton?.parentElement) return null;
+
+    const startButton = document.createElement("a");
+    startButton.id = "startCompanionLink";
+    startButton.className = "button";
+    startButton.textContent = "Start Companion";
+    startButton.href = startCompanionUrl;
+    everythingButton.parentElement.insertBefore(startButton, everythingButton);
+    return startButton;
   }
 
   function createCompanionDownloadButton() {
@@ -34,17 +67,24 @@ window.EverythingInstallGuide = (() => {
   }
 
   function configureSetupPanel() {
+    placeSetupPanelBelowBackButton();
+
     const title = document.getElementById("everythingSetupTitle");
     const panel = document.getElementById("everythingSetupPanel");
     const description = panel?.querySelector(":scope > p");
     const everythingButton = document.getElementById("everythingDownloadLink");
     const guideButton = document.getElementById("toggleEverythingInstallGuideButton");
     const guide = document.getElementById("everythingInstallGuide");
+    const startButton = createStartCompanionButton();
     const companionButton = createCompanionDownloadButton();
 
     if (title) title.textContent = "Search setup is required";
     if (description) {
-      description.textContent = "Search this PC needs both Everything and the Organize Your PC Companion on this Windows computer.";
+      description.textContent = "Start the Companion if it is already installed. Otherwise install Everything and the Organize Your PC Companion on this Windows computer.";
+    }
+
+    if (startButton) {
+      startButton.href = startCompanionUrl;
     }
 
     if (everythingButton) {
@@ -68,9 +108,10 @@ window.EverythingInstallGuide = (() => {
     if (guide) {
       const list = document.createElement("ol");
       [
-        "Select Install Everything, download the current 64-bit installer, install it, and start Everything.",
-        "Select Install Companion, extract the downloaded ZIP, and double-click Install-EverythingCompanion.cmd.",
-        "Return to Organize Your PC and select Check Again. The companion will then start automatically with Windows."
+        "If the Companion is already installed, select Start Companion and approve the browser prompt if it appears.",
+        "If Everything is not installed, select Install Everything, download the current 64-bit installer, install it, and start Everything.",
+        "If the Companion is not installed, select Install Companion, extract the downloaded ZIP, and double-click Install-EverythingCompanion.cmd.",
+        "Return to Organize Your PC and select Check Again. After installation, the Companion starts immediately and will also start automatically when this Windows user signs in."
       ].forEach(text => {
         const item = document.createElement("li");
         item.textContent = text;
@@ -90,6 +131,18 @@ window.EverythingInstallGuide = (() => {
     if (bound) return;
 
     const { guideButton, checkAgainButton } = window.EverythingSearchUi?.getElements?.() || {};
+    const startButton = document.getElementById("startCompanionLink");
+
+    startButton?.addEventListener("click", () => {
+      window.EverythingSearchUi?.setStatus?.(
+        "Starting the local Companion. Approve the browser prompt if it appears.",
+        "loading"
+      );
+
+      window.setTimeout(() => {
+        onCheckAgain?.();
+      }, 2500);
+    });
 
     guideButton?.addEventListener("click", () => {
       const { installGuide } = window.EverythingSearchUi.getElements();
@@ -117,6 +170,7 @@ window.EverythingInstallGuide = (() => {
   return {
     officialDownloadUrl,
     companionDownloadUrl,
+    startCompanionUrl,
     installInstructions,
     bindEvents,
     reset
