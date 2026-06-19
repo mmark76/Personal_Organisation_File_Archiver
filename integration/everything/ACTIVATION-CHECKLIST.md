@@ -1,73 +1,65 @@
 # Everything Integration Activation Checklist
 
-This checklist is for a later phase. Completing this scaffold does not activate the feature.
+## Implementation
 
-## Before changing existing files
-
-- [ ] Confirm the final search-screen UX.
-- [ ] Confirm whether the initial release uses only user-installed Everything.
-- [ ] Confirm whether SDK, CLI fallback, or both are supported.
-- [ ] Confirm the exact attribution wording.
-- [ ] Confirm packaging and third-party licensing requirements.
-- [ ] Resolve all high-severity companion audit findings.
-- [ ] Define supported Everything and Windows versions.
+- [x] Dedicated Search this PC screen.
+- [x] Existing header, footer, and four original workflows remain available.
+- [x] Compact main-choice layout.
+- [x] Everything branding at the entry point and search screen.
+- [x] Permanent Install Everything action with short guidance.
+- [x] Official voidtools download link.
+- [x] Basic filters for type, category, modified date, size, matching, location, and result count.
+- [x] Clear filters and Cancel actions.
 
 ## Companion readiness
 
-- [ ] Fix end-of-stream handling for `es.exe` output.
-- [ ] Add hard timeouts and cancellation cleanup.
-- [ ] Check CLI exit code and standard error.
-- [ ] Prevent orphaned processes.
-- [ ] Serialize or isolate SDK operations safely.
-- [ ] Apply filtering without losing valid results because of provider-side limits.
-- [ ] Verify real Everything runtime readiness.
-- [ ] Add backend unit and integration tests.
+- [x] Loopback-only binding.
+- [x] Exact allowed-origin handling.
+- [x] Origin-bound expiring session token.
+- [x] Session token sent through a header, never a URL.
+- [x] Rate limiting.
+- [x] Query and structured-filter validation.
+- [x] SDK-first backend with `es.exe` fallback.
+- [x] Shell-free CLI execution.
+- [x] Redacted display paths by default.
+- [x] Search failure isolated from the four original workflows.
 
-## Future minimal connection points
+## Documentation and attribution
 
-The following existing areas will eventually require small reviewed edits:
+- [x] Root README describes the fifth workflow and companion requirements.
+- [x] Companion README describes endpoints and filters.
+- [x] Integration architecture and contract are current.
+- [x] UI/UX specification reflects branding, compact choices, filters, and install guidance.
+- [x] Test plan reflects automated and manual checks.
+- [x] Changelog records the integration.
+- [x] Third-party notice identifies Everything by voidtools and states that no Everything binaries are bundled.
 
-- application navigation or main-choice markup;
-- application initialization that currently hides the search UI;
-- existing search client wiring;
-- component styling or a dedicated new stylesheet reference;
-- CI configuration to run new companion tests;
-- package documentation and third-party notices.
+## Automated validation
 
-No such edit is made by this scaffold.
+- [ ] Latest JavaScript syntax checks succeed.
+- [ ] Existing browser regression suite succeeds.
+- [ ] Dedicated Everything screen and filter tests succeed.
+- [ ] Windows CI builds the .NET companion.
 
-## UI acceptance
+## Manual Windows validation
 
-- [ ] Dedicated screen, not modal.
-- [ ] Existing header and footer remain.
-- [ ] Back to main choices works and restores focus.
-- [ ] Black-and-gold application identity is preserved.
-- [ ] Attribution is visible but not dominant.
-- [ ] Loading, empty, unavailable, cancelled, timeout, and error states are covered.
-- [ ] Results are keyboard accessible.
-- [ ] Full paths are hidden by default.
-- [ ] Archive actions require explicit confirmation.
-
-## Security acceptance
-
-- [ ] Loopback-only binding.
-- [ ] Exact origin allowlist.
-- [ ] Origin-bound expiring session token.
-- [ ] Rate limiting.
-- [ ] Query and limit validation.
-- [ ] Safe provider loading paths.
-- [ ] No shell execution.
-- [ ] No remote path transmission.
-- [ ] No persistent search history by default.
-
-## Packaging acceptance
-
-- [ ] State whether Everything must be installed separately.
-- [ ] Include attribution in the UI and documentation.
-- [ ] If any Everything binary or substantial component is distributed, include the required copyright notice and complete applicable license text in the delivered package.
-- [ ] Keep third-party notices in the installed directory and release archive.
-- [ ] Record bundled component versions and integrity hashes.
+- [x] Search screen opens.
+- [x] Companion reports the SDK backend ready.
+- [x] Real filename searches return local results.
+- [x] File-only and PDF filters return expected results.
+- [x] Permanent Install Everything button is visible.
+- [x] Everything branding is visible.
+- [x] Compact main-choice layout is visible.
+- [ ] Test every remaining basic filter individually.
+- [ ] Test two or more filters together.
+- [ ] Confirm Clear filters restores defaults.
+- [ ] Confirm the four original workflows still open normally.
+- [ ] Stop the companion and confirm the unavailable setup state.
 
 ## Release gate
 
-The feature may be made visible only after functionality, security, privacy, licensing, and regression tests all pass without affecting the four existing application areas.
+- [ ] Latest CI run is green.
+- [ ] Remaining manual Windows checks are accepted.
+- [ ] Final Pull Request diff is reviewed.
+- [ ] Pull Request is merged only after explicit approval.
+- [ ] Production publication occurs only after the merged version is verified.
