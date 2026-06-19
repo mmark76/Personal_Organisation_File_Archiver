@@ -2,6 +2,7 @@
 
 window.EverythingInstallGuide = (() => {
   const officialDownloadUrl = "https://www.voidtools.com/downloads/";
+  const everythingInstallerUrl = "https://www.voidtools.com/Everything-1.4.1.1032.x64-Setup.exe";
   const companionDownloadUrl = "https://github.com/mmark76/Personal_Organisation_File_Archiver/releases/latest/download/EverythingCompanion-win-x64.zip";
   const startCompanionUrl = "organizeyourpc-companion://start";
   const installInstructions = "Start the Companion if it is already installed. Otherwise install Everything first, then extract the Companion ZIP and run Install-EverythingCompanion.cmd. Do not run EverythingCompanion.exe directly because it only runs temporarily and does not install automatic startup.";
@@ -28,20 +29,35 @@ window.EverythingInstallGuide = (() => {
     notice.setAttribute("role", "note");
 
     const appendText = text => notice.appendChild(document.createTextNode(text));
+    const applyEmphasisStyle = element => {
+      element.style.color = "#ff4d4f";
+      element.style.fontWeight = "800";
+    };
     const appendEmphasis = text => {
       const emphasis = document.createElement("strong");
       emphasis.textContent = text;
-      emphasis.style.color = "#ff4d4f";
-      emphasis.style.fontWeight = "800";
+      applyEmphasisStyle(emphasis);
       notice.appendChild(emphasis);
+    };
+    const appendDownloadLink = (text, href, downloadName) => {
+      const link = document.createElement("a");
+      link.textContent = text;
+      link.href = href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.setAttribute("download", downloadName);
+      applyEmphasisStyle(link);
+      link.style.textDecoration = "underline";
+      link.style.textUnderlineOffset = "2px";
+      notice.appendChild(link);
     };
 
     appendText("To use the ");
     appendEmphasis("Search this PC");
     appendText(" feature, both ");
-    appendEmphasis("Everything");
+    appendDownloadLink("Everything", everythingInstallerUrl, "Everything-1.4.1.1032.x64-Setup.exe");
     appendText(" and the ");
-    appendEmphasis("Organize Your PC Companion");
+    appendDownloadLink("Organize Your PC Companion", companionDownloadUrl, "EverythingCompanion-win-x64.zip");
     appendText(" must be installed and running on this Windows computer.");
 
     Object.assign(notice.style, {
@@ -221,6 +237,7 @@ window.EverythingInstallGuide = (() => {
 
   return {
     officialDownloadUrl,
+    everythingInstallerUrl,
     companionDownloadUrl,
     startCompanionUrl,
     installInstructions,
