@@ -1,8 +1,9 @@
-/* Everything installation guidance and official download link behaviour. */
+/* Everything and local companion installation guidance. */
 
 window.EverythingInstallGuide = (() => {
   const officialDownloadUrl = "https://www.voidtools.com/downloads/";
-  const installInstructions = "Download Everything from voidtools, install it, start it, then return here and refresh or select Check Again.";
+  const companionDownloadUrl = "https://github.com/mmark76/Personal_Organisation_File_Archiver/releases/latest/download/EverythingCompanion-win-x64.zip";
+  const installInstructions = "Install Everything first, install the Organize Your PC Companion second, then return here and select Check Again.";
   const currentScriptUrl = document.currentScript?.src || new URL("assets/js/everything-install-guide.js", window.location.href).href;
   const brandStylesheetUrl = new URL("../css/everything-brand.css", currentScriptUrl).href;
   let bound = false;
@@ -17,51 +18,62 @@ window.EverythingInstallGuide = (() => {
     document.head.appendChild(link);
   }
 
-  function createPermanentInstallButton() {
-    const existingButton = document.getElementById("everythingInstallButton");
+  function createPermanentSetupButton() {
+    const existingButton = document.getElementById("everythingSetupButton");
     if (existingButton) return existingButton;
 
     const searchButton = document.getElementById("everythingSearchButton");
     if (!searchButton?.parentElement) return null;
 
-    const installButton = document.createElement("a");
-    installButton.id = "everythingInstallButton";
-    installButton.className = "button button-secondary everything-install-button";
-    installButton.href = officialDownloadUrl;
-    installButton.target = "_blank";
-    installButton.rel = "noopener noreferrer";
-    installButton.title = installInstructions;
-    installButton.setAttribute("aria-label", `Install Everything. ${installInstructions}`);
+    const setupButton = document.createElement("button");
+    setupButton.type = "button";
+    setupButton.id = "everythingSetupButton";
+    setupButton.className = "button button-secondary everything-install-button";
+    setupButton.title = installInstructions;
+    setupButton.setAttribute("aria-label", `Set up Search this PC. ${installInstructions}`);
 
     const title = document.createElement("span");
-    title.textContent = "Install Everything";
+    title.textContent = "Set up Search";
 
     const steps = document.createElement("small");
-    steps.textContent = "Download · Install · Start";
+    steps.textContent = "Everything · Companion · Instructions";
 
-    installButton.append(title, steps);
-    searchButton.insertAdjacentElement("afterend", installButton);
-    return installButton;
+    setupButton.append(title, steps);
+    searchButton.insertAdjacentElement("afterend", setupButton);
+    return setupButton;
   }
 
-  function configureDownloadLink() {
+  function configureDownloadLinks() {
     ensureBrandStylesheet();
-    const installButton = createPermanentInstallButton();
-    const { downloadLink } = window.EverythingSearchUi?.getElements?.() || {};
+    const { downloadLink, companionDownloadLink } = window.EverythingSearchUi?.getElements?.() || {};
 
-    [installButton, downloadLink].forEach(link => {
-      if (!link) return;
-      link.href = officialDownloadUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-    });
+    if (downloadLink) {
+      downloadLink.href = officialDownloadUrl;
+      downloadLink.target = "_blank";
+      downloadLink.rel = "noopener noreferrer";
+    }
+
+    if (companionDownloadLink) {
+      companionDownloadLink.href = companionDownloadUrl;
+      companionDownloadLink.target = "_blank";
+      companionDownloadLink.rel = "noopener noreferrer";
+    }
+  }
+
+  function openSetupInstructions() {
+    window.EverythingSearchUi?.showSetup?.(true);
+    window.EverythingSearchUi?.setGuideExpanded?.(true);
+    document.getElementById("everythingSetupPanel")?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
   }
 
   function bindEvents(onCheckAgain) {
-    configureDownloadLink();
+    configureDownloadLinks();
+    const setupButton = createPermanentSetupButton();
     if (bound) return;
 
     const { guideButton, checkAgainButton } = window.EverythingSearchUi?.getElements?.() || {};
+
+    setupButton?.addEventListener("click", openSetupInstructions);
 
     guideButton?.addEventListener("click", () => {
       const { installGuide } = window.EverythingSearchUi.getElements();
@@ -76,7 +88,8 @@ window.EverythingInstallGuide = (() => {
   }
 
   function reset() {
-    configureDownloadLink();
+    configureDownloadLinks();
+    createPermanentSetupButton();
     window.EverythingSearchUi?.setGuideExpanded?.(false);
   }
 
@@ -84,6 +97,7 @@ window.EverythingInstallGuide = (() => {
 
   return {
     officialDownloadUrl,
+    companionDownloadUrl,
     installInstructions,
     bindEvents,
     reset
