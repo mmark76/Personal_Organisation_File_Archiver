@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-06-19
+
+### Everything Search Integration
+
+- Added a fifth main choice, **Search this PC**, inside the existing Organize Your PC interface.
+- Added a dedicated local search screen powered by Everything through the loopback-only .NET companion service.
+- Added basic filters for result type, file category, modified date, file size, filename matching, result count, and Windows location.
+- Added a permanent **Install Everything** button that opens the official voidtools download page and includes short installation guidance.
+- Added Everything branding to the search entry point and changed the main-choice layout to smaller, more compact controls.
+- Added structured filter validation in both the browser client and companion API.
+- Added SDK-first search with controlled `es.exe` fallback.
+- Added origin checks, short-lived session headers, rate limiting, redacted display paths, and loopback-only communication.
+- Added browser and companion CI coverage for the dedicated search screen, filters, session handling, unavailable state, navigation, and regression safety.
+- Added and updated Everything integration documentation and third-party attribution.
+
 ## 2026-06-14
 
 ### Archive Safety and Reliability
