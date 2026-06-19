@@ -19,6 +19,25 @@ window.EverythingInstallGuide = (() => {
     document.head.appendChild(link);
   }
 
+  function ensureSearchRequirementNotice() {
+    const heading = document.querySelector("#everythingSearchPanel .everything-search-heading");
+    if (!heading || document.getElementById("everythingSearchRequirementNotice")) return;
+
+    const notice = document.createElement("div");
+    notice.id = "everythingSearchRequirementNotice";
+    notice.className = "guidance-card everything-search-requirement-notice";
+    notice.setAttribute("role", "note");
+
+    const title = document.createElement("strong");
+    title.textContent = "Search requirements";
+
+    const message = document.createElement("span");
+    message.textContent = "To use Search this PC, both Everything and the Organize Your PC Companion must be installed and running on this Windows computer.";
+
+    notice.append(title, message);
+    heading.insertAdjacentElement("beforebegin", notice);
+  }
+
   function placeSetupPanelBelowBackButton() {
     const panel = document.getElementById("everythingSetupPanel");
     const toolbar = document.querySelector("#everythingSearchScreen > .screen-toolbar");
@@ -123,6 +142,7 @@ window.EverythingInstallGuide = (() => {
 
   function configureDownloadLinks() {
     ensureBrandStylesheet();
+    ensureSearchRequirementNotice();
     configureSetupPanel();
   }
 
