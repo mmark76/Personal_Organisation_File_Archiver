@@ -25,16 +25,25 @@ window.EverythingInstallGuide = (() => {
 
     const notice = document.createElement("div");
     notice.id = "everythingSearchRequirementNotice";
-    notice.className = "guidance-card everything-search-requirement-notice";
     notice.setAttribute("role", "note");
+    notice.textContent = "To use Search this PC, both Everything and the Organize Your PC Companion must be installed and running on this Windows computer.";
 
-    const title = document.createElement("strong");
-    title.textContent = "Search requirements";
+    Object.assign(notice.style, {
+      display: "block",
+      width: "100%",
+      boxSizing: "border-box",
+      margin: "0 0 4px",
+      padding: "12px 14px",
+      border: "1px solid #f59e0b",
+      borderRadius: "12px",
+      background: "rgba(245, 158, 11, 0.08)",
+      color: "#ffffff",
+      fontSize: "13px",
+      fontWeight: "650",
+      lineHeight: "1.5",
+      textAlign: "center"
+    });
 
-    const message = document.createElement("span");
-    message.textContent = "To use Search this PC, both Everything and the Organize Your PC Companion must be installed and running on this Windows computer.";
-
-    notice.append(title, message);
     heading.insertAdjacentElement("beforebegin", notice);
   }
 
@@ -187,6 +196,12 @@ window.EverythingInstallGuide = (() => {
   }
 
   ensureBrandStylesheet();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ensureSearchRequirementNotice, { once: true });
+  } else {
+    ensureSearchRequirementNotice();
+  }
 
   return {
     officialDownloadUrl,
