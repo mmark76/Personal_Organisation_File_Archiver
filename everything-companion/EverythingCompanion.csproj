@@ -3,7 +3,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>EverythingCompanion</RootNamespace>
     <AssemblyName>EverythingCompanion</AssemblyName>
   </PropertyGroup>
