@@ -30,9 +30,29 @@ window.AppNavigation = (() => {
     showScreen("mainChoiceScreen");
   }
 
-  function showEverythingSearchMode() {
+  async function showEverythingSearchMode() {
     showScreen("everythingSearchScreen");
-    window.EverythingSearch?.activate?.();
+
+    const search = window.EverythingSearch;
+    await search?.initialize?.();
+
+    const ui = window.EverythingSearchUi;
+    window.EverythingInstallGuide?.reset?.();
+    ui?.showSetup?.(false);
+    ui?.setSearchEnabled?.(true);
+    ui?.setBusy?.(false);
+    ui?.setStatus?.("Enter a search term and select Search.", "idle");
+
+    const payload = await search?.checkAvailability?.();
+
+    if (!payload?.everythingAvailable) {
+      ui?.showSetup?.(false);
+      ui?.setSearchEnabled?.(true);
+      ui?.setBusy?.(false);
+      ui?.setStatus?.("Enter a search term and select Search.", "idle");
+    }
+
+    ui?.focusInput?.();
   }
 
   function showFolderTreeMode() {
