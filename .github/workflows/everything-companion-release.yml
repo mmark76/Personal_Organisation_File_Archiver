@@ -1,0 +1,61 @@
+name: Build Everything Companion release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "everything-companion-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Windows companion package
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish self-contained companion
+        shell: pwsh
+        run: |
+          dotnet publish everything-companion/EverythingCompanion.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output companion-package
+
+      - name: Add installer files
+        shell: pwsh
+        run: |
+          Copy-Item everything-companion/install/* companion-package/ -Force
+
+      - name: Verify package
+        shell: pwsh
+        run: |
+          $required = @(
+            'companion-package/EverythingCompanion.exe',
+            'companion-package/Install-EverythingCompanion.cmd',
+            'companion-package/Install-EverythingCompanion.ps1',
+            'companion-package/Uninstall-EverythingCompanion.cmd',
+            'companion-package/Uninstall-EverythingCompanion.ps1'
+          )
+          foreach ($file in $required) {
+            if (-not (Test-Path $file)) { throw "Missing package file: $file" }
+          }
+
+      - name: Upload installable ZIP contents
+        uses: actions/upload-artifact@v4
+        with:
+          name: EverythingCompanion-win-x64
+          path: companion-package/
+          if-no-files-found: error
+          retention-days: 30
