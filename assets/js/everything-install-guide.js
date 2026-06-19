@@ -26,7 +26,23 @@ window.EverythingInstallGuide = (() => {
     const notice = document.createElement("div");
     notice.id = "everythingSearchRequirementNotice";
     notice.setAttribute("role", "note");
-    notice.textContent = "To use Search this PC, both Everything and the Organize Your PC Companion must be installed and running on this Windows computer.";
+
+    const appendText = text => notice.appendChild(document.createTextNode(text));
+    const appendEmphasis = text => {
+      const emphasis = document.createElement("strong");
+      emphasis.textContent = text;
+      emphasis.style.color = "#ff4d4f";
+      emphasis.style.fontWeight = "800";
+      notice.appendChild(emphasis);
+    };
+
+    appendText("To use the ");
+    appendEmphasis("Search this PC");
+    appendText(" feature, both ");
+    appendEmphasis("Everything");
+    appendText(" and the ");
+    appendEmphasis("Organize Your PC Companion");
+    appendText(" must be installed and running on this Windows computer.");
 
     Object.assign(notice.style, {
       display: "block",
