@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop'
 
 $taskName = 'Organize Your PC - Everything Companion'
+$protocolName = 'organizeyourpc-companion'
+$protocolRoot = "HKCU:\Software\Classes\$protocolName"
 $installDirectory = Join-Path $env:LOCALAPPDATA 'Programs\Organize Your PC\Everything Companion'
 $sourceDirectory = $PSScriptRoot
 $sourceExecutable = Join-Path $sourceDirectory 'EverythingCompanion.exe'
@@ -44,6 +46,18 @@ Register-ScheduledTask `
     -Description 'Starts the local Everything companion for Organize Your PC when this user signs in.' `
     -Force | Out-Null
 
+New-Item -Path $protocolRoot -Force | Out-Null
+Set-Item -Path $protocolRoot -Value 'URL:Organize Your PC Companion Protocol'
+New-ItemProperty -Path $protocolRoot -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
+
+$defaultIconKey = Join-Path $protocolRoot 'DefaultIcon'
+New-Item -Path $defaultIconKey -Force | Out-Null
+Set-Item -Path $defaultIconKey -Value ('"' + $installedExecutable + '",0')
+
+$commandKey = Join-Path $protocolRoot 'shell\open\command'
+New-Item -Path $commandKey -Force | Out-Null
+Set-Item -Path $commandKey -Value ('"' + $installedExecutable + '" "%1"')
+
 Start-ScheduledTask -TaskName $taskName
 Start-Sleep -Seconds 2
 
@@ -55,4 +69,4 @@ catch {
     Write-Warning 'Installation completed, but the local health check did not respond yet. Ensure Everything is installed and running, then use Check Again in Organize Your PC.'
 }
 
-Write-Host 'The companion will now start automatically in the background whenever this Windows user signs in.'
+Write-Host 'The companion is running now and will start automatically in the background whenever this Windows user signs in.'
