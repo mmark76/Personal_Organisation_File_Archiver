@@ -18,31 +18,6 @@ window.EverythingInstallGuide = (() => {
     document.head.appendChild(link);
   }
 
-  function createPermanentSetupButton() {
-    const existingButton = document.getElementById("everythingSetupButton");
-    if (existingButton) return existingButton;
-
-    const searchButton = document.getElementById("everythingSearchButton");
-    if (!searchButton?.parentElement) return null;
-
-    const setupButton = document.createElement("button");
-    setupButton.type = "button";
-    setupButton.id = "everythingSetupButton";
-    setupButton.className = "button button-secondary everything-install-button";
-    setupButton.title = installInstructions;
-    setupButton.setAttribute("aria-label", `Set up Search this PC. ${installInstructions}`);
-
-    const title = document.createElement("span");
-    title.textContent = "Set up Search";
-
-    const steps = document.createElement("small");
-    steps.textContent = "Everything · Companion · Instructions";
-
-    setupButton.append(title, steps);
-    searchButton.insertAdjacentElement("afterend", setupButton);
-    return setupButton;
-  }
-
   function createCompanionDownloadButton() {
     const existingButton = document.getElementById("companionDownloadLink");
     if (existingButton) return existingButton;
@@ -110,22 +85,11 @@ window.EverythingInstallGuide = (() => {
     configureSetupPanel();
   }
 
-  function openSetupInstructions() {
-    window.EverythingSearchUi?.showSetup?.(true);
-    window.EverythingSearchUi?.setGuideExpanded?.(true);
-    const guideButton = document.getElementById("toggleEverythingInstallGuideButton");
-    if (guideButton) guideButton.textContent = "Hide Instructions";
-    document.getElementById("everythingSetupPanel")?.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
-  }
-
   function bindEvents(onCheckAgain) {
     configureDownloadLinks();
-    const setupButton = createPermanentSetupButton();
     if (bound) return;
 
     const { guideButton, checkAgainButton } = window.EverythingSearchUi?.getElements?.() || {};
-
-    setupButton?.addEventListener("click", openSetupInstructions);
 
     guideButton?.addEventListener("click", () => {
       const { installGuide } = window.EverythingSearchUi.getElements();
@@ -143,7 +107,6 @@ window.EverythingInstallGuide = (() => {
 
   function reset() {
     configureDownloadLinks();
-    createPermanentSetupButton();
     window.EverythingSearchUi?.setGuideExpanded?.(false);
     const guideButton = document.getElementById("toggleEverythingInstallGuideButton");
     if (guideButton) guideButton.textContent = "Simple Instructions";
