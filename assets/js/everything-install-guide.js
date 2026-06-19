@@ -22,11 +22,18 @@ window.EverythingInstallGuide = (() => {
 
   function ensureSearchRequirementNotice() {
     const heading = document.querySelector("#everythingSearchPanel .everything-search-heading");
-    if (!heading || document.getElementById("everythingSearchRequirementNotice")) return;
+    if (!heading) return;
 
-    const notice = document.createElement("div");
-    notice.id = "everythingSearchRequirementNotice";
-    notice.setAttribute("role", "note");
+    let notice = document.getElementById("everythingSearchRequirementNotice");
+    const isNewNotice = !notice;
+
+    if (!notice) {
+      notice = document.createElement("div");
+      notice.id = "everythingSearchRequirementNotice";
+      notice.setAttribute("role", "note");
+    }
+
+    notice.replaceChildren();
 
     const appendText = text => notice.appendChild(document.createTextNode(text));
     const applyEmphasisStyle = element => {
@@ -46,7 +53,10 @@ window.EverythingInstallGuide = (() => {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       link.setAttribute("download", downloadName);
+      link.setAttribute("aria-label", `Download ${text}`);
+      link.title = `Download ${text}`;
       applyEmphasisStyle(link);
+      link.style.cursor = "pointer";
       link.style.textDecoration = "underline";
       link.style.textUnderlineOffset = "2px";
       notice.appendChild(link);
@@ -76,7 +86,9 @@ window.EverythingInstallGuide = (() => {
       textAlign: "center"
     });
 
-    heading.insertAdjacentElement("beforebegin", notice);
+    if (isNewNotice || notice.nextElementSibling !== heading) {
+      heading.insertAdjacentElement("beforebegin", notice);
+    }
   }
 
   function placeSetupPanelBelowBackButton() {
