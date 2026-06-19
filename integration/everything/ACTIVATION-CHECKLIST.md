@@ -36,10 +36,10 @@
 
 ## Automated validation
 
-- [ ] Latest JavaScript syntax checks succeed.
-- [ ] Existing browser regression suite succeeds.
-- [ ] Dedicated Everything screen and filter tests succeed.
-- [ ] Windows CI builds the .NET companion.
+- [x] Latest JavaScript syntax checks succeed.
+- [x] Existing browser regression suite succeeds.
+- [x] Dedicated Everything screen and filter tests succeed.
+- [x] Windows CI builds the .NET companion.
 
 ## Manual Windows validation
 
@@ -58,7 +58,7 @@
 
 ## Release gate
 
-- [ ] Latest CI run is green.
+- [x] Latest CI run is green.
 - [ ] Remaining manual Windows checks are accepted.
 - [ ] Final Pull Request diff is reviewed.
 - [ ] Pull Request is merged only after explicit approval.
