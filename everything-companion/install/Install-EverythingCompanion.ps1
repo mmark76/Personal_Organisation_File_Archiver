@@ -2,12 +2,13 @@ $ErrorActionPreference = 'Stop'
 
 $taskName = 'Organize Your PC - Everything Companion'
 $installDirectory = Join-Path $env:LOCALAPPDATA 'Programs\Organize Your PC\Everything Companion'
-$sourceDirectory = Split-Path -Parent $PSScriptRoot
+$sourceDirectory = $PSScriptRoot
 $sourceExecutable = Join-Path $sourceDirectory 'EverythingCompanion.exe'
 $installedExecutable = Join-Path $installDirectory 'EverythingCompanion.exe'
+$currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
 if (-not (Test-Path $sourceExecutable)) {
-    throw "EverythingCompanion.exe was not found next to the install folder. Extract the complete release ZIP before installing."
+    throw "EverythingCompanion.exe was not found beside the installer. Extract the complete release ZIP before installing."
 }
 
 New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
@@ -15,11 +16,16 @@ New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
 Get-Process -Name 'EverythingCompanion' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 Get-ChildItem -Path $sourceDirectory -File | Where-Object {
-    $_.Name -notin @('Install-EverythingCompanion.cmd', 'Uninstall-EverythingCompanion.cmd')
+    $_.Name -notin @(
+        'Install-EverythingCompanion.cmd',
+        'Install-EverythingCompanion.ps1',
+        'Uninstall-EverythingCompanion.cmd',
+        'Uninstall-EverythingCompanion.ps1'
+    )
 } | Copy-Item -Destination $installDirectory -Force
 
 $action = New-ScheduledTaskAction -Execute $installedExecutable -WorkingDirectory $installDirectory
-$trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
 $settings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries `
@@ -27,7 +33,7 @@ $settings = New-ScheduledTaskSettingsSet `
     -RestartCount 3 `
     -RestartInterval (New-TimeSpan -Minutes 1) `
     -StartWhenAvailable
-$principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType Interactive -RunLevel Limited
+$principal = New-ScheduledTaskPrincipal -UserId $currentUser -LogonType Interactive -RunLevel Limited
 
 Register-ScheduledTask `
     -TaskName $taskName `
