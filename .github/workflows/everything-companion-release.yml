@@ -56,8 +56,6 @@ jobs:
           Invoke-WebRequest `
             -Uri 'https://www.voidtools.com/License.txt' `
             -OutFile 'Everything-License.txt'
-          $actualSdkHash = (Get-FileHash -Path 'Everything-SDK.zip' -Algorithm SHA256).Hash.ToUpperInvariant()
-          Write-Host "EVERYTHING_SDK_SHA256=$actualSdkHash"
           Expand-Archive `
             -Path 'Everything-SDK.zip' `
             -DestinationPath 'everything-sdk' `
@@ -71,6 +69,21 @@ jobs:
           if ($null -eq $sdkDll) {
             throw 'Everything64.dll was not found in the official Everything SDK archive.'
           }
+
+          $expectedSdkHash = ((Get-Content `
+            'everything-companion/dependencies/Everything64.dll.sha256' `
+            -Raw).Trim() -split '\s+')[0].ToUpperInvariant()
+          if ($expectedSdkHash -notmatch '^[A-F0-9]{64}$') {
+            throw 'The approved Everything64.dll SHA-256 file is invalid.'
+          }
+
+          $actualSdkHash = (Get-FileHash `
+            -Path $sdkDll.FullName `
+            -Algorithm SHA256).Hash.ToUpperInvariant()
+          if ($actualSdkHash -ne $expectedSdkHash) {
+            throw "Everything64.dll SHA-256 mismatch. Expected $expectedSdkHash but received $actualSdkHash. Review and approve the SDK change before building a new Companion."
+          }
+
           Copy-Item $sdkDll.FullName companion-package/Everything64.dll -Force
           Copy-Item Everything-License.txt companion-package/THIRD-PARTY-LICENSE-EVERYTHING.txt -Force
 
