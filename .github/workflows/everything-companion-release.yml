@@ -56,6 +56,8 @@ jobs:
           Invoke-WebRequest `
             -Uri 'https://www.voidtools.com/License.txt' `
             -OutFile 'Everything-License.txt'
+          $actualSdkHash = (Get-FileHash -Path 'Everything-SDK.zip' -Algorithm SHA256).Hash.ToUpperInvariant()
+          Write-Host "EVERYTHING_SDK_SHA256=$actualSdkHash"
           Expand-Archive `
             -Path 'Everything-SDK.zip' `
             -DestinationPath 'everything-sdk' `
