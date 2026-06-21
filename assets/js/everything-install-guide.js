@@ -69,6 +69,10 @@ window.EverythingInstallGuide = (() => {
     appendText(" and the ");
     appendDownloadLink("Organize Your PC Companion", companionDownloadUrl, "EverythingCompanion-win-x64.zip");
     appendText(" must be installed and running on this Windows computer.");
+    notice.appendChild(document.createElement("br"));
+    appendText("After downloading the Companion ZIP, extract it and double-click ");
+    appendEmphasis("Install-EverythingCompanion.cmd");
+    appendText(".");
 
     Object.assign(notice.style, {
       display: "block",
