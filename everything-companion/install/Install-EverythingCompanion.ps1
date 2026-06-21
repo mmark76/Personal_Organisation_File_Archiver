@@ -1,3 +1,7 @@
+param(
+    [switch]$SkipCopy
+)
+
 $ErrorActionPreference = 'Stop'
 
 $taskName = 'Organize Your PC - Everything Companion'
@@ -17,14 +21,20 @@ New-Item -ItemType Directory -Path $installDirectory -Force | Out-Null
 
 Get-Process -Name 'EverythingCompanion' -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
-Get-ChildItem -Path $sourceDirectory -File | Where-Object {
-    $_.Name -notin @(
-        'Install-EverythingCompanion.cmd',
-        'Install-EverythingCompanion.ps1',
-        'Uninstall-EverythingCompanion.cmd',
-        'Uninstall-EverythingCompanion.ps1'
-    )
-} | Copy-Item -Destination $installDirectory -Force
+if (-not $SkipCopy) {
+    Get-ChildItem -Path $sourceDirectory -File | Where-Object {
+        $_.Name -notin @(
+            'Install-EverythingCompanion.cmd',
+            'Install-EverythingCompanion.ps1',
+            'Uninstall-EverythingCompanion.cmd',
+            'Uninstall-EverythingCompanion.ps1'
+        )
+    } | Copy-Item -Destination $installDirectory -Force
+}
+
+if (-not (Test-Path $installedExecutable)) {
+    throw "EverythingCompanion.exe was not found in the installation directory: $installDirectory"
+}
 
 $action = New-ScheduledTaskAction -Execute $installedExecutable -WorkingDirectory $installDirectory
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $currentUser
