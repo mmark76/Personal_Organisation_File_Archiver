@@ -62,17 +62,11 @@ window.EverythingInstallGuide = (() => {
       notice.appendChild(link);
     };
 
-    appendText("To use the ");
-    appendEmphasis("Search this PC");
-    appendText(" feature, both ");
-    appendDownloadLink("Everything", everythingInstallerUrl, "Everything-1.4.1.1032.x64-Setup.exe");
-    appendText(" and the ");
-    appendDownloadLink("Organize Your PC Companion", companionDownloadUrl, "EverythingCompanion-Setup-win-x64.exe");
-    appendText(" must be installed and running on this Windows computer.");
-    notice.appendChild(document.createElement("br"));
-    appendText("After downloading, double-click ");
-    appendEmphasis("EverythingCompanion-Setup-win-x64.exe");
-    appendText(" to install the Companion.");
+    appendText("To use the Search this PC feature in this app, install Everything using ");
+    appendDownloadLink("Everything-1.4.1.1032.x64-Setup.exe", everythingInstallerUrl, "Everything-1.4.1.1032.x64-Setup.exe");
+    appendText(" and install the Companion using ");
+    appendDownloadLink("EverythingCompanion-Setup-win-x64.exe", companionDownloadUrl, "EverythingCompanion-Setup-win-x64.exe");
+    appendText(". Both applications must then be running on this Windows PC.");
 
     Object.assign(notice.style, {
       display: "block",
