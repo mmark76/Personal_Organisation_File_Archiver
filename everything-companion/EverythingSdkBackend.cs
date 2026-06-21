@@ -14,13 +14,15 @@ internal sealed class EverythingSdkBackend : IEverythingSearchBackend
 
     public string Name => "sdk";
 
-    public bool IsAvailable => _api is not null && _api.IsLoaded;
+    public bool IsAvailable => _api is not null && _api.IsEverythingAvailable;
 
     public Task<IReadOnlyList<SearchResult>> SearchAsync(SearchRequest request, CancellationToken cancellationToken)
     {
-        if (_api is null || !_api.IsLoaded)
+        if (_api is null || !_api.IsEverythingAvailable)
         {
-            throw new EverythingBackendUnavailableException("The Everything SDK is not available.");
+            throw new EverythingBackendUnavailableException(
+                "The Everything SDK is installed, but Everything is not running or its search database is not ready."
+            );
         }
 
         IReadOnlyList<SearchResult> results = _api.Search(request, cancellationToken);
@@ -34,6 +36,7 @@ internal sealed class EverythingSdkBackend : IEverythingSearchBackend
         private delegate void SetMatchBoolDelegate(bool value);
         private delegate void SetMaxDelegate(uint max);
         private delegate bool QueryDelegate(bool wait);
+        private delegate bool IsDbLoadedDelegate();
         private delegate uint GetNumResultsDelegate();
         [UnmanagedFunctionPointer(CallingConvention.Winapi, CharSet = CharSet.Unicode)]
         private delegate uint GetResultFullPathNameDelegate(uint index, StringBuilder builder, uint size);
@@ -47,6 +50,7 @@ internal sealed class EverythingSdkBackend : IEverythingSearchBackend
         private readonly SetMatchBoolDelegate _setRegex;
         private readonly SetMaxDelegate _setMax;
         private readonly QueryDelegate _query;
+        private readonly IsDbLoadedDelegate _isDbLoaded;
         private readonly GetNumResultsDelegate _getNumResults;
         private readonly GetResultFullPathNameDelegate _getResultFullPathName;
         private readonly IsFolderResultDelegate _isFolderResult;
@@ -61,12 +65,31 @@ internal sealed class EverythingSdkBackend : IEverythingSearchBackend
             _setRegex = GetDelegate<SetMatchBoolDelegate>("Everything_SetRegex");
             _setMax = GetDelegate<SetMaxDelegate>("Everything_SetMax");
             _query = GetDelegate<QueryDelegate>("Everything_QueryW");
+            _isDbLoaded = GetDelegate<IsDbLoadedDelegate>("Everything_IsDBLoaded");
             _getNumResults = GetDelegate<GetNumResultsDelegate>("Everything_GetNumResults");
             _getResultFullPathName = GetDelegate<GetResultFullPathNameDelegate>("Everything_GetResultFullPathNameW");
             _isFolderResult = GetDelegate<IsFolderResultDelegate>("Everything_IsFolderResult");
         }
 
-        public bool IsLoaded => _libraryHandle != nint.Zero;
+        public bool IsEverythingAvailable
+        {
+            get
+            {
+                if (_libraryHandle == nint.Zero)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    return _isDbLoaded();
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
 
         public static EverythingSdkApi? TryLoad()
         {
