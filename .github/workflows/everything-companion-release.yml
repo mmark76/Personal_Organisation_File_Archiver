@@ -72,7 +72,7 @@ jobs:
           Copy-Item $sdkDll.FullName companion-package/Everything64.dll -Force
           Copy-Item Everything-License.txt companion-package/THIRD-PARTY-LICENSE-EVERYTHING.txt -Force
 
-      - name: Verify package
+      - name: Verify package files
         shell: pwsh
         run: |
           $required = @(
@@ -98,11 +98,56 @@ jobs:
         shell: pwsh
         run: Compress-Archive -Path companion-package/* -DestinationPath EverythingCompanion-win-x64.zip -Force
 
+      - name: Build single-file EXE installer
+        shell: pwsh
+        run: |
+          $isccCommand = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+          $isccPath = if ($isccCommand) {
+            $isccCommand.Source
+          }
+          else {
+            Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          }
+
+          if (-not (Test-Path $isccPath)) {
+            throw "Inno Setup compiler was not found: $isccPath"
+          }
+
+          $sourceDir = (Resolve-Path 'companion-package').Path
+          $outputDir = (Get-Location).Path
+
+          & $isccPath `
+            "/DSourceDir=$sourceDir" `
+            "/DOutputDir=$outputDir" `
+            'everything-companion/installer/EverythingCompanion.iss'
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup compilation failed with exit code $LASTEXITCODE."
+          }
+
+      - name: Verify release files
+        shell: pwsh
+        run: |
+          $releaseFiles = @(
+            'EverythingCompanion-win-x64.zip',
+            'EverythingCompanion-Setup-win-x64.exe'
+          )
+          foreach ($file in $releaseFiles) {
+            if (-not (Test-Path $file)) {
+              throw "Missing release file: $file"
+            }
+            if ((Get-Item $file).Length -eq 0) {
+              throw "Empty release file: $file"
+            }
+          }
+
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: EverythingCompanion-win-x64
-          path: EverythingCompanion-win-x64.zip
+          path: |
+            EverythingCompanion-win-x64.zip
+            EverythingCompanion-Setup-win-x64.exe
           if-no-files-found: error
           retention-days: 30
 
@@ -112,8 +157,15 @@ jobs:
         with:
           tag_name: everything-companion-latest
           name: Everything Companion
-          body: Windows x64 Companion for Organize Your PC. Includes the official Everything SDK runtime. Install and start Everything, extract this ZIP, and run Install-EverythingCompanion.cmd.
+          body: |
+            Windows x64 Companion for Organize Your PC. Includes the official Everything SDK runtime.
+
+            Choose either:
+            - EverythingCompanion-Setup-win-x64.exe — single-file Windows installer.
+            - EverythingCompanion-win-x64.zip — package with all files visible; extract it and run Install-EverythingCompanion.cmd.
           make_latest: true
           target_commitish: ${{ github.sha }}
-          files: EverythingCompanion-win-x64.zip
+          files: |
+            EverythingCompanion-win-x64.zip
+            EverythingCompanion-Setup-win-x64.exe
           overwrite_files: true
