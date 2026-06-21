@@ -47,14 +47,12 @@ jobs:
         shell: pwsh
         run: |
           $tag = '${{ steps.version.outputs.tag }}'
-          & git ls-remote --exit-code --tags origin "refs/tags/$tag" *> $null
-          $tagLookupExitCode = $LASTEXITCODE
-
-          if ($tagLookupExitCode -eq 0) {
-            throw "Release tag '$tag' already exists. Increment everything-companion/VERSION before changing or rebuilding the Companion."
-          }
-          if ($tagLookupExitCode -ne 2) {
+          $matchingTags = @(& git ls-remote --refs --tags origin "refs/tags/$tag")
+          if ($LASTEXITCODE -ne 0) {
             throw "Unable to confirm whether release tag '$tag' already exists."
+          }
+          if ($matchingTags.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace(($matchingTags -join ''))) {
+            throw "Release tag '$tag' already exists. Increment everything-companion/VERSION before changing or rebuilding the Companion."
           }
 
       - name: Set up .NET
