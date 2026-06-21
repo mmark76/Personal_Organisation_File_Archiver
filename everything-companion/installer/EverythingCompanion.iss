@@ -6,8 +6,15 @@
   #define OutputDir "."
 #endif
 
+#ifndef AppVersion
+  #define AppVersion "1.0.0"
+#endif
+
+#ifndef VersionInfoVersion
+  #define VersionInfoVersion "1.0.0.0"
+#endif
+
 #define AppName "Everything Companion for Organize Your PC"
-#define AppVersion "1.0.0"
 #define AppPublisher "Markellos Markides"
 #define AppUrl "https://organizeyourpc.com/"
 #define AppExeName "EverythingCompanion.exe"
@@ -40,7 +47,7 @@ VersionInfoCompany={#AppPublisher}
 VersionInfoDescription={#AppName} installer
 VersionInfoProductName={#AppName}
 VersionInfoProductVersion={#AppVersion}
-VersionInfoVersion=1.0.0.0
+VersionInfoVersion={#VersionInfoVersion}
 
 [Files]
 Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

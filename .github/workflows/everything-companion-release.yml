@@ -17,36 +17,70 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   build:
     name: Build Windows companion package
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Read and validate release version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content 'everything-companion/VERSION' -Raw).Trim()
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Invalid Companion version '$version'. Use semantic versioning such as 1.1.0."
+          }
+
+          $tag = "everything-companion-v$version"
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Require a new immutable release tag
+        shell: pwsh
+        run: |
+          $tag = '${{ steps.version.outputs.tag }}'
+          $matchingTags = @(& git ls-remote --refs --tags origin "refs/tags/$tag")
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unable to confirm whether release tag '$tag' already exists."
+          }
+          if ($matchingTags.Count -gt 0 -and -not [string]::IsNullOrWhiteSpace(($matchingTags -join ''))) {
+            throw "Release tag '$tag' already exists. Increment everything-companion/VERSION before changing or rebuilding the Companion."
+          }
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@d4c94342e560b34958eacfc5d055d21461ed1c5d # v4.3.1
         with:
           dotnet-version: "8.0.x"
 
       - name: Publish self-contained companion
         shell: pwsh
         run: |
+          $version = '${{ steps.version.outputs.version }}'
+          $fourPartVersion = "$version.0"
+
           dotnet publish everything-companion/EverythingCompanion.csproj `
             --configuration Release `
             --runtime win-x64 `
             --self-contained true `
-            --output companion-package
+            --output companion-package `
+            -p:Version=$version `
+            -p:AssemblyVersion=$fourPartVersion `
+            -p:FileVersion=$fourPartVersion `
+            -p:InformationalVersion="$version+$env:GITHUB_SHA"
 
       - name: Add installer files
         shell: pwsh
         run: Copy-Item everything-companion/install/* companion-package/ -Force
 
-      - name: Add official Everything SDK runtime
+      - name: Add approved Everything SDK runtime
         shell: pwsh
         run: |
           $ProgressPreference = 'SilentlyContinue'
@@ -109,6 +143,14 @@ jobs:
             }
           }
 
+          $version = '${{ steps.version.outputs.version }}'
+          $expectedFileVersion = "$version.0"
+          $versionInfo = (Get-Item 'companion-package/EverythingCompanion.exe').VersionInfo
+          $actualFileVersion = "$($versionInfo.FileMajorPart).$($versionInfo.FileMinorPart).$($versionInfo.FileBuildPart).$($versionInfo.FilePrivatePart)"
+          if ($actualFileVersion -ne $expectedFileVersion) {
+            throw "Companion file version mismatch. Expected $expectedFileVersion but received $actualFileVersion."
+          }
+
       - name: Create installable ZIP
         shell: pwsh
         run: Compress-Archive -Path companion-package/* -DestinationPath EverythingCompanion-win-x64.zip -Force
@@ -128,24 +170,60 @@ jobs:
             throw "Inno Setup compiler was not found: $isccPath"
           }
 
+          $version = '${{ steps.version.outputs.version }}'
           $sourceDir = (Resolve-Path 'companion-package').Path
           $outputDir = (Get-Location).Path
 
           & $isccPath `
             "/DSourceDir=$sourceDir" `
             "/DOutputDir=$outputDir" `
+            "/DAppVersion=$version" `
+            "/DVersionInfoVersion=$version.0" `
             'everything-companion/installer/EverythingCompanion.iss'
 
           if ($LASTEXITCODE -ne 0) {
             throw "Inno Setup compilation failed with exit code $LASTEXITCODE."
           }
 
-      - name: Verify release files
+      - name: Create versioned release assets
         shell: pwsh
         run: |
+          $version = '${{ steps.version.outputs.version }}'
+          Copy-Item `
+            'EverythingCompanion-win-x64.zip' `
+            "EverythingCompanion-v$version-win-x64.zip" `
+            -Force
+          Copy-Item `
+            'EverythingCompanion-Setup-win-x64.exe' `
+            "EverythingCompanion-Setup-v$version-win-x64.exe" `
+            -Force
+
+      - name: Generate checksums and SPDX SBOM
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          & 'everything-companion/release/New-ReleaseMetadata.ps1' `
+            -Version $version `
+            -PackageDirectory 'companion-package' `
+            -OutputDirectory '.' `
+            -ReleaseFiles @(
+              'EverythingCompanion-win-x64.zip',
+              'EverythingCompanion-Setup-win-x64.exe',
+              "EverythingCompanion-v$version-win-x64.zip",
+              "EverythingCompanion-Setup-v$version-win-x64.exe"
+            )
+
+      - name: Verify release files and metadata
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
           $releaseFiles = @(
             'EverythingCompanion-win-x64.zip',
-            'EverythingCompanion-Setup-win-x64.exe'
+            'EverythingCompanion-Setup-win-x64.exe',
+            "EverythingCompanion-v$version-win-x64.zip",
+            "EverythingCompanion-Setup-v$version-win-x64.exe",
+            "EverythingCompanion-v$version.spdx.json",
+            'SHA256SUMS.txt'
           )
           foreach ($file in $releaseFiles) {
             if (-not (Test-Path $file)) {
@@ -156,31 +234,85 @@ jobs:
             }
           }
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
+          $expectedInstallerVersion = "$version.0"
+          $installerVersionInfo = (Get-Item 'EverythingCompanion-Setup-win-x64.exe').VersionInfo
+          $actualInstallerVersion = "$($installerVersionInfo.FileMajorPart).$($installerVersionInfo.FileMinorPart).$($installerVersionInfo.FileBuildPart).$($installerVersionInfo.FilePrivatePart)"
+          if ($actualInstallerVersion -ne $expectedInstallerVersion) {
+            throw "Installer file version mismatch. Expected $expectedInstallerVersion but received $actualInstallerVersion."
+          }
+
+          foreach ($line in Get-Content 'SHA256SUMS.txt') {
+            if ($line -notmatch '^([a-f0-9]{64})  (.+)$') {
+              throw "Invalid checksum entry: $line"
+            }
+            $expectedHash = $Matches[1]
+            $fileName = $Matches[2]
+            if (-not (Test-Path -LiteralPath $fileName -PathType Leaf)) {
+              throw "Checksum target does not exist: $fileName"
+            }
+            $actualHash = (Get-FileHash -LiteralPath $fileName -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actualHash -ne $expectedHash) {
+              throw "Checksum mismatch for $fileName."
+            }
+          }
+
+      - name: Generate build provenance attestation
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        id: provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
-          name: EverythingCompanion-win-x64
+          subject-checksums: SHA256SUMS.txt
+
+      - name: Add provenance bundle to release files
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          Copy-Item `
+            '${{ steps.provenance.outputs.bundle-path }}' `
+            "EverythingCompanion-v$version.intoto.jsonl" `
+            -Force
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: EverythingCompanion-v${{ steps.version.outputs.version }}-win-x64
           path: |
             EverythingCompanion-win-x64.zip
             EverythingCompanion-Setup-win-x64.exe
+            EverythingCompanion-v${{ steps.version.outputs.version }}-win-x64.zip
+            EverythingCompanion-Setup-v${{ steps.version.outputs.version }}-win-x64.exe
+            EverythingCompanion-v${{ steps.version.outputs.version }}.spdx.json
+            EverythingCompanion-v${{ steps.version.outputs.version }}.intoto.jsonl
+            SHA256SUMS.txt
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
 
-      - name: Publish public release
-        if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v2
+      - name: Publish immutable public release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
         with:
-          tag_name: everything-companion-latest
-          name: Everything Companion
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Everything Companion v${{ steps.version.outputs.version }}
           body: |
-            Windows x64 Companion for Organize Your PC. Includes the official Everything SDK runtime.
+            Immutable Windows x64 Companion release for Organize Your PC.
 
-            Choose either:
-            - EverythingCompanion-Setup-win-x64.exe — single-file Windows installer.
-            - EverythingCompanion-win-x64.zip — package with all files visible; extract it and run Install-EverythingCompanion.cmd.
+            The unversioned installer asset is retained so the app's existing `/releases/latest/download/EverythingCompanion-Setup-win-x64.exe` link continues to work without any UI change.
+
+            Verification files:
+            - `SHA256SUMS.txt` — SHA-256 checksums.
+            - `EverythingCompanion-v${{ steps.version.outputs.version }}.spdx.json` — SPDX 2.3 SBOM.
+            - `EverythingCompanion-v${{ steps.version.outputs.version }}.intoto.jsonl` — GitHub build-provenance attestation bundle.
+          generate_release_notes: true
           make_latest: true
           target_commitish: ${{ github.sha }}
+          fail_on_unmatched_files: true
+          preserve_order: true
           files: |
-            EverythingCompanion-win-x64.zip
+            EverythingCompanion-Setup-v${{ steps.version.outputs.version }}-win-x64.exe
+            EverythingCompanion-v${{ steps.version.outputs.version }}-win-x64.zip
             EverythingCompanion-Setup-win-x64.exe
-          overwrite_files: true
+            EverythingCompanion-win-x64.zip
+            SHA256SUMS.txt
+            EverythingCompanion-v${{ steps.version.outputs.version }}.spdx.json
+            EverythingCompanion-v${{ steps.version.outputs.version }}.intoto.jsonl
