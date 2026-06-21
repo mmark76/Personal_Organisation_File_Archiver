@@ -1,3 +1,7 @@
+param(
+    [switch]$KeepInstallDirectory
+)
+
 $ErrorActionPreference = 'Stop'
 
 $taskName = 'Organize Your PC - Everything Companion'
@@ -15,7 +19,7 @@ if (Test-Path $protocolRoot) {
     Remove-Item -Path $protocolRoot -Recurse -Force
 }
 
-if (Test-Path $installDirectory) {
+if (-not $KeepInstallDirectory -and (Test-Path $installDirectory)) {
     Remove-Item -Path $installDirectory -Recurse -Force
 }
 
