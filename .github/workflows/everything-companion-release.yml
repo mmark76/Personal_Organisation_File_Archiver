@@ -2,12 +2,18 @@ name: Build Everything Companion release
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "everything-companion/**"
+      - ".github/workflows/everything-companion-release.yml"
+      - "THIRD_PARTY_NOTICES.md"
   push:
     branches:
       - main
     paths:
       - "everything-companion/**"
       - ".github/workflows/everything-companion-release.yml"
+      - "THIRD_PARTY_NOTICES.md"
 
 permissions:
   contents: write
@@ -40,18 +46,52 @@ jobs:
         shell: pwsh
         run: Copy-Item everything-companion/install/* companion-package/ -Force
 
+      - name: Add official Everything SDK runtime
+        shell: pwsh
+        run: |
+          $ProgressPreference = 'SilentlyContinue'
+          Invoke-WebRequest `
+            -Uri 'https://www.voidtools.com/Everything-SDK.zip' `
+            -OutFile 'Everything-SDK.zip'
+          Invoke-WebRequest `
+            -Uri 'https://www.voidtools.com/License.txt' `
+            -OutFile 'Everything-License.txt'
+          Expand-Archive `
+            -Path 'Everything-SDK.zip' `
+            -DestinationPath 'everything-sdk' `
+            -Force
+          $sdkDll = Get-ChildItem `
+            -Path 'everything-sdk' `
+            -Recurse `
+            -File `
+            -Filter 'Everything64.dll' `
+            | Select-Object -First 1
+          if ($null -eq $sdkDll) {
+            throw 'Everything64.dll was not found in the official Everything SDK archive.'
+          }
+          Copy-Item $sdkDll.FullName companion-package/Everything64.dll -Force
+          Copy-Item Everything-License.txt companion-package/THIRD-PARTY-LICENSE-EVERYTHING.txt -Force
+
       - name: Verify package
         shell: pwsh
         run: |
           $required = @(
             'companion-package/EverythingCompanion.exe',
+            'companion-package/Everything64.dll',
+            'companion-package/THIRD-PARTY-LICENSE-EVERYTHING.txt',
             'companion-package/Install-EverythingCompanion.cmd',
             'companion-package/Install-EverythingCompanion.ps1',
+            'companion-package/Verify-EverythingConnection.ps1',
             'companion-package/Uninstall-EverythingCompanion.cmd',
             'companion-package/Uninstall-EverythingCompanion.ps1'
           )
           foreach ($file in $required) {
-            if (-not (Test-Path $file)) { throw "Missing package file: $file" }
+            if (-not (Test-Path $file)) {
+              throw "Missing package file: $file"
+            }
+            if ((Get-Item $file).Length -eq 0) {
+              throw "Empty package file: $file"
+            }
           }
 
       - name: Create installable ZIP
@@ -67,11 +107,12 @@ jobs:
           retention-days: 30
 
       - name: Publish public release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: everything-companion-latest
           name: Everything Companion
-          body: Windows x64 companion installer for Organize Your PC. Extract the ZIP and run Install-EverythingCompanion.cmd.
+          body: Windows x64 Companion for Organize Your PC. Includes the official Everything SDK runtime. Install and start Everything, extract this ZIP, and run Install-EverythingCompanion.cmd.
           make_latest: true
           target_commitish: ${{ github.sha }}
           files: EverythingCompanion-win-x64.zip
