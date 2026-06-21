@@ -3,9 +3,9 @@
 window.EverythingInstallGuide = (() => {
   const officialDownloadUrl = "https://www.voidtools.com/downloads/";
   const everythingInstallerUrl = "https://www.voidtools.com/Everything-1.4.1.1032.x64-Setup.exe";
-  const companionDownloadUrl = "https://github.com/mmark76/Personal_Organisation_File_Archiver/releases/latest/download/EverythingCompanion-win-x64.zip";
+  const companionDownloadUrl = "https://github.com/mmark76/Personal_Organisation_File_Archiver/releases/latest/download/EverythingCompanion-Setup-win-x64.exe";
   const startCompanionUrl = "organizeyourpc-companion://start";
-  const installInstructions = "Start the Companion if it is already installed. Otherwise install Everything first, then extract the Companion ZIP and run Install-EverythingCompanion.cmd. Do not run EverythingCompanion.exe directly because it only runs temporarily and does not install automatic startup.";
+  const installInstructions = "Start the Companion if it is already installed. Otherwise install and start Everything first, then download and run EverythingCompanion-Setup-win-x64.exe.";
   const currentScriptUrl = document.currentScript?.src || new URL("assets/js/everything-install-guide.js", window.location.href).href;
   const brandStylesheetUrl = new URL("../css/everything-brand.css", currentScriptUrl).href;
   let bound = false;
@@ -67,12 +67,12 @@ window.EverythingInstallGuide = (() => {
     appendText(" feature, both ");
     appendDownloadLink("Everything", everythingInstallerUrl, "Everything-1.4.1.1032.x64-Setup.exe");
     appendText(" and the ");
-    appendDownloadLink("Organize Your PC Companion", companionDownloadUrl, "EverythingCompanion-win-x64.zip");
+    appendDownloadLink("Organize Your PC Companion", companionDownloadUrl, "EverythingCompanion-Setup-win-x64.exe");
     appendText(" must be installed and running on this Windows computer.");
     notice.appendChild(document.createElement("br"));
-    appendText("After downloading the Companion ZIP, extract it and double-click ");
-    appendEmphasis("Install-EverythingCompanion.cmd");
-    appendText(".");
+    appendText("After downloading, double-click ");
+    appendEmphasis("EverythingCompanion-Setup-win-x64.exe");
+    appendText(" to install the Companion.");
 
     Object.assign(notice.style, {
       display: "block",
@@ -156,7 +156,7 @@ window.EverythingInstallGuide = (() => {
 
     if (title) title.textContent = "Search setup is required";
     if (description) {
-      description.textContent = "Start the Companion if it is already installed. Otherwise install Everything, then extract the Companion ZIP and run Install-EverythingCompanion.cmd. Do not run EverythingCompanion.exe directly.";
+      description.textContent = "Start the Companion if it is already installed. Otherwise install and start Everything, then download and run EverythingCompanion-Setup-win-x64.exe.";
     }
 
     if (startButton) {
@@ -174,7 +174,7 @@ window.EverythingInstallGuide = (() => {
       companionButton.href = companionDownloadUrl;
       companionButton.target = "_blank";
       companionButton.rel = "noopener noreferrer";
-      companionButton.setAttribute("download", "EverythingCompanion-win-x64.zip");
+      companionButton.setAttribute("download", "EverythingCompanion-Setup-win-x64.exe");
     }
 
     if (guideButton && guideButton.getAttribute("aria-expanded") !== "true") {
@@ -186,8 +186,8 @@ window.EverythingInstallGuide = (() => {
       [
         "If the Companion is already installed, select Start Companion and approve the browser prompt if it appears.",
         "If Everything is not installed, select Install Everything, download the current 64-bit installer, install it, and start Everything.",
-        "If the Companion is not installed, select Install Companion and extract the downloaded ZIP.",
-        "Inside the extracted folder, double-click Install-EverythingCompanion.cmd. Do not run EverythingCompanion.exe directly: it only runs temporarily and does not install the Companion or enable automatic startup after Windows restarts.",
+        "If the Companion is not installed, select Install Companion to download EverythingCompanion-Setup-win-x64.exe.",
+        "Double-click EverythingCompanion-Setup-win-x64.exe and complete the Windows installation.",
         "Return to Organize Your PC and select Check Again. After installation, the Companion starts immediately and will also start automatically when this Windows user signs in."
       ].forEach(text => {
         const item = document.createElement("li");
