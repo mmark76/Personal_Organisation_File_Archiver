@@ -422,7 +422,7 @@ When reading an existing folder tree, it reads only folder names from the user-s
 
 The Everything search feature communicates only with the local companion on loopback. Search history is not persisted by default, session information remains in memory, and display paths are redacted unless an explicit local configuration enables full paths.
 
-The deployed website offers optional Google Analytics usage measurement only after the user explicitly allows it. Rejecting analytics does not restrict the app. The fixed analytics events contain no file names, folder names, paths, file contents, imported metadata, destination names, search queries, feedback text, or email addresses. The choice is stored locally and can be changed from the footer.
+The deployed website uses the Markellos Ecosystem's self-hosted cookie-less page-view counter. It records only aggregate counts by UTC hour, domain, and country code, solely for the administrator to understand traffic. It does not use analytics cookies or record IP addresses, visitor identifiers, page paths, referrers, devices, browsers, app actions, files, folders, paths, search queries, feedback text, or email addresses.
 
 When folder creation, existing folder tree reading, file archiving, or folder archiving is used, the user must manually choose a folder and give permission through the browser.
 
@@ -432,7 +432,7 @@ As a general good practice, users should keep a separate backup of important fil
 
 The repository includes a standalone in-browser core test suite at `tests/archive-core-tests.html` and a Playwright runner at `tests/run-browser-tests.mjs`.
 
-Current automated coverage includes archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, optional analytics consent and event filtering, the dedicated Everything screen, structured filters, session-header handling, unavailable/setup states, navigation, and the unchanged normal folder-tree and archive workflows.
+Current automated coverage includes archive behavior, duplicate naming, existing-root path handling, permissions, stale asynchronous state, large-folder limits, destination containment, rollback, concurrent archive prevention, the dedicated Everything screen, structured filters, session-header handling, unavailable/setup states, navigation, and the unchanged normal folder-tree and archive workflows.
 
 The CI workflow also restores and builds the .NET 8 companion on Windows.
 
@@ -440,7 +440,7 @@ The CI workflow also restores and builds the .NET 8 companion on Windows.
 
 The footer displays a local SVG copyright badge stored at `assets/images/local-copyright-protected-badge.svg`.
 
-The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains. The separate optional Google Analytics tag is loaded only after explicit consent on the deployed production website.
+The badge links only to the local `LICENSE.md` file. It does not load images, scripts, badges, or tracking resources from third-party domains. The separate self-hosted cookie-less page-view counter is loaded only on the deployed production website.
 
 ## Third-Party Attribution
 

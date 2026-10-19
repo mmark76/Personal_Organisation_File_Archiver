@@ -74,7 +74,6 @@ window.AppNavigation = (() => {
   function showArchiveMode() {
     window.AppState.setActiveMode("archive");
     showScreen("archiveFileScreen");
-    window.AppAnalytics?.trackEvent("open_file_archive");
 
     if (window.FolderTreeRender) {
       window.FolderTreeRender.renderArchivePreview();
@@ -87,7 +86,6 @@ window.AppNavigation = (() => {
   function showArchiveFolderMode() {
     window.AppState.setActiveMode("archiveFolder");
     showScreen("archiveFolderScreen");
-    window.AppAnalytics?.trackEvent("open_folder_archive");
 
     if (window.FolderTreeRender) {
       window.FolderTreeRender.renderArchivePreview();

@@ -178,7 +178,6 @@ window.FolderCreation = (() => {
         await createDirectoryPath(appRootHandle, folderPath);
       }
 
-      window.AppAnalytics?.trackEvent("folder_tree_created");
       alert(window.AppMessages.folderCreationComplete);
     } catch (error) {
       if (isStaleAfterWriteError(error)) {

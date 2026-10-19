@@ -184,8 +184,7 @@ window.AppInit = (() => {
   }
 
   function bindPrivacyActions() {
-    qs("#allowAnalyticsButton")?.addEventListener("click", window.AppPrivacyNotice.allowAnalytics);
-    qs("#rejectAnalyticsButton")?.addEventListener("click", window.AppPrivacyNotice.rejectAnalytics);
+    qs("#closeAnalyticsNoticeButton")?.addEventListener("click", window.AppPrivacyNotice.hideNotice);
     qs("#openAnalyticsPreferencesButton")?.addEventListener("click", window.AppPrivacyNotice.showNotice);
   }
 

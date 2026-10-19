@@ -344,10 +344,8 @@ window.FolderArchive = (() => {
         setResult(
           `${window.AppMessages.folderArchiveComplete} Saved to: ${[destination.displayPath, safeFolderName].filter(Boolean).join("/")}. Copied ${stats.files} file(s) and ${stats.folders} folder(s).`
         );
-        window.AppAnalytics?.trackEvent("folder_archive_completed");
       } catch (error) {
         if (archiveTarget) {
-          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
           if (await rollbackArchiveTarget(archiveTarget)) {
             setResult(archiveRolledBackMessage);
           } else {
@@ -380,7 +378,6 @@ window.FolderArchive = (() => {
           return;
         }
 
-        window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "folder" });
         setResult(window.AppMessages.folderArchiveFailed);
       }
     }, window.AppMessages.folderArchiveFailed);
