@@ -529,7 +529,7 @@
       <div class="modal-content">
         <p>Organize Your PC is a personal memory-based file and folder organizing and archiving app.</p>
         <p>It does not delete, upload, rename, modify, or automatically move files or folders.</p>
-        <p>Optional Google Analytics usage statistics are loaded only after the user allows them. File names, folder names, paths, and file contents are never included in the app's analytics events.</p>
+        <p>Cookie-less analytics records only aggregate visit counts by hour, domain, and country for the administrator's understanding of traffic. It does not record files, folders, paths, app actions, or identifying information.</p>
         <p>The app can archive a loaded file or chosen folder only after the user chooses a destination folder and gives browser permission.</p>
         <p>Optional companion tool: Everything is a free way to find files and folders faster before you archive them.</p>
         <p>As a good practice, we recommend that you always keep a backup of your important files. Note that this app creates copies and does not delete original files or folders.</p>
@@ -594,14 +594,12 @@
 
   <section id="privacyNotice" class="privacy-notice" role="region" aria-labelledby="analyticsConsentTitle" hidden>
     <div class="privacy-content">
-      <strong id="analyticsConsentTitle">Optional analytics</strong>
-      <p>With your permission, Google Analytics helps us understand visits and which app features are used. File names, folder names, paths, and file contents are never sent. The app works fully if you reject. <a href="PRIVACY.md">Privacy details</a></p>
-      <p id="analyticsConsentStatus" class="analytics-consent-status"></p>
+      <strong id="analyticsConsentTitle">Cookie-less analytics</strong>
+      <p>No analytics cookies are used. Only aggregate visit counts by hour, domain, and country are recorded for the administrator's understanding of traffic, not for any other purpose. No files, folders, paths, app actions, or identifying information are collected. <a href="PRIVACY.md">Privacy details</a></p>
     </div>
 
     <div class="privacy-actions">
-      <button type="button" id="allowAnalyticsButton" class="button">Allow analytics</button>
-      <button type="button" id="rejectAnalyticsButton" class="button button-secondary">Reject analytics</button>
+      <button type="button" id="closeAnalyticsNoticeButton" class="button button-secondary">Close</button>
     </div>
   </section>
 
@@ -610,7 +608,7 @@
       © 2026 Markellos Markides. All rights reserved.
       <a href="LICENSE.md">License</a>
       <a href="PRIVACY.md">Privacy</a>
-      <button type="button" id="openAnalyticsPreferencesButton" class="footer-link-button">Analytics choices</button>
+      <button type="button" id="openAnalyticsPreferencesButton" class="footer-link-button">Analytics information</button>
       <a class="copyrighted-badge" title="Copyright protected" href="LICENSE.md"><img alt="Copyright protected" width="125" height="25" src="assets/images/local-copyright-protected-badge.svg" /></a>
     </p>
   </footer>

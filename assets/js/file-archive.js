@@ -117,10 +117,8 @@ window.FileArchive = (() => {
           resultSelector,
           `${window.AppMessages.archiveComplete} Saved to: ${[destination.displayPath, safeName].filter(Boolean).join("/")}`
         );
-        window.AppAnalytics?.trackEvent("file_archive_completed");
       } catch (error) {
         if (archiveTarget) {
-          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "file" });
           if (await rollbackArchiveTarget(archiveTarget)) {
             window.AppUtils.setText(resultSelector, archiveRolledBackMessage);
           } else {
@@ -133,7 +131,6 @@ window.FileArchive = (() => {
         }
 
         if (window.FolderCreation.isStaleAfterWriteError(error)) {
-          window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "file" });
           window.AppUtils.setText(resultSelector, window.FolderCreation.staleAfterWriteMessage);
           return;
         }
@@ -153,7 +150,6 @@ window.FileArchive = (() => {
           return;
         }
 
-        window.AppAnalytics?.trackEvent("archive_failed", { archive_type: "file" });
         window.AppUtils.setText(resultSelector, window.AppMessages.archiveFailed);
       }
     });

@@ -15,7 +15,7 @@ Open `tests/archive-core-tests.html` in a modern browser. The current suite cont
 - rollback of incomplete file and folder archives after a copy failure;
 - safe refusal when rollback support is unavailable;
 - prevention of simultaneous archive operations;
-- rejection of analytics before consent and filtering of analytics events after consent;
+- the cookie-less analytics counter remaining absent from local test pages and the informational notice opening and closing without a stored choice;
 - the optional Everything companion panel, its localhost request handling, and its local-only error states; and
 - preservation of the normal new-folder-structure workflow.
 
@@ -41,7 +41,7 @@ These checks include, as applicable:
 - Confirming that a failed file write is aborted and its incomplete output is removed or clearly reported.
 - Confirming that a second archive action cannot run while another archive operation is active.
 - Confirming that temporarily hidden or disabled interface elements remain hidden or disabled when required.
-- Confirming that rejecting analytics sends no GA4 request and that allowing analytics sends only approved non-sensitive events on the deployed production origin.
+- Confirming that the deployed production origin loads only the cookie-less aggregate page-view counter, with no analytics consent choice or feature-event tracking.
 - Checking the browser console for unhandled errors.
 - Reviewing the result manually before treating the change as complete.
 
