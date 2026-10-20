@@ -306,16 +306,34 @@
       assert(typeof window.AppAnalytics.trackEvent === "undefined", "The counter must not expose event tracking.");
     });
 
-    test("Analytics notice is informational and can be reopened", async () => {
-      window.AppPrivacyNotice.showNoticeIfNeeded();
+    test("Analytics notice dismissal persists but can be reopened manually", async () => {
+      const key = "organize-your-pc:analytics-notice-dismissed";
+      const previous = localStorage.getItem(key);
       const notice = document.getElementById("privacyNotice");
-      assert(!notice.hidden, "The informational notice should be visible.");
 
-      window.AppPrivacyNotice.hideNotice();
-      assert(notice.hidden, "The informational notice should close without a consent choice.");
+      try {
+        localStorage.removeItem(key);
+        window.AppPrivacyNotice.showNoticeIfNeeded();
+        assert(!notice.hidden, "The notice should appear before dismissal.");
 
-      window.AppPrivacyNotice.showNotice();
-      assert(!notice.hidden, "The informational notice should be reopenable.");
+        window.AppPrivacyNotice.hideNotice();
+        assert(notice.hidden, "Close should hide the notice.");
+        assert(localStorage.getItem(key) === "1", "Close should remember the dismissal.");
+
+        window.AppPrivacyNotice.showNoticeIfNeeded();
+        assert(notice.hidden, "A new page initialization must keep the notice hidden.");
+
+        window.AppPrivacyNotice.showNotice();
+        assert(!notice.hidden, "The footer must still be able to reopen the notice.");
+
+        window.AppPrivacyNotice.hideNotice();
+        window.AppPrivacyNotice.showNoticeIfNeeded();
+        assert(notice.hidden, "Reopening should not reset the stored dismissal.");
+      } finally {
+        if (previous === null) localStorage.removeItem(key);
+        else localStorage.setItem(key, previous);
+        notice.hidden = true;
+      }
     });
 
     function createDeferred() {
