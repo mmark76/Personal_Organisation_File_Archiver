@@ -15,9 +15,11 @@ Open `tests/archive-core-tests.html` in a modern browser. The current suite cont
 - rollback of incomplete file and folder archives after a copy failure;
 - safe refusal when rollback support is unavailable;
 - prevention of simultaneous archive operations;
-- the cookie-less analytics counter remaining absent from local test pages and the informational notice opening and closing without a stored choice;
+- the cookie-less analytics counter remaining absent from local test pages and the informational notice remembering its dismissal as a browser-local display preference;
 - the optional Everything companion panel, its localhost request handling, and its local-only error states; and
 - preservation of the normal new-folder-structure workflow.
+
+The Playwright runner also checks that closing the analytics notice survives a page refresh while manual reopening remains available.
 
 All tests must pass before a related change is considered complete.
 

@@ -380,9 +380,48 @@ async function runEverythingSearchUiTest() {
   }
 }
 
+async function runAnalyticsNoticePersistenceTest() {
+  const page = await browser.newPage();
+
+  try {
+    await page.goto(appUrl, { waitUntil: "load", timeout: 60_000 });
+    await page.evaluate(() => localStorage.removeItem("organize-your-pc:analytics-notice-dismissed"));
+    await page.reload({ waitUntil: "load" });
+
+    if (!(await page.locator("#privacyNotice").isVisible())) {
+      throw new Error("Analytics notice should initially appear without a stored dismissal.");
+    }
+
+    await page.locator("#closeAnalyticsNoticeButton").click();
+    if (await page.locator("#privacyNotice").isVisible()) {
+      throw new Error("Closing the notice did not hide it.");
+    }
+
+    await page.reload({ waitUntil: "load" });
+    if (await page.locator("#privacyNotice").isVisible()) {
+      throw new Error("Analytics notice reappeared after refresh despite dismissal.");
+    }
+
+    await page.locator("#openAnalyticsPreferencesButton").click();
+    if (!(await page.locator("#privacyNotice").isVisible())) {
+      throw new Error("Footer could not reopen the dismissed analytics notice.");
+    }
+
+    await page.reload({ waitUntil: "load" });
+    if (await page.locator("#privacyNotice").isVisible()) {
+      throw new Error("Manual reopening should not persist after refresh.");
+    }
+
+    console.log("Analytics notice close, refresh, and manual reopening test passed.");
+  } finally {
+    await page.close();
+  }
+}
+
 try {
   await runCoreBrowserTests();
   await runEverythingSearchUiTest();
+  await runAnalyticsNoticePersistenceTest();
 } finally {
   await browser.close();
 }

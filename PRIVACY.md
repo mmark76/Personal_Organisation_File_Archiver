@@ -68,7 +68,7 @@ These codes are generated locally from the visible folder tree order. They are v
 
 ## Local Browser Storage
 
-The app may use local browser storage for simple local preferences and app state. It does not store an analytics choice.
+The app may use local browser storage for simple local preferences and app state, including remembering when the user closes the informational analytics notice. This preference does not enable, disable, or otherwise change analytics. It does not store an analytics consent choice.
 
 This information stays in the user's browser unless the user clears browser data.
 
